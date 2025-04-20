@@ -1,1 +1,7 @@
 GET http://localhost:8080/api/folders
+
+### sample 폴더의 대시보드 iframe
+GET http://localhost:8080/api/folders/sample/iframes
+
+### a 폴더의 대시보드 iframe
+GET http://localhost:8080/api/folders/a/iframes
