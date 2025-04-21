@@ -1,9 +1,12 @@
 package com.nhnacademy.dashboard.dto;
 
+import lombok.Getter;
+
+@Getter
 public class GrafanaFolder {
-    private int id;
-    private String uid;
-    private String title;
+    private final int id;
+    private final String uid;
+    private final String title;
 
     public GrafanaFolder(int id, String uid, String title) {
         this.id = id;
@@ -11,16 +14,5 @@ public class GrafanaFolder {
         this.title = title;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public String getTitle() {
-        return title;
-    }
 }
 

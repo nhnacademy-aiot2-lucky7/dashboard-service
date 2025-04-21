@@ -5,11 +5,13 @@ import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrafanaServiceImpl {
@@ -18,6 +20,17 @@ public class GrafanaServiceImpl {
     private final GrafanaAdapter grafanaAdapter;
     @Value("${grafana.api-key}")
     private String apiKey;
+
+    // 모든 폴더 조회
+    public List<GrafanaFolder> getAllFolders(){
+        List<GrafanaFolder> folders = grafanaAdapter.getAllFolders("Bearer " + apiKey);
+
+        List<GrafanaFolder> filtered = folders.stream()
+                .filter(folder -> folder.getId() >= 0).toList();
+
+        log.info("필터링된 response: {}", filtered);
+        return filtered;
+    }
 
     // 폴더명으로 UID 찾기
     public String getFolderUidByTitle(String folderTitle) {
@@ -68,29 +81,5 @@ public class GrafanaServiceImpl {
         }
 
         return dashboards;
-    }
-
-    // ifrmeurl 만들기
-    public String createIframeUrl(GrafanaDashboardInfo dashboard) {
-
-        if (dashboard == null) {
-            throw new NotFoundException("dashboard is NotFound: createIframeUrl");
-        }
-
-        long now = System.currentTimeMillis();
-        long from = now - (1000 * 60 * 60);
-
-        String iframeUrl = String.format(
-                "http://localhost:3000/d-solo/%s/%s?orgId=1&from=%d&to=%d&timezone=browser&panelId=1&__feature.dashboardSceneSolo",
-                dashboard.getUid(),
-                dashboard.getTitle().replace(" ", "-").toLowerCase(),
-                from,
-                now
-        );
-
-        return String.format(
-                "<iframe src=\"%s\" width=\"450\" height=\"200\" frameborder=\"0\"></iframe>",
-                iframeUrl
-        );
     }
 }

@@ -1,11 +1,11 @@
 ### 전체 폴더 조회
-GET http://localhost:8080/api/folders
+GET http://localhost:10243/api/folders
 
 ### 폴더명으로 대시보드 이름 조회
-GET http://localhost:8080/api/folders/sample
+GET http://localhost:10243/api/folders/sample
 
 ### 폴더명으로 대시보드 iframe list 조회
-GET http://localhost:8080/api/folders/a/iframes
+GET http://localhost:10243/api/folders/sample/iframes
 
 ### 장소명(=대시보드명) iframe list 조회
-GET http://localhost:8080/api/graph-a/iframes
+GET http://localhost:10243/api/graph-a/iframes
