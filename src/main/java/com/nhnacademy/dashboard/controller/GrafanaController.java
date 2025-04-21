@@ -3,7 +3,8 @@ package com.nhnacademy.dashboard.controller;
 import com.nhnacademy.dashboard.adapter.GrafanaAdapter;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
-import com.nhnacademy.dashboard.service.GrafanaServiceImpl;
+import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,6 @@ public class GrafanaController {
     Logger log = LoggerFactory.getLogger(getClass());
 
     private final GrafanaAdapter grafanaAdapter;
-
     private final GrafanaServiceImpl grafanaService;
 
     @Value("${grafana.api-key}")
@@ -33,6 +33,7 @@ public class GrafanaController {
         this.grafanaService = grafanaService;
     }
 
+    // 모든 폴더 조회
     @GetMapping("/folders")
     public List<GrafanaFolder> getFolders(){
         List<GrafanaFolder> response =grafanaAdapter.getAllFolders("Bearer " + apiKey);
@@ -44,9 +45,9 @@ public class GrafanaController {
         return filtered;
     }
 
-    @GetMapping("/folders/{title}/iframes")
-    public List<String> getIframeUrls(@PathVariable String title) {
-
+    // 폴더명으로 대시보드명 조회
+    @GetMapping("/folders/{title}")
+    public List<String> getDashboardName(@PathVariable String title) {
         String folderUid = grafanaService.getFolderUidByTitle(title);
 
         if (folderUid == null) {
@@ -55,20 +56,48 @@ public class GrafanaController {
 
         List<GrafanaDashboardInfo> dashboards = grafanaService.getDashboardsInFolder(folderUid);
 
+        log.info("getDashboardName-> dashboards: {}", dashboards);
+
         return dashboards.stream()
-                .map(this::createIframeUrl).toList();  // 대시보드별 iframe URL 생성
+                .filter(d -> folderUid.equals(d.getFolderUid()))
+                .map(GrafanaDashboardInfo::getTitle)
+                .toList();
     }
 
-    private String createIframeUrl(GrafanaDashboardInfo dashboard) {
-        String iframeUrl = String.format(
-                "http://localhost:3000/d-solo/%s/%s?orgId=1&from=1745115501466&to=1745137101466&timezone=browser&panelId=1&__feature.dashboardSceneSolo",
-                dashboard.getUid(),
-                dashboard.getTitle()
-        );
+    // 폴더명으로 모든 대시보드 iframe 반환
+    @GetMapping(value = "/folders/{title}/iframes")
+    public List<String> getIframeUrlsToFolder(@PathVariable String title) {
 
-        // iframe HTML 태그 형식으로 반환
-        return "<iframe src=\"" + iframeUrl + "\" width=\"450\" height=\"200\" frameborder=\"0\"></iframe>";
+        String folderUid = grafanaService.getFolderUidByTitle(title);
 
+        if (folderUid == null) {
+            throw new NotFoundException("folderUid is null: getIframeUrlsToFolder");
+        }
+
+        List<GrafanaDashboardInfo> dashboards = grafanaService.getDashboardsInFolder(folderUid);
+
+        log.info("getIframeUrlsToFolder -> dashboards: {}", dashboards);
+        return dashboards.stream()
+                .filter(d -> folderUid.equals(d.getFolderUid()))
+                .map(grafanaService::createIframeUrl)
+                .toList();
     }
 
+    // 대시보드명으로 특정 대시보드 iframe 반환
+    @GetMapping(value = "/{name}/iframes")
+    public List<String> getIframeUrlsToName(@PathVariable String name) {
+
+        String dashboardUid = grafanaService.getDashboardNameUidByTitle(name);
+
+        if (dashboardUid == null) {
+            throw new NotFoundException("folderUid is null: getIframeUrlsToName");
+        }
+
+        List<GrafanaDashboardInfo> dashboards = grafanaService.getDashboardsInFolder(dashboardUid);
+
+        return dashboards.stream()
+                .filter(d -> dashboardUid.equals(d.getUid()))
+                .map(grafanaService::createIframeUrl)
+                .toList();
+    }
 }

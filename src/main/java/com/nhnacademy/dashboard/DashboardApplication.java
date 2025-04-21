@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = "com.nhnacademy.dashboard.adapter")
+@EnableFeignClients(basePackages = "com.nhnacademy.dashboard")
 public class DashboardApplication {
 
 	public static void main(String[] args) {
