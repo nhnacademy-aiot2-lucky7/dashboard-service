@@ -5,7 +5,6 @@ import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
 import com.nhnacademy.dashboard.dto.GrafanaResponse;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

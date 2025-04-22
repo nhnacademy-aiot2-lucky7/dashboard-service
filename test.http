@@ -1,11 +1,14 @@
 ### 전체 폴더 조회
 GET http://localhost:10243/api/folders
 
-### 폴더명으로 대시보드 이름 조회
+### 폴더명으로 모든 대시보드 이름 조회
 GET http://localhost:10243/api/folders/sample
 
-### 폴더명으로 대시보드 iframe list 조회
+### 폴더명으로 모든 대시보드 데이터 조회
 GET http://localhost:10243/api/folders/sample/iframes
 
-### 장소명(=대시보드명) iframe list 조회
-GET http://localhost:10243/api/graph-a/iframes
+### 장소명(=대시보드명) 데이터 조회
+GET http://localhost:10243/api/aGRAPH/iframes
+
+### 차트의 개수와 on/off 필터링
+GET http://localhost:10243/api/chart?dashboardTitle=aGRAPH&filter=chart-a:off

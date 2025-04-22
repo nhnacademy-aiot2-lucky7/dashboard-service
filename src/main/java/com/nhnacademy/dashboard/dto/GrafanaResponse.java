@@ -10,10 +10,15 @@ public class GrafanaResponse {
     private final long now;
     private final long from;
 
-    public GrafanaResponse(String title, String uid) {
+
+    private GrafanaResponse(String title, String uid) {
         this.title = title;
         this.uid = uid;
         this.now = System.currentTimeMillis();
         this.from = now - (1000 * 60 * 60);
+    }
+
+    public static GrafanaResponse ofGrafanaResponse(String title, String uid) {
+        return new GrafanaResponse(title, uid);
     }
 }
