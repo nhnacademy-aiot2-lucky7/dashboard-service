@@ -86,7 +86,7 @@ class GrafanaControllerTest {
 
         String name = "Dashboard1";
         String uid = "dashboardUid1";
-        GrafanaResponse response = new GrafanaResponse(name, uid);
+        GrafanaResponse response = GrafanaResponse.ofGrafanaResponse(name, uid);
 
         Mockito.when(grafanaService.getDashboardNameUidByTitle(Mockito.anyString())).thenReturn(uid);
 
