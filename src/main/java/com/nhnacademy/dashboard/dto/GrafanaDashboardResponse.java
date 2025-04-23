@@ -2,26 +2,21 @@ package com.nhnacademy.dashboard.dto;
 
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 public class GrafanaDashboardResponse {
-
     private final String title;
-    private final String uid;
-    private final int panelIds;
+    private final int panelId;
     private final long now;
     private final long from;
 
-    private GrafanaDashboardResponse(String title, String uid, int panelIds) {
+    private GrafanaDashboardResponse(String title, int panelId) {
         this.title = title;
-        this.uid = uid;
-        this.panelIds = panelIds;
+        this.panelId = panelId;
         this.now = System.currentTimeMillis();
-        this.from = now - (1000 * 60 * 60);
+        this.from = now - (1000 * 60 * 60); // 1시간 전
     }
 
-    public static GrafanaDashboardResponse ofGrafanaDashboardResponse(String title, String uid, int panelIds) {
-        return new GrafanaDashboardResponse(title, uid, panelIds);
+    public static GrafanaDashboardResponse from(GrafanaPanel panel) {
+        return new GrafanaDashboardResponse(panel.getTitle(), panel.getId());
     }
 }

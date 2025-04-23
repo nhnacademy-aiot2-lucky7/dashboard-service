@@ -1,11 +1,12 @@
 package com.nhnacademy.dashboard.service.impl;
 
-import com.nhnacademy.dashboard.adapter.GrafanaAdapter;
+import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.*;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.dashboard.request.GrafanaCreateDashboardRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,14 +16,22 @@ import java.util.*;
 @RequiredArgsConstructor
 public class GrafanaServiceImpl {
 
-    private static final String AUTHORIZATION = "Bearer ";
-    private final GrafanaAdapter grafanaAdapter;
-    @Value("${grafana.api-key}")
-    private String apiKey;
+    private final GrafanaApi grafanaApi;
+    public static final String TYPE = "dash-db";
+
+    // 대시보드 생성
+    public void createDashboard(String folderTitle, String title) {
+
+        GrafanaCreateDashboardRequest.Dashboard dashboard = new GrafanaCreateDashboardRequest.Dashboard(title);
+        int folderId = getFolderIdByTitle(folderTitle);
+        GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(dashboard, folderId);
+        grafanaApi.createDashboard(request);
+    }
+
 
     // 모든 폴더 조회
     public List<GrafanaFolder> getAllFolders() {
-        List<GrafanaFolder> folders = grafanaAdapter.getAllFolders(AUTHORIZATION + apiKey);
+        List<GrafanaFolder> folders = grafanaApi.getAllFolders();
 
         List<GrafanaFolder> filtered = folders.stream()
                 .filter(folder -> folder.getId() >= 0).toList();
@@ -31,9 +40,31 @@ public class GrafanaServiceImpl {
         return filtered;
     }
 
+    // 폴더명으로 folderIds조회
+    public int getFolderIdByTitle(String folderTitle) {
+        List<GrafanaFolder> folders = grafanaApi.getAllFolders();
+
+        if (folders.isEmpty()) {
+            throw new NotFoundException("folderTitle is NotFound : " + folderTitle);
+        }
+
+        return folders.stream()
+                .filter(f -> folderTitle.equals(f.getTitle()))
+                .findFirst()
+                .map(GrafanaFolder::getId)
+                .orElse(0);
+    }
+
+    // 폴더명으로 대시보드 검색
+    public List<GrafanaDashboardInfo> getDashboardByTitle(String folderTitle) {
+        int folderId = getFolderIdByTitle(folderTitle);
+
+        return grafanaApi.searchDashboards(folderId, TYPE);
+    }
+
     // 폴더명으로 UID 찾기
     public String getFolderUidByTitle(String folderTitle) {
-        List<GrafanaFolder> folders = grafanaAdapter.getAllFolders(AUTHORIZATION + apiKey);
+        List<GrafanaFolder> folders = grafanaApi.getAllFolders();
 
         if (folders.isEmpty()) {
             throw new NotFoundException("folderTitle is NotFound : " + folderTitle);
@@ -45,35 +76,26 @@ public class GrafanaServiceImpl {
                 .orElse(null);
     }
 
-    // 대시보드명으로 UID 찾기
-    public String getDashboardNameUidByTitle(String dashboardTitle) {
+    // 차트 조회
+    public ResponseEntity<List<GrafanaDashboardResponse>> getChart(String folderTitle, String dashboardTitle) {
+        List<GrafanaDashboardInfo> dashboardInfos = getDashboardByTitle(folderTitle);
 
-        List<GrafanaDashboardInfo> dashboards = getDashboard(dashboardTitle);
-
-        if (dashboards.isEmpty()) {
-            throw new NotFoundException("dashboardsTitle is NotFound : " + dashboardTitle);
-        }
-
-        return dashboards.stream()
-                .filter(d -> dashboardTitle.equals(d.getTitle()))
-                .map(GrafanaDashboardInfo::getUid)
+        GrafanaDashboardInfo targetDashboard = dashboardInfos.stream()
+                .filter(d -> d.getTitle().equals(dashboardTitle))
                 .findFirst()
-                .orElse(null);
-    }
+                .orElseThrow(() -> new NotFoundException("Dashboard not found: " + dashboardTitle));
 
-    // 폴더UID로 대시보드 목록 조회
-    public List<GrafanaDashboardInfo> getDashboardsInFolder(String folderUid) {
-        if (folderUid == null || folderUid.trim().isEmpty()) {
-            throw new NotFoundException("folderUid is NotFound : " + folderUid);
-        }
+        String uid = targetDashboard.getUid();
 
-        List<GrafanaDashboardInfo> dashboards = getDashboard(folderUid);
+        ResponseEntity<GrafanaDashboardPanel> panelResponseEntity = grafanaApi.getChart(uid);
+        GrafanaDashboardPanel panel = panelResponseEntity.getBody();
 
-        if (dashboards == null || dashboards.isEmpty()) {
-            throw new NotFoundException("No dashboards found for folderUid : " + folderUid);
-        }
+        assert panel != null;
+        List<GrafanaDashboardResponse> responseList = panel.getDashboard().getPanels().stream()
+                .map(GrafanaDashboardResponse::from)
+                .toList();
 
-        return dashboards;
+        return ResponseEntity.ok(responseList);
     }
 
     // panel : off -> map형태에 넣어주기
@@ -92,19 +114,29 @@ public class GrafanaServiceImpl {
         return result;
     }
 
-    // filter된 차트 조회
-    public List<GrafanaResponse> getDashboardCharts(String dashboardTitle, Map<String, String> filterMap) {
-        List<GrafanaDashboardInfo> dashboardUid = getDashboardsInFolder(dashboardTitle);
-        if (dashboardUid == null) {
+    // 🌟filter된 차트 조회
+    public List<GrafanaFolderResponse> getFilterCharts(
+            String folderTitle,
+            String dashboardTitle,
+            Map<String, String> filterMap) {
+
+        List<GrafanaDashboardInfo> dashboards = getDashboardByTitle(folderTitle);
+        if (dashboards.isEmpty()) {
             throw new NotFoundException("Dashboard with title " + dashboardTitle + " not found");
         }
 
-        GrafanaDashboardInfo dashboardInfo = dashboardUid.getFirst();
+        GrafanaDashboardInfo dashboardInfo = dashboards.getFirst();
         String uid = dashboardInfo.getUid();
 
-        GrafanaDetailDashboard detail = grafanaAdapter.getDashboardDetail(AUTHORIZATION + apiKey, uid);
+        log.info("getFilterCharts -> uid: {}", uid);
+        GrafanaDashboardPanel detail = grafanaApi.getDashboardDetail(uid);
 
-        List<GrafanaResponse> result = new ArrayList<>();
+        if (detail == null || detail.getDashboard() == null) {
+            throw new NotFoundException("Dashboard details not found for uid: " + uid);
+        }
+
+        log.info("getFilterCharts -> detail: {}", detail);
+        List<GrafanaFolderResponse> result = new ArrayList<>();
 
         for (GrafanaPanel panel : detail.getDashboard().getPanels()) {
             String panelTitle = panel.getTitle();
@@ -113,39 +145,10 @@ public class GrafanaServiceImpl {
                 continue;
             }
 
-            result.add(GrafanaResponse.ofGrafanaResponse(panelTitle, uid));
+            result.add(GrafanaFolderResponse.ofGrafanaResponse(panelTitle, uid));
         }
 
+        log.info("result:{}", result);
         return result;
-    }
-
-    // 대시보드명으로 패널의 식별자 조회
-    public List<GrafanaDashboardResponse> getDashboardPanelInfo(String dashboardName) {
-        String uid = getDashboardNameUidByTitle(dashboardName);
-
-        if (uid == null) {
-            throw new NotFoundException("Dashboard UID not found for name: " + dashboardName);
-        }
-
-        GrafanaDetailDashboard detail = grafanaAdapter.getDashboardDetail(AUTHORIZATION+apiKey, uid);
-
-        List<GrafanaDashboardResponse> responseList = new ArrayList<>();
-
-        List<GrafanaPanel> panels = detail.getDashboard().getPanels();
-
-        for (GrafanaPanel panel : panels) {
-            int panelId = panel.getId();
-            responseList.add(GrafanaDashboardResponse.ofGrafanaDashboardResponse(panel.getTitle(), uid, panelId));
-        }
-
-        return responseList;
-    }
-
-
-    public List<GrafanaDashboardInfo> getDashboard(String uid) {
-        return grafanaAdapter.searchDashboards(
-                AUTHORIZATION + apiKey,
-                uid,
-                "dash-db");
     }
 }

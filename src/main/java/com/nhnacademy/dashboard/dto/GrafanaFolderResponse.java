@@ -3,7 +3,7 @@ package com.nhnacademy.dashboard.dto;
 import lombok.Getter;
 
 @Getter
-public class GrafanaResponse {
+public class GrafanaFolderResponse {
 
     private final String title;
     private final String uid;
@@ -11,14 +11,14 @@ public class GrafanaResponse {
     private final long from;
 
 
-    private GrafanaResponse(String title, String uid) {
+    private GrafanaFolderResponse(String title, String uid) {
         this.title = title;
         this.uid = uid;
         this.now = System.currentTimeMillis();
         this.from = now - (1000 * 60 * 60);
     }
 
-    public static GrafanaResponse ofGrafanaResponse(String title, String uid) {
-        return new GrafanaResponse(title, uid);
+    public static GrafanaFolderResponse ofGrafanaResponse(String title, String uid) {
+        return new GrafanaFolderResponse(title, uid);
     }
 }

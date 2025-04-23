@@ -1,9 +1,9 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.adapter.GrafanaAdapter;
+import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
-import com.nhnacademy.dashboard.dto.GrafanaResponse;
+import com.nhnacademy.dashboard.dto.GrafanaFolderResponse;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class GrafanaControllerTest {
 
     @Mock
-    private GrafanaAdapter grafanaAdapter;
+    private GrafanaApi grafanaAdapter;
 
     @Autowired
     MockMvc mockMvc;
@@ -50,11 +50,21 @@ class GrafanaControllerTest {
     void getDashboardName() throws Exception {
 
         List<GrafanaDashboardInfo> dashboardInfos = new ArrayList<>();
-        dashboardInfos.add(new GrafanaDashboardInfo("Dashboard1", "dashboardUid1", "uid1"));
-        dashboardInfos.add(new GrafanaDashboardInfo("Dashboard2", "dashboardUid2", "uid1"));
+        dashboardInfos.add(new GrafanaDashboardInfo(
+                1,
+                "Dashboard1",
+                "uid1",
+                "l3Kq41GZk",
+                15));
+        dashboardInfos.add(new GrafanaDashboardInfo(
+                2,
+                "Dashboard2",
+                "uid2",
+                "l3Kq41GZk",
+                15));
 
         Mockito.when(grafanaService.getFolderUidByTitle(Mockito.anyString())).thenReturn("uid1");
-        Mockito.when(grafanaService.getDashboardsInFolder(Mockito.anyString())).thenReturn(dashboardInfos);
+        Mockito.when(grafanaService.getDashboardsInFolder(Mockito.anyInt())).thenReturn(dashboardInfos);
 
         mockMvc.perform(get("/api/folders/Folders"))
                 .andExpect(status().isOk())
@@ -66,33 +76,43 @@ class GrafanaControllerTest {
     @DisplayName("폴더명으로 모든 대시보드 조회")
     void getIframeUrlsToFolder() throws Exception {
         List<GrafanaDashboardInfo> dashboardInfos = new ArrayList<>();
-        dashboardInfos.add(new GrafanaDashboardInfo("Dashboard1", "dashboardUid1", "uid1"));
-        dashboardInfos.add(new GrafanaDashboardInfo("Dashboard2", "dashboardUid2", "uid1"));
+        dashboardInfos.add(new GrafanaDashboardInfo(
+                1,
+                "Dashboard1",
+                "uid1",
+                "l3Kq41GZk",
+                15));
+        dashboardInfos.add(new GrafanaDashboardInfo(
+                2,
+                "Dashboard2",
+                "uid2",
+                "l3Kq41GZk",
+                15));
 
         Mockito.when(grafanaService.getFolderUidByTitle(Mockito.anyString())).thenReturn("uid1");
-        Mockito.when(grafanaService.getDashboardsInFolder(Mockito.anyString())).thenReturn(dashboardInfos);
+        Mockito.when(grafanaService.getDashboardsInFolder(Mockito.anyInt())).thenReturn(dashboardInfos);
 
         mockMvc.perform(get("/api/folders/Folders/iframes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Dashboard1"))
-                .andExpect(jsonPath("$[0].uid").value("dashboardUid1"))
+                .andExpect(jsonPath("$[0].uid").value("uid1"))
                 .andExpect(jsonPath("$[1].title").value("Dashboard2"))
-                .andExpect(jsonPath("$[1].uid").value("dashboardUid2"));
+                .andExpect(jsonPath("$[1].uid").value("uid2"));
     }
 
-    @Test
-    @DisplayName("대시보드명으로 특정 대시보드 조회")
-    void getIframeUrlsToName() throws Exception {
-
-        String name = "Dashboard1";
-        String uid = "dashboardUid1";
-        GrafanaResponse response = GrafanaResponse.ofGrafanaResponse(name, uid);
-
-        Mockito.when(grafanaService.getDashboardNameUidByTitle(Mockito.anyString())).thenReturn(uid);
-
-        mockMvc.perform(get("/api/Dashboard1/iframes"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value(response.getTitle()))
-                .andExpect(jsonPath("$.uid").value(response.getUid()));
-    }
+//    @Test
+//    @DisplayName("대시보드명으로 특정 대시보드 조회")
+//    void getIframeUrlsToName() throws Exception {
+//
+//        String name = "Dashboard1";
+//        String uid = "dashboardUid1";
+//        GrafanaFolderResponse response = GrafanaFolderResponse.ofGrafanaResponse(name, uid);
+//
+//        Mockito.when(grafanaService.getDashboardNameUidByTitle(Mockito.anyString())).thenReturn(uid);
+//
+//        mockMvc.perform(get("/api/Dashboard1/iframes"))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value(response.getTitle()))
+//                .andExpect(jsonPath("$.uid").value(response.getUid()));
+//    }
 }

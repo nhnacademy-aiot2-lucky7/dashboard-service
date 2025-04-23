@@ -1,0 +1,2 @@
+### 대시보드 추가
+POST http://localhost:10243/api/folders/c/add/iot
