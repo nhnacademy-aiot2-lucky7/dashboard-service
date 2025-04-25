@@ -1,4 +1,4 @@
-package com.nhnacademy.dashboard.request;
+package com.nhnacademy.dashboard.dto.request;
 
 import lombok.Getter;
 

@@ -1,5 +1,6 @@
-package com.nhnacademy.dashboard.dto;
+package com.nhnacademy.dashboard.dto.response;
 
+import com.nhnacademy.dashboard.dto.GrafanaPanel;
 import lombok.Getter;
 
 @Getter

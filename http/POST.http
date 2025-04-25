@@ -1,2 +1,5 @@
 ### 대시보드 추가
-POST http://localhost:10243/api/folders/c/add/iot
+POST http://localhost:10243/api/f/c/d/add/iot
+
+### 차트 추가
+POST http://localhost:10243/api/f/test/d/air/c/add?title=a&sensor=co&aggregation=mean&time=2d

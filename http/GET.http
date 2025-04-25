@@ -2,16 +2,16 @@
 GET http://localhost:10243/api/folders
 
 ### 폴더명으로 모든 대시보드 이름 조회
-GET http://localhost:10243/api/folders/name/sample
+GET http://localhost:10243/api/f/name/sample
 
 ### 폴더명으로 모든 대시보드 데이터 조회
-GET http://localhost:10243/api/folders/sample
+GET http://localhost:10243/api/f/sample
 
 ### 차트 조회
-GET http://localhost:10243/api/folders/a/dashboards/aGRAPH/chart
+GET http://localhost:10243/api/f/a/d/aGRAPH/chart
 
 ### 차트 이름 조회
-GET http://localhost:10243/api/folders/a/dashboards/aGRAPH/chart/name
+GET http://localhost:10243/api/f/a/d/aGRAPH/c/name
 
 ### 차트의 개수와 on/off 필터링
-GET http://localhost:10243/api/folders/a/dashboards/aGRAPH/filtered-chart?filter=chart-a:off
+GET http://localhost:10243/api/f/a/d/aGRAPH/filtered-chart?filter=chart-a:off

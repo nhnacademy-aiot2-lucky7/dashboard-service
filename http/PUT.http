@@ -1,0 +1,2 @@
+### 차트 수정
+PUT http://localhost:10243/api/f/test/d/air/update/c/chart1?title=update1

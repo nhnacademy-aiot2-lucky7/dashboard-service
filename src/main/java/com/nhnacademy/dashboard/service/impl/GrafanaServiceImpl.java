@@ -2,8 +2,11 @@ package com.nhnacademy.dashboard.service.impl;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.*;
+import com.nhnacademy.dashboard.dto.response.GrafanaChartResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
-import com.nhnacademy.dashboard.request.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.request.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.response.GrafanaDashboardResponse;
+import com.nhnacademy.dashboard.dto.response.GrafanaFolderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -102,8 +105,6 @@ public class GrafanaServiceImpl {
     public Map<String, String> parseFilter(String filter) {
         Map<String, String> result = new HashMap<>();
 
-        if (filter == null || filter.isBlank()) return result;
-
         for (String entry : filter.split(",")) {
             String[] parts = entry.split(":");
             if (parts.length == 2) {
@@ -114,7 +115,7 @@ public class GrafanaServiceImpl {
         return result;
     }
 
-    // 🌟filter된 차트 조회
+    // filter된 차트 조회
     public List<GrafanaFolderResponse> getFilterCharts(
             String folderTitle,
             String dashboardTitle,
@@ -150,5 +151,60 @@ public class GrafanaServiceImpl {
 
         log.info("result:{}", result);
         return result;
+    }
+
+
+    // 차트 추가생성하기
+    public GrafanaChartResponse createChart(String folderTitle, String dashboardTitle,
+                                            String panelTitle, String sensor, String aggregation, String time) {
+        // Flux 쿼리 생성
+        String fluxQuery = String.format("""
+        from(bucket: "test")
+          |> range(start: -%s)
+          |> filter(fn: (r) => r["_measurement"] == "airSensors")
+          |> filter(fn: (r) => r["_field"] == "%s")
+          |> aggregateWindow(every: 1m, fn: %s, createEmpty: true)
+          |> yield(name: "%s")
+        """, time, sensor, aggregation, aggregation);
+
+        log.info("Create CHART query: {}", fluxQuery);
+        Map<String, Object> dashboard = getStringObjectMap(dashboardTitle, panelTitle, fluxQuery);
+
+        String folderUid = getFolderUidByTitle(folderTitle);
+        Map<String, Object> request = Map.of(
+                "dashboard", dashboard,
+                "folderUid", folderUid,
+                "overwrite", true
+        );
+
+        log.info("Create CHART -> request:{}", request);
+
+        return grafanaApi.createChart(request).getBody();
+    }
+
+    private static Map<String, Object> getStringObjectMap(String dashboardTitle, String panelTitle, String fluxQuery) {
+        Map<String, Object> panel = new HashMap<>();
+        panel.put("id", null);
+        panel.put("type", "timeseries");
+        panel.put("title", panelTitle);
+        panel.put("gridPos", Map.of("x", 0, "y", 0, "w", 12, "h", 8));
+        panel.put("targets", List.of(Map.of(
+                "refId", "A",
+                "datasource", Map.of("type", "influxdb", "uid", "o4aKnEJNk"),
+                "query", fluxQuery,
+                "queryType", "flux",
+                "format", "time_series"
+        )));
+        panel.put("datasource", Map.of("type", "influxdb", "uid", "o4aKnEJNk"));
+
+        Map<String, Object> dashboard = new HashMap<>();
+        dashboard.put("id", null);
+        dashboard.put("uid", null);
+        dashboard.put("title", dashboardTitle);
+        dashboard.put("panels", List.of(panel));
+        dashboard.put("schemaVersion", 41);
+        dashboard.put("version", 0);
+
+        return dashboard;
     }
 }

@@ -1,7 +1,6 @@
 package com.nhnacademy.common.config;
 
 import feign.RequestInterceptor;
-import feign.RequestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +13,6 @@ public class GrafanaApiConfig {
 
     @Bean
     public RequestInterceptor requestInterceptor() {
-        return new RequestInterceptor() {
-            @Override
-            public void apply(RequestTemplate template) {
-                template.header("Authorization", "Bearer " + apiKey);
-            }
-        };
+        return template -> template.header("Authorization", "Bearer " + apiKey);
     }
 }

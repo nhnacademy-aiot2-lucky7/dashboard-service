@@ -3,19 +3,20 @@ package com.nhnacademy.dashboard.api;
 import com.nhnacademy.common.config.GrafanaApiConfig;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardPanel;
-import com.nhnacademy.dashboard.dto.GrafanaDashboardResponse;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
-import com.nhnacademy.dashboard.request.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.request.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.response.GrafanaChartResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(
         name = "grafanaAdapter",
         path = "/api",
-        url = "http://localhost:3000",
+        url = "http://grafana.luckyseven.live",
         configuration = GrafanaApiConfig.class)
 public interface GrafanaApi {
 
@@ -34,20 +35,24 @@ public interface GrafanaApi {
             @RequestParam("type") String type
     );
 
-    // 🌟대시보드의 상세 정보 가져오기
+    // 대시보드의 상세 정보 가져오기
     @GetMapping("/dashboards/uid/{uid}")
     GrafanaDashboardPanel getDashboardDetail(@PathVariable("uid") String uid);
 
-    // 🌟차트 조회
+    // 차트 조회
     @GetMapping("/dashboards/uid/{uid}")
     ResponseEntity<GrafanaDashboardPanel> getChart(
             @PathVariable("uid") String uid);
 
-    // 🌟폴더 안에 있는 대시보드 리스트 가져오기
+    // 폴더 안에 있는 대시보드 리스트 가져오기
     @GetMapping("/search")
     List<GrafanaDashboardPanel> getDashboardsByFolder(
             @RequestParam("folderIds") String folderUid,
             @RequestParam("type") String type
     );
+
+    // 🌟차트 생성
+    @PostMapping("/dashboards/db")
+    ResponseEntity<GrafanaChartResponse> createChart(@RequestBody Map<String, Object> dashboardBody);
 
 }

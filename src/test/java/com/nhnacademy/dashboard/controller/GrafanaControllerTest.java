@@ -3,7 +3,6 @@ package com.nhnacademy.dashboard.controller;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
-import com.nhnacademy.dashboard.dto.GrafanaFolderResponse;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
