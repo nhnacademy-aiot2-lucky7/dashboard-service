@@ -207,4 +207,36 @@ public class GrafanaServiceImpl {
 
         return dashboard;
     }
+
+    // 차트 이름 수정하기
+    public GrafanaChartResponse updateChartName(String folderTitle, String dashboardTitle,
+                                                String chartTitle, String updateTitle){
+
+        // 대시보드 uid와 패널 순서 구하기
+        List<GrafanaDashboardInfo> dashboardInfos = getDashboardByTitle(folderTitle);
+        GrafanaFolderResponse dashboards = dashboardInfos.stream()
+                .filter(d -> dashboardTitle.equals(d.getTitle()))
+                .findFirst()
+                .map(d -> GrafanaFolderResponse.ofGrafanaResponse(d.getTitle(), d.getUid()))
+                .orElseThrow(() -> new NotFoundException("Dashboard not found: " + dashboardTitle));
+
+        log.info("대시보드 uid와 이름 :{}, {}", dashboards.getUid(), dashboards.getTitle());
+
+        // GET요청으로 uid를 통해 json 응답 가져오기
+        GrafanaDashboard request = grafanaApi.getDashboardInfo(dashboards.getUid());
+        log.info("json응답 :{}", request);
+
+        // 가져온 응답에서 title 부분을 새로운 title로 바꾸기
+        GrafanaDashboard grafanaDashboard = request;
+        if (grafanaDashboard != null && grafanaDashboard.getDashboard() != null) {
+            for (GrafanaDashboard.Panel panel : grafanaDashboard.getDashboard().getPanels()) {
+                if (panel.getTitle().equals(chartTitle)) {
+                    panel.setTitle(updateTitle);
+                }
+            }
+        }
+
+        log.info("UPDATE CHART -> request:{}", request);
+        return grafanaApi.updateChart(grafanaDashboard);
+    }
 }

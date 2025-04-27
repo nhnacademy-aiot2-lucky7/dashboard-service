@@ -1,6 +1,7 @@
 package com.nhnacademy.dashboard.api;
 
 import com.nhnacademy.common.config.GrafanaApiConfig;
+import com.nhnacademy.dashboard.dto.GrafanaDashboard;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
 import com.nhnacademy.dashboard.dto.GrafanaDashboardPanel;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
@@ -39,6 +40,10 @@ public interface GrafanaApi {
     @GetMapping("/dashboards/uid/{uid}")
     GrafanaDashboardPanel getDashboardDetail(@PathVariable("uid") String uid);
 
+    // 대시보드 응답 전체 가져오기
+    @GetMapping("/dashboards/uid/{uid}")
+    GrafanaDashboard getDashboardInfo(@PathVariable("uid") String uid);
+
     // 차트 조회
     @GetMapping("/dashboards/uid/{uid}")
     ResponseEntity<GrafanaDashboardPanel> getChart(
@@ -51,8 +56,11 @@ public interface GrafanaApi {
             @RequestParam("type") String type
     );
 
-    // 🌟차트 생성
+    // 차트 생성 및 수정
     @PostMapping("/dashboards/db")
     ResponseEntity<GrafanaChartResponse> createChart(@RequestBody Map<String, Object> dashboardBody);
+
+    @PostMapping("/dashboards/db")
+    GrafanaChartResponse updateChart(@RequestBody GrafanaDashboard grafanaDashboard);
 
 }

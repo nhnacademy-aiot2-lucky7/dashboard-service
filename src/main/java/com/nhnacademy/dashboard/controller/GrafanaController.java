@@ -37,7 +37,7 @@ public class GrafanaController {
                 .build();
     }
 
-    // 🌟POST http://localhost:10243/api/folders/{folderTitle}/dashboards/{air}/chart?title=chart1&sensor=co&&aggregation=mean&time=2d
+    // POST http://localhost:10243/api/folders/{folderTitle}/dashboards/{air}/chart?title=chart1&sensor=co&&aggregation=mean&time=2d
     @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/c/add")
     @Operation(summary = "새로운 차트 추가")
     public ResponseEntity<GrafanaChartResponse> createChart(
@@ -132,13 +132,20 @@ public class GrafanaController {
         return ResponseEntity.ok(charts);
     }
 
-    // 차트 수정하기
-    // PUT http://localhost:10243/api/f/test/d/air/update/c/chart1?title=update1
-    @PutMapping
-    @Operation(summary = "차트 수정하기")
-    public ResponseEntity<Void> updateChart(){
+    // 🌟차트 수정하기
+    // POST http://localhost:10243/api/f/sample/d/sampleG/update/c/aGRAPH?title=a_update
+    @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/update/c/{chartTitle}")
+    @Operation(summary = "차트 이름 수정하기")
+    public ResponseEntity<GrafanaChartResponse> updateChart(
+            @PathVariable String folderTitle,
+            @PathVariable String dashboardTitle,
+            @PathVariable String chartTitle,
+            @RequestParam String title
+    ){
+        GrafanaChartResponse response = grafanaService.updateChartName(folderTitle, dashboardTitle, chartTitle, title);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok(response);
     }
 
 }

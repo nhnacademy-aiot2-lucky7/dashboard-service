@@ -1,2 +1,2 @@
 ### 차트 수정
-PUT http://localhost:10243/api/f/test/d/air/update/c/chart1?title=update1
+POST http://localhost:10243/api/f/General/d/sampleG/update/c/aGRAPH123?title=a_update

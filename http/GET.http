@@ -8,10 +8,10 @@ GET http://localhost:10243/api/f/name/sample
 GET http://localhost:10243/api/f/sample
 
 ### 차트 조회
-GET http://localhost:10243/api/f/a/d/aGRAPH/chart
+GET http://localhost:10243/api/f/sample/d/grafana/c
 
 ### 차트 이름 조회
-GET http://localhost:10243/api/f/a/d/aGRAPH/c/name
+GET http://localhost:10243/api/f/sample/d/grafana/c/name
 
 ### 차트의 개수와 on/off 필터링
-GET http://localhost:10243/api/f/a/d/aGRAPH/filtered-chart?filter=chart-a:off
+GET http://localhost:10243/api/f/sample/d/grafana/filtered-chart?filter=cGRAPH:off
