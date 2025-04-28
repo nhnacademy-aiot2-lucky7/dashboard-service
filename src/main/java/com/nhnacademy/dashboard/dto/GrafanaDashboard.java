@@ -2,6 +2,7 @@ package com.nhnacademy.dashboard.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -63,6 +64,8 @@ public class GrafanaDashboard {
 
     // Dashboard Class
     @Getter
+    @Setter
+    @ToString
     public static class Dashboard {
         private boolean editable;
         private int fiscalYearStartMonth;
@@ -87,6 +90,7 @@ public class GrafanaDashboard {
     // Panel Class
     @Getter
     @Setter
+    @ToString
     public static class Panel {
         private Datasource datasource;
         private FieldConfig fieldConfig;
@@ -197,13 +201,18 @@ public class GrafanaDashboard {
 
     // Target Class
     @Getter
+    @Setter
     public static class Target {
         private Datasource datasource;
         private String refId;
+        private String query;
+        private String queryType;
+        private String resultFormat;
     }
 
     // Datasource Class
     @Getter
+    @Setter
     public static class Datasource {
         private String type;
         private String uid;

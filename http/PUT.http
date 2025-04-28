@@ -1,2 +1,8 @@
-### 차트 수정
-POST http://localhost:10243/api/f/General/d/sampleG/update/c/aGRAPH123?title=a_update
+### 차트 이름 수정
+POST http://localhost:10243/api/f/sample/d/grafana/update/c/aGRAPH?title=a_graph
+
+### 대시보드 이름 수정
+POST http://localhost:10243/api/f/sample/d/update/update?title=http
+
+### 차트 쿼리 수정
+POST http://localhost:10243/api/f/sample/d/Production Overview/edit/c/abc?title=a_graph&measurement=airSensors&field=co&style=histogram&aggregation=mean&time=7h

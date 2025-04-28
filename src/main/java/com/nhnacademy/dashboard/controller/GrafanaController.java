@@ -1,8 +1,8 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
-import com.nhnacademy.dashboard.dto.response.GrafanaChartResponse;
 import com.nhnacademy.dashboard.dto.response.GrafanaDashboardResponse;
+import com.nhnacademy.dashboard.dto.response.GrafanaSimpleDashboardResponse;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
 import com.nhnacademy.dashboard.dto.response.GrafanaFolderResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
@@ -25,6 +25,13 @@ public class GrafanaController {
 
     private final GrafanaServiceImpl grafanaService;
 
+    /**
+     * 새로운 대시보드를 추가하는 API.
+     *
+     * @param folderTitle 대시보드를 추가할 폴더의 제목
+     * @param dashboardTitle 추가할 대시보드의 제목
+     * @return 생성된 대시보드에 대한 HTTP 응답 (201 Created)
+     */
     @PostMapping("/f/{folderTitle}/d/add/{dashboardTitle}")
     @Operation(summary = "새로운 대시보드 추가")
     public ResponseEntity<Void> createDashboard(
@@ -37,35 +44,56 @@ public class GrafanaController {
                 .build();
     }
 
-    // POST http://localhost:10243/api/folders/{folderTitle}/dashboards/{air}/chart?title=chart1&sensor=co&&aggregation=mean&time=2d
+    /**
+     * 새로운 차트를 추가하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardTitle 차트를 추가할 대시보드의 제목
+     * @param title 차트의 제목
+     * @param measurement 측정할 데이터 항목
+     * @param sensor 측정할 센서
+     * @param aggregation 차트의 집계 방식
+     * @param time 차트의 시간 범위
+     * @return 생성된 차트에 대한 응답 (201 Created)
+     */
     @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/c/add")
     @Operation(summary = "새로운 차트 추가")
-    public ResponseEntity<GrafanaChartResponse> createChart(
+    public ResponseEntity<GrafanaDashboardResponse> createChart(
             @PathVariable String folderTitle,
             @PathVariable String dashboardTitle,
             @RequestParam String title,
-            @RequestParam String sensor,
+            @RequestParam String measurement,
+            @RequestParam String field,
+            @RequestParam(defaultValue = "timeseries") String type,
             @RequestParam String aggregation,
             @RequestParam String time
             ){
 
-        GrafanaChartResponse response =grafanaService.createChart(folderTitle, dashboardTitle, title, sensor, aggregation, time);
+        GrafanaDashboardResponse response =grafanaService.createChart(
+                folderTitle, dashboardTitle, title, measurement, field, type,aggregation, time);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
 
+    /**
+     * 모든 폴더를 조회하는 API.
+     *
+     * @return 모든 폴더 목록
+     * @throws NotFoundException 폴더가 없을 경우 예외 발생
+     */
     @GetMapping("/folders")
     @Operation(summary = "모든 폴더 조회")
     public List<GrafanaFolder> getFolders(){
-        List<GrafanaFolder> response = grafanaService.getAllFolders();
-        if(response.isEmpty()){
-            throw new NotFoundException("getFolders is not Found");
-        }
-
-        return response;
+        return grafanaService.getAllFolders();
     }
 
+    /**
+     * 폴더명으로 대시보드 제목을 조회하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @return 해당 폴더에 있는 대시보드 제목 목록
+     */
     @GetMapping("/f/name/{folderTitle}")
     @Operation(summary ="폴더명으로 대시보드 이름 조회")
     public List<String> getDashboardName(@PathVariable String folderTitle) {
@@ -76,6 +104,12 @@ public class GrafanaController {
                 .toList();
     }
 
+    /**
+     * 폴더명으로 해당 폴더의 모든 대시보드를 조회하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @return 폴더에 포함된 모든 대시보드에 대한 응답
+     */
     @GetMapping(value = "/f/{folderTitle}")
     @Operation(summary ="폴더명으로 모든 대시보드 조회")
     public List<GrafanaFolderResponse> getIframeUrlsToFolder(@PathVariable String folderTitle) {
@@ -89,10 +123,16 @@ public class GrafanaController {
     }
 
 
-    // 차트 조회
+    /**
+     * 차트를 조회하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardName 조회할 대시보드의 제목
+     * @return 해당 대시보드의 차트 목록
+     */
     @GetMapping(value = "/f/{folderTitle}/d/{dashboardName}/c")
     @Operation(summary = "차트 조회")
-    public ResponseEntity<List<GrafanaDashboardResponse>> getChartByName(
+    public ResponseEntity<List<GrafanaSimpleDashboardResponse>> getChartByName(
             @PathVariable String folderTitle,
             @PathVariable String dashboardName) {
 
@@ -100,26 +140,40 @@ public class GrafanaController {
     }
 
 
-    // 차트 이름 조회
+    /**
+     * 차트 이름을 조회하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardTitle 조회할 대시보드의 제목
+     * @return 해당 대시보드에 포함된 차트 이름 목록
+     * @throws NotFoundException 차트가 없을 경우 예외 발생
+     */
     @GetMapping(value = "/f/{folderTitle}/d/{dashboardTitle}/c/name")
     @Operation(summary ="차트 이름 조회")
     public List<String> getChartNameByName(
             @PathVariable String folderTitle,
             @PathVariable String dashboardTitle) {
 
-        ResponseEntity<List<GrafanaDashboardResponse>> responses = grafanaService.getChart(folderTitle, dashboardTitle);
+        ResponseEntity<List<GrafanaSimpleDashboardResponse>> responses = grafanaService.getChart(folderTitle, dashboardTitle);
 
-        List<GrafanaDashboardResponse> body = responses.getBody();
+        List<GrafanaSimpleDashboardResponse> body = responses.getBody();
         if (body == null || body.isEmpty()) {
             throw new NotFoundException("getChartNameByName -> responses is null or empty");
         }
 
         return body.stream()
-                .map(GrafanaDashboardResponse::getTitle)
+                .map(GrafanaSimpleDashboardResponse::getTitle)
                 .toList();
     }
 
-    // 대시보드 on/off 필터링
+    /**
+     * 대시보드 차트의 필터링된 목록을 조회하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardTitle 필터링할 대시보드의 제목
+     * @param filter 차트 필터
+     * @return 필터링된 차트 목록
+     */
     @GetMapping("/f/{folderTitle}/d/{dashboardTitle}/filtered-chart")
     @Operation(summary ="메인페이지 on/off 필터 조회")
     public ResponseEntity<List<GrafanaFolderResponse>> getDashboardCharts(
@@ -132,20 +186,68 @@ public class GrafanaController {
         return ResponseEntity.ok(charts);
     }
 
-    // 🌟차트 수정하기
-    // POST http://localhost:10243/api/f/sample/d/sampleG/update/c/aGRAPH?title=a_update
+    /**
+     * 차트의 이름을 수정하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardTitle 수정할 대시보드의 제목
+     * @param chartTitle 수정할 차트의 제목
+     * @param title 수정할 새로운 차트 제목
+     * @return 수정된 차트에 대한 응답
+     */
     @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/update/c/{chartTitle}")
-    @Operation(summary = "차트 이름 수정하기")
-    public ResponseEntity<GrafanaChartResponse> updateChart(
+    @Operation(summary = "차트 이름 수정하기 <- 차트 쿼리 수정 완료되면 사라질 예정")
+    public ResponseEntity<GrafanaDashboardResponse> updateChart1(
             @PathVariable String folderTitle,
             @PathVariable String dashboardTitle,
             @PathVariable String chartTitle,
             @RequestParam String title
     ){
-        GrafanaChartResponse response = grafanaService.updateChartName(folderTitle, dashboardTitle, chartTitle, title);
+        GrafanaDashboardResponse response = grafanaService.updateChartName(folderTitle, dashboardTitle, chartTitle, title);
 
         return ResponseEntity
                 .ok(response);
     }
 
+    /**
+     * 대시보드의 이름을 수정하는 API.
+     *
+     * @param folderTitle 대시보드가 속한 폴더의 제목
+     * @param dashboardTitle 수정할 대시보드의 제목
+     * @param title 수정할 새로운 대시보드 제목
+     * @return 수정된 대시보드에 대한 응답
+     */
+    @PostMapping("/f/{folderTitle}/d/update/{dashboardTitle}")
+    @Operation(summary = "대시보드 이름 수정")
+    public ResponseEntity<GrafanaDashboardResponse> updateDashboard(
+            @PathVariable String folderTitle,
+            @PathVariable String dashboardTitle,
+            @RequestParam String title
+    ){
+        GrafanaDashboardResponse response = grafanaService.updateDashboardName(folderTitle, dashboardTitle, title);
+        return ResponseEntity
+                .ok(response);
+    }
+
+    // 차트 쿼리 수정
+    //POST http://localhost:10243/api/f/sample/d/grafana/edit/c/aGRAPH?title=a_graph&data=airSensors&style=histogram&aggregation=mean&time=3h
+    @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/edit/c/{chartTitle}")
+    @Operation(summary = "차트 쿼리 수정")
+    public ResponseEntity<GrafanaDashboardResponse> updateChart(
+            @PathVariable String folderTitle,
+            @PathVariable String dashboardTitle,
+            @PathVariable String chartTitle,
+            @RequestParam String title,
+            @RequestParam String measurement,
+            @RequestParam String field,
+            @RequestParam String style,
+            @RequestParam String aggregation,
+            @RequestParam String time
+    ){
+        GrafanaDashboardResponse response = grafanaService.updateChart(
+                folderTitle, dashboardTitle, title, measurement, field, style, aggregation, time);
+
+        return ResponseEntity
+                .ok(response);
+    }
 }

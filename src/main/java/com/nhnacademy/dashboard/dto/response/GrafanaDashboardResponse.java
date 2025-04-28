@@ -1,23 +1,23 @@
 package com.nhnacademy.dashboard.dto.response;
 
-import com.nhnacademy.dashboard.dto.GrafanaPanel;
 import lombok.Getter;
 
 @Getter
 public class GrafanaDashboardResponse {
-    private final String title;
-    private final int panelId;
-    private final long now;
-    private final long from;
 
-    private GrafanaDashboardResponse(String title, int panelId) {
-        this.title = title;
-        this.panelId = panelId;
-        this.now = System.currentTimeMillis();
-        this.from = now - (1000 * 60 * 60); // 1시간 전
-    }
+    private final int id;
+    private final String slug;
+    private final String status;
+    private final String uid;
+    private final String url;
+    private final int version;
 
-    public static GrafanaDashboardResponse from(GrafanaPanel panel) {
-        return new GrafanaDashboardResponse(panel.getTitle(), panel.getId());
+    public GrafanaDashboardResponse(int id, String slug, String status, String uid, String url, int version) {
+        this.id = id;
+        this.slug = slug;
+        this.status = status;
+        this.uid = uid;
+        this.url = url;
+        this.version = version;
     }
 }
