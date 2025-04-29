@@ -12,6 +12,6 @@ public class GrafanaDashboardPanel {
     @Getter
     public static class Dashboard {
         private String title;
-        private List<GrafanaPanel> panels;
+        private List<GrafanaDashboard.Panel> panels;
     }
 }

@@ -1,6 +1,8 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
+import com.nhnacademy.dashboard.dto.request.ChartCreateRequest;
+import com.nhnacademy.dashboard.dto.request.ChartUpdateRequest;
 import com.nhnacademy.dashboard.dto.response.GrafanaDashboardResponse;
 import com.nhnacademy.dashboard.dto.response.GrafanaSimpleDashboardResponse;
 import com.nhnacademy.dashboard.dto.GrafanaFolder;
@@ -51,7 +53,7 @@ public class GrafanaController {
      * @param dashboardTitle 차트를 추가할 대시보드의 제목
      * @param title 차트의 제목
      * @param measurement 측정할 데이터 항목
-     * @param sensor 측정할 센서
+     * @param field 측정할 센서
      * @param aggregation 차트의 집계 방식
      * @param time 차트의 시간 범위
      * @return 생성된 차트에 대한 응답 (201 Created)
@@ -63,14 +65,14 @@ public class GrafanaController {
             @PathVariable String dashboardTitle,
             @RequestParam String title,
             @RequestParam String measurement,
-            @RequestParam String field,
+            @RequestParam List<String> field,
             @RequestParam(defaultValue = "timeseries") String type,
             @RequestParam String aggregation,
             @RequestParam String time
-            ){
+            ) {
 
         GrafanaDashboardResponse response =grafanaService.createChart(
-                folderTitle, dashboardTitle, title, measurement, field, type,aggregation, time);
+                new ChartCreateRequest(folderTitle, dashboardTitle, title, measurement, field, type, aggregation, time));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -187,29 +189,6 @@ public class GrafanaController {
     }
 
     /**
-     * 차트의 이름을 수정하는 API.
-     *
-     * @param folderTitle 대시보드가 속한 폴더의 제목
-     * @param dashboardTitle 수정할 대시보드의 제목
-     * @param chartTitle 수정할 차트의 제목
-     * @param title 수정할 새로운 차트 제목
-     * @return 수정된 차트에 대한 응답
-     */
-    @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/update/c/{chartTitle}")
-    @Operation(summary = "차트 이름 수정하기 <- 차트 쿼리 수정 완료되면 사라질 예정")
-    public ResponseEntity<GrafanaDashboardResponse> updateChart1(
-            @PathVariable String folderTitle,
-            @PathVariable String dashboardTitle,
-            @PathVariable String chartTitle,
-            @RequestParam String title
-    ){
-        GrafanaDashboardResponse response = grafanaService.updateChartName(folderTitle, dashboardTitle, chartTitle, title);
-
-        return ResponseEntity
-                .ok(response);
-    }
-
-    /**
      * 대시보드의 이름을 수정하는 API.
      *
      * @param folderTitle 대시보드가 속한 폴더의 제목
@@ -239,13 +218,13 @@ public class GrafanaController {
             @PathVariable String chartTitle,
             @RequestParam String title,
             @RequestParam String measurement,
-            @RequestParam String field,
+            @RequestParam List<String> field,
             @RequestParam String style,
             @RequestParam String aggregation,
             @RequestParam String time
     ){
         GrafanaDashboardResponse response = grafanaService.updateChart(
-                folderTitle, dashboardTitle, title, measurement, field, style, aggregation, time);
+                new ChartUpdateRequest(folderTitle, dashboardTitle, chartTitle, title, measurement, field, style, aggregation, time));
 
         return ResponseEntity
                 .ok(response);

@@ -1,5 +1,13 @@
 ### 대시보드 추가
-POST http://localhost:10243/api/f/sample/d/add/iot
+POST http://localhost:10243/api/f/sample/d/add/iot1
 
 ### 차트 추가
-POST http://localhost:10243/api/f/sample/d/iot/c/add?title=a&measurement=airSensors&sensor=co&aggregation=mean&time=7d
+POST http://localhost:10243/api/f/sample/d/iot1/c/add?title=new&measurement=airSensors&field=temperature&field=humidity
+    &aggregation=mean&time=7d
+
+### 대시보드 이름 수정
+POST http://localhost:10243/api/f/sample/d/update/iot1?title=iot2
+
+### 차트 쿼리 수정
+POST http://localhost:10243/api/f/sample/d/iot1/edit/c/
+    new?title=abc&measurement=airSensors&field=co&field=humidity&field=temperature&style=histogram&aggregation=mean&time=7d

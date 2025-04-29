@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Grafana API와 통신하기 위한 Feign Client입니다.
@@ -95,20 +94,11 @@ public interface GrafanaApi {
     );
 
     /**
-     * 차트를 생성합니다.
+     * 차트 생성 맟 수정합니다.
      *
      * @param dashboardBody 차트 생성 요청 데이터
      * @return 생성된 차트 응답
      */
     @PostMapping("/dashboards/db")
-    ResponseEntity<GrafanaDashboardResponse> createChart(@RequestBody Map<String, Object> dashboardBody);
-
-    /**
-     * 대시보드/차트를 수정합니다.
-     *
-     * @param grafanaDashboard 수정할 대시보드 데이터
-     * @return 수정된 대시보드 응답
-     */
-    @PostMapping("/dashboards/db")
-    GrafanaDashboardResponse update(@RequestBody GrafanaDashboard grafanaDashboard);
+    ResponseEntity<GrafanaDashboardResponse> createChart(@RequestBody GrafanaDashboard dashboardBody);
 }

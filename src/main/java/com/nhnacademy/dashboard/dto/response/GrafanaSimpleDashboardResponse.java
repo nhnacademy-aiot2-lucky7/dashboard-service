@@ -1,6 +1,6 @@
 package com.nhnacademy.dashboard.dto.response;
 
-import com.nhnacademy.dashboard.dto.GrafanaPanel;
+import com.nhnacademy.dashboard.dto.GrafanaDashboard;
 import lombok.Getter;
 
 @Getter
@@ -17,7 +17,7 @@ public class GrafanaSimpleDashboardResponse {
         this.from = now - (1000 * 60 * 60); // 1시간 전
     }
 
-    public static GrafanaSimpleDashboardResponse from(GrafanaPanel panel) {
+    public static GrafanaSimpleDashboardResponse from(GrafanaDashboard.Panel panel) {
         return new GrafanaSimpleDashboardResponse(panel.getTitle(), panel.getId());
     }
 }
