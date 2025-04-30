@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-cloud.version>2024.0.1</spring-cloud.version>
+		<jacoco.version>0.8.12</jacoco.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -98,10 +99,68 @@
 			<version>2.19.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.asciidoctor</groupId>
+			<artifactId>asciidoctorj</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.restdocs</groupId>
+			<artifactId>spring-restdocs-mockmvc</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- JaCoCo 커버리지 -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Asciidoctor -->
+			<plugin>
+				<groupId>org.asciidoctor</groupId>
+				<artifactId>asciidoctor-maven-plugin</artifactId>
+				<version>2.2.0</version>
+				<executions>
+					<execution>
+						<id>generate-docs</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/docs/asciidoc</sourceDirectory>
+							<outputDirectory>${project.build.directory}/generated-docs</outputDirectory>
+							<backend>html5</backend>
+							<attributes>
+								<snippets>${project.build.directory}/generated-snippets</snippets>
+							</attributes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

@@ -34,7 +34,7 @@ public class GrafanaDashboard {
     @Setter
     @ToString
     public static class Panel {
-        private int id;
+        private Integer id;
         private String type;
         private String title;
         private GridPos gridPos;

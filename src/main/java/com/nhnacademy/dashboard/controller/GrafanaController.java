@@ -71,8 +71,9 @@ public class GrafanaController {
             @RequestParam String time
             ) {
 
-        GrafanaDashboardResponse response =grafanaService.createChart(
-                new ChartCreateRequest(folderTitle, dashboardTitle, title, measurement, field, type, aggregation, time));
+        ChartCreateRequest request = new ChartCreateRequest(folderTitle, dashboardTitle, measurement, field, type, aggregation, time);
+        GrafanaDashboardResponse response =grafanaService.createChart(title, request);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -208,8 +209,23 @@ public class GrafanaController {
                 .ok(response);
     }
 
-    // 차트 쿼리 수정
-    //POST http://localhost:10243/api/f/sample/d/grafana/edit/c/aGRAPH?title=a_graph&data=airSensors&style=histogram&aggregation=mean&time=3h
+    /**
+     * 차트 쿼리를 수정하는 API입니다.
+     * <p>
+     * 주어진 폴더 제목, 대시보드 제목, 차트 제목에 대한 차트 쿼리를 수정합니다. 수정할 값들은 요청 파라미터로 전달됩니다.
+     * </p>
+     *
+     * @param folderTitle 수정할 차트가 위치한 폴더의 제목
+     * @param dashboardTitle 수정할 차트가 위치한 대시보드의 제목
+     * @param chartTitle 수정할 차트의 제목
+     * @param title 차트의 새로운 제목
+     * @param measurement 차트의 새로운 측정 항목
+     * @param field 차트의 새로운 필드 목록
+     * @param style 차트의 스타일
+     * @param aggregation 차트의 집계 방식
+     * @param time 차트의 시간 범위
+     * @return 수정된 차트의 응답 정보
+     */
     @PostMapping("/f/{folderTitle}/d/{dashboardTitle}/edit/c/{chartTitle}")
     @Operation(summary = "차트 쿼리 수정")
     public ResponseEntity<GrafanaDashboardResponse> updateChart(
@@ -228,5 +244,60 @@ public class GrafanaController {
 
         return ResponseEntity
                 .ok(response);
+    }
+
+    /**
+     * 폴더를 삭제하는 API입니다.
+     * <p>
+     * 주어진 폴더 제목에 해당하는 폴더를 삭제합니다.
+     * </p>
+     *
+     * @param folderTitle 삭제할 폴더의 제목
+     * @return HTTP 상태 코드 204(No Content)와 함께 응답
+     */
+    @DeleteMapping("/remove/{folderTitle}")
+    @Operation(summary = "폴더 삭제")
+    public ResponseEntity<Void> deleteFolder(@PathVariable String folderTitle){
+        grafanaService.removeFolder(folderTitle);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    /**
+     * 대시보드를 삭제하는 API입니다.
+     * <p>
+     * 주어진 폴더 제목과 대시보드 제목에 해당하는 대시보드를 삭제합니다.
+     * </p>
+     *
+     * @param folderTitle 삭제할 대시보드가 위치한 폴더의 제목
+     * @param dashboardTitle 삭제할 대시보드의 제목
+     * @return HTTP 상태 코드 204(No Content)와 함께 응답
+     */
+    @DeleteMapping("/remove/{folderTitle}/d/{dashboardTitle}")
+    @Operation(summary = "대시보드 삭제")
+    public ResponseEntity<Void> deleteDashboard(@PathVariable String folderTitle, @PathVariable String dashboardTitle){
+        grafanaService.removeDashboard(folderTitle, dashboardTitle);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * 차트를 삭제하는 API입니다.
+     * <p>
+     * 주어진 폴더 제목, 대시보드 제목, 차트 제목에 해당하는 차트를 삭제합니다.
+     * </p>
+     *
+     * @param folderTitle 삭제할 차트가 위치한 폴더의 제목
+     * @param dashboardTitle 삭제할 차트가 위치한 대시보드의 제목
+     * @param chartTitle 삭제할 차트의 제목
+     * @return 삭제된 차트에 대한 응답 정보
+     */
+    @DeleteMapping("/remove/{folderTitle}/d/{dashboardTitle}/c/{chartTitle}")
+    @Operation(summary = "차트 삭제")
+    public ResponseEntity<GrafanaDashboardResponse> deleteChart(@PathVariable String folderTitle, @PathVariable String dashboardTitle, @PathVariable String chartTitle){
+        GrafanaDashboardResponse response = grafanaService.removeChart(folderTitle, dashboardTitle, chartTitle);
+
+        return ResponseEntity.ok(response);
     }
 }
