@@ -1,8 +1,0 @@
-### 폴더 삭제
-DELETE localhost:10243/api/remove/delete_Test
-
-### 대시보드 삭제
-DELETE localhost:10243/api/remove/sample/d/iot2
-
-### 차트 삭제
-DELETE localhost:10243/api/remove/sample/d/iot2/c/new
