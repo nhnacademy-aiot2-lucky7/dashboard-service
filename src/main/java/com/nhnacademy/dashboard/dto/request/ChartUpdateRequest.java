@@ -1,20 +1,21 @@
 package com.nhnacademy.dashboard.dto.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ChartUpdateRequest {
-    private final String folderTitle;
-    private final String dashboardTitle;
-    private final String chartTitle;
-    private final String title;
-    private final String measurement;
-    private final List<String> field;
-    private final String type;
-    private final String aggregation;
-    private final String time;
+    private String folderUid;
+    private String dashboardTitle;
+    private String dashboardUid;
+    private String chartTitle;
+    private String title;
+    private String measurement;
+    private List<String> field;
+    private String type;
+    private String aggregation;
+    private String time;
 }

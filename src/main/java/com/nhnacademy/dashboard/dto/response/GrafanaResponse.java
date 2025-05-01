@@ -3,7 +3,7 @@ package com.nhnacademy.dashboard.dto.response;
 import lombok.Getter;
 
 @Getter
-public class GrafanaDashboardResponse {
+public class GrafanaResponse {
 
     private final int id;
     private final String slug;
@@ -12,7 +12,7 @@ public class GrafanaDashboardResponse {
     private final String url;
     private final int version;
 
-    public GrafanaDashboardResponse(int id, String slug, String status, String uid, String url, int version) {
+    public GrafanaResponse(int id, String slug, String status, String uid, String url, int version) {
         this.id = id;
         this.slug = slug;
         this.status = status;

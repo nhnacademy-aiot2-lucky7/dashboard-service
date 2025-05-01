@@ -1,12 +1,11 @@
 package com.nhnacademy.dashboard.api;
 
 import com.nhnacademy.common.config.GrafanaApiConfig;
-import com.nhnacademy.dashboard.dto.GrafanaDashboard;
-import com.nhnacademy.dashboard.dto.GrafanaDashboardInfo;
-import com.nhnacademy.dashboard.dto.GrafanaDashboardPanel;
-import com.nhnacademy.dashboard.dto.GrafanaFolder;
-import com.nhnacademy.dashboard.dto.request.GrafanaCreateDashboardRequest;
-import com.nhnacademy.dashboard.dto.response.GrafanaDashboardResponse;
+import com.nhnacademy.dashboard.dto.request.JsonGrafanaDashboardRequest;
+import com.nhnacademy.dashboard.dto.response.IdAndUidResponse;
+import com.nhnacademy.dashboard.dto.response.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.request.DashboardCreateRequest;
+import com.nhnacademy.dashboard.dto.response.GrafanaResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public interface GrafanaApi {
      * @return 생성 결과 응답 (Body 없음)
      */
     @PostMapping("/dashboards/db")
-    ResponseEntity<Void> createDashboard(@RequestBody GrafanaCreateDashboardRequest request);
+    ResponseEntity<Void> createDashboard(@RequestBody DashboardCreateRequest request);
 
     /**
      * 모든 폴더 목록을 조회합니다.
@@ -38,7 +37,7 @@ public interface GrafanaApi {
      * @return 폴더 리스트
      */
     @GetMapping(value = "/folders")
-    List<GrafanaFolder> getAllFolders();
+    List<FolderInfoResponse> getAllFolders();
 
     /**
      * 폴더 ID와 타입을 기반으로 대시보드를 검색합니다.
@@ -48,19 +47,10 @@ public interface GrafanaApi {
      * @return 대시보드 정보 리스트
      */
     @GetMapping("/search")
-    List<GrafanaDashboardInfo> searchDashboards(
+    List<IdAndUidResponse> searchDashboards(
             @RequestParam("folderIds") int folderId,
             @RequestParam("type") String type
     );
-
-    /**
-     * UID를 통해 특정 대시보드의 상세 정보를 가져옵니다.
-     *
-     * @param uid 대시보드 UID
-     * @return 대시보드 패널 정보
-     */
-    @GetMapping("/dashboards/uid/{uid}")
-    GrafanaDashboardPanel getDashboardDetail(@PathVariable("uid") String uid);
 
     /**
      * UID를 통해 대시보드 전체 정보를 가져옵니다.
@@ -69,29 +59,8 @@ public interface GrafanaApi {
      * @return 대시보드 정보
      */
     @GetMapping("/dashboards/uid/{uid}")
-    GrafanaDashboard getDashboardInfo(@PathVariable("uid") String uid);
+    JsonGrafanaDashboardRequest getDashboardInfo(@PathVariable("uid") String uid);
 
-    /**
-     * UID를 통해 대시보드 차트를 조회합니다.
-     *
-     * @param uid 대시보드 UID
-     * @return 대시보드 패널 응답
-     */
-    @GetMapping("/dashboards/uid/{uid}")
-    ResponseEntity<GrafanaDashboardPanel> getChart(@PathVariable("uid") String uid);
-
-    /**
-     * 폴더 ID와 타입을 기반으로 폴더 안에 있는 대시보드 리스트를 가져옵니다.
-     *
-     * @param folderUid 폴더 UID
-     * @param type 검색 타입 (예: "dash-db")
-     * @return 대시보드 패널 리스트
-     */
-    @GetMapping("/search")
-    List<GrafanaDashboardPanel> getDashboardsByFolder(
-            @RequestParam("folderIds") String folderUid,
-            @RequestParam("type") String type
-    );
 
     /**
      * 차트 생성 맟 수정합니다.
@@ -100,7 +69,7 @@ public interface GrafanaApi {
      * @return 생성된 차트 응답
      */
     @PostMapping("/dashboards/db")
-    ResponseEntity<GrafanaDashboardResponse> createChart(@RequestBody GrafanaDashboard dashboardBody);
+    ResponseEntity<GrafanaResponse> createChart(@RequestBody JsonGrafanaDashboardRequest dashboardBody);
 
     /**
      * 주어진 UID에 해당하는 폴더를 삭제하는 API입니다.

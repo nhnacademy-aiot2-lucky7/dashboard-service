@@ -1,22 +1,21 @@
 package com.nhnacademy.dashboard.dto.request;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
 public class ChartCreateRequest {
-    private final String folderTitle;
-    private final String dashboardTitle;
-
-    @Setter
+    private String folderUid;
+    private String dashboardUid;
+    private String dashboardTitle;
     private String title;
-    private final String measurement;
-    private final List<String> field;
-    private final String type;
-    private final String aggregation;
-    private final String time;
+    private String measurement;
+    private List<String> field;
+    private String type;
+    private String aggregation;
+    private String time;
 }

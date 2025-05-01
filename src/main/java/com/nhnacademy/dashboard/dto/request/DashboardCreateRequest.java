@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class GrafanaCreateDashboardRequest {
+public class DashboardCreateRequest {
     private final Dashboard dashboard;
     private final int folderId;
     private final boolean overwrite;
@@ -28,7 +28,7 @@ public class GrafanaCreateDashboardRequest {
         }
     }
 
-    public GrafanaCreateDashboardRequest(Dashboard dashboard, int folderId) {
+    public DashboardCreateRequest(Dashboard dashboard, int folderId) {
         this.dashboard = dashboard;
         this.folderId = folderId;
         this.overwrite = false;

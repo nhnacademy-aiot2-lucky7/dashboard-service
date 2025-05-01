@@ -1,4 +1,4 @@
-package com.nhnacademy.dashboard.dto;
+package com.nhnacademy.dashboard.dto.request;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GrafanaDashboard {
+public class JsonGrafanaDashboardRequest {
 
     private Dashboard dashboard;
     private String folderUid;
