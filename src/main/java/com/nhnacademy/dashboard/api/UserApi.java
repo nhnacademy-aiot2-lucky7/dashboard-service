@@ -1,8 +1,7 @@
 package com.nhnacademy.dashboard.api;
 
-import com.nhnacademy.common.config.GrafanaApiConfig;
-import com.nhnacademy.dashboard.dto.userdto.UserDepartment;
-import com.nhnacademy.dashboard.dto.userdto.UserInfo;
+import com.nhnacademy.dashboard.dto.userdto.UserDepartmentResponse;
+import com.nhnacademy.dashboard.dto.userdto.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +10,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
         name = "userAdapter",
-        path = "/users",
-        url = "http://grafana.luckyseven.live",
-        configuration = GrafanaApiConfig.class)
+        path = "/users")
 public interface UserApi {
 
     @GetMapping("/me")
-    ResponseEntity<UserInfo> getDepartmentId(@RequestHeader String id);
+    ResponseEntity<UserInfoResponse> getDepartmentId(@RequestHeader String id);
 
     @GetMapping("/departments/{id}")
-    ResponseEntity<UserDepartment> getDepartmentName(@PathVariable String id);
+    ResponseEntity<UserDepartmentResponse> getDepartmentName(@PathVariable String id);
 }

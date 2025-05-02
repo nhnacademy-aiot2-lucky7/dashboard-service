@@ -1,4 +1,4 @@
-package com.nhnacademy.dashboard.dto.request;
+package com.nhnacademy.dashboard.dto.grafanadto;
 
 import lombok.Getter;
 import lombok.NonNull;

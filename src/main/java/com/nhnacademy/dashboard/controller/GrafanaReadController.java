@@ -1,8 +1,10 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.response.IdAndUidResponse;
-import com.nhnacademy.dashboard.dto.response.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.response.IframeResponse;
+import com.nhnacademy.dashboard.dto.frontdto.read.ReadChartRequest;
+import com.nhnacademy.dashboard.dto.frontdto.read.ReadFilterChartRequest;
+import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.frontdto.response.IframePanelResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,11 +38,11 @@ public class GrafanaReadController {
 
     @GetMapping("/dashboardsName")
     @Operation(summary ="모든 대시보드 이름 조회")
-    public ResponseEntity<List<String>> getDashboardName(@RequestHeader String id) {
-        List<IdAndUidResponse> dashboards = grafanaService.getDashboard(id);
+    public ResponseEntity<List<String>> getDashboardName(@RequestHeader("X-User-Id") String userId) {
+        List<DashboardInfoResponse> dashboards = grafanaService.getDashboard(userId);
 
         List<String> result = dashboards.stream()
-                .map(IdAndUidResponse::getTitle)
+                .map(DashboardInfoResponse::getDashboardTitle)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -48,31 +50,30 @@ public class GrafanaReadController {
 
     @GetMapping(value = "/dashboards")
     @Operation(summary ="모든 대시보드 조회")
-    public ResponseEntity<List<IdAndUidResponse>> getAllDashboard(@RequestHeader String id) {
+    public ResponseEntity<List<DashboardInfoResponse>> getAllDashboard(@RequestHeader("X-User-Id") String userId) {
 
-        List<IdAndUidResponse> result = grafanaService.getDashboard(id);
+        List<DashboardInfoResponse> result = grafanaService.getDashboard(userId);
         return ResponseEntity.ok(result);
     }
 
 
     @GetMapping(value = "/dashboards/charts")
     @Operation(summary = "차트 조회")
-    public ResponseEntity<List<IframeResponse>> getChartByName(
-            @RequestBody String dashboardUid) {
+    public ResponseEntity<List<IframePanelResponse>> getChartByName(
+            @RequestBody ReadChartRequest readChartRequest) {
 
-        List<IframeResponse> result = grafanaService.getChart(dashboardUid);
+        List<IframePanelResponse> result = grafanaService.getChart(readChartRequest);
         return ResponseEntity.ok(result);
     }
 
 
     @GetMapping("/dashboards/filtered-chart")
     @Operation(summary ="메인페이지 on/off 필터 조회")
-    public ResponseEntity<List<IframeResponse>> getDashboardCharts(
-            @RequestBody String dashboardUid,
-            @RequestParam(name = "filter", required = false) String filter
+    public ResponseEntity<List<IframePanelResponse>> getDashboardCharts(
+            @RequestBody ReadFilterChartRequest readFilterChartRequest
     ) {
-        Map<String, String> filterMap = grafanaService.parseFilter(filter);
-        List<IframeResponse> charts  = grafanaService.getFilterCharts(dashboardUid, filterMap);
+        Map<String, String> filterMap = grafanaService.parseFilter(readFilterChartRequest.getFilter());
+        List<IframePanelResponse> charts  = grafanaService.getFilterCharts(readFilterChartRequest.getDashboardUid(), filterMap);
         return ResponseEntity.ok(charts);
     }
 }

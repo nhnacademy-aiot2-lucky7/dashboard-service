@@ -1,7 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.request.ChartUpdateRequest;
-import com.nhnacademy.dashboard.dto.response.GrafanaResponse;
+import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.frontdto.update.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -16,25 +16,25 @@ public class GrafanaUpdateController {
 
     private final GrafanaServiceImpl grafanaService;
 
-    @PutMapping("/dashboardName")
+    @PutMapping("/dashboard-name")
     @Operation(summary = "대시보드 이름 수정")
-    public ResponseEntity<GrafanaResponse> updateDashboard(
-            @RequestBody String dashboardUid,
-            @RequestBody String title
+    public ResponseEntity<Void> updateDashboard(
+            UpdateDashboardNameRequest updateDashboardNameRequest
     ){
-        GrafanaResponse response = grafanaService.updateDashboardName(dashboardUid, title);
+        grafanaService.updateDashboardName(updateDashboardNameRequest);
         return ResponseEntity
-                .ok(response);
+                .ok().build();
     }
 
     @PutMapping("/dashboards/charts")
     @Operation(summary = "차트 쿼리 수정")
-    public ResponseEntity<GrafanaResponse> updateChart(
-            ChartUpdateRequest updateRequest
+    public ResponseEntity<Void> updateChart(
+            @RequestHeader("X-User-Id") String userId,
+            UpdatePanelRequest updateRequest
     ){
-        GrafanaResponse response = grafanaService.updateChart(updateRequest);
+        grafanaService.updateChart(userId, updateRequest);
 
         return ResponseEntity
-                .ok(response);
+                .ok().build();
     }
 }

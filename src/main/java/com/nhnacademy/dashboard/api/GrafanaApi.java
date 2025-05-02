@@ -1,11 +1,11 @@
 package com.nhnacademy.dashboard.api;
 
 import com.nhnacademy.common.config.GrafanaApiConfig;
-import com.nhnacademy.dashboard.dto.request.JsonGrafanaDashboardRequest;
-import com.nhnacademy.dashboard.dto.response.IdAndUidResponse;
-import com.nhnacademy.dashboard.dto.response.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.request.DashboardCreateRequest;
-import com.nhnacademy.dashboard.dto.response.GrafanaResponse;
+import com.nhnacademy.dashboard.dto.grafanadto.GrafanaResponse;
+import com.nhnacademy.dashboard.dto.grafanadto.JsonGrafanaDashboardRequest;
+import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.grafanadto.GrafanaCreateDashboardRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,6 @@ import java.util.List;
 @FeignClient(
         name = "grafanaAdapter",
         path = "/api",
-        url = "http://grafana.luckyseven.live",
         configuration = GrafanaApiConfig.class)
 public interface GrafanaApi {
 
@@ -29,7 +28,7 @@ public interface GrafanaApi {
      * @return 생성 결과 응답 (Body 없음)
      */
     @PostMapping("/dashboards/db")
-    ResponseEntity<Void> createDashboard(@RequestBody DashboardCreateRequest request);
+    ResponseEntity<Void> createDashboard(@RequestBody GrafanaCreateDashboardRequest request);
 
     /**
      * 모든 폴더 목록을 조회합니다.
@@ -47,7 +46,7 @@ public interface GrafanaApi {
      * @return 대시보드 정보 리스트
      */
     @GetMapping("/search")
-    List<IdAndUidResponse> searchDashboards(
+    List<DashboardInfoResponse> searchDashboards(
             @RequestParam("folderIds") int folderId,
             @RequestParam("type") String type
     );

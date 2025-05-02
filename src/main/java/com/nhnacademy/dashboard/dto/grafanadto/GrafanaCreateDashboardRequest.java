@@ -1,4 +1,4 @@
-package com.nhnacademy.dashboard.dto.request;
+package com.nhnacademy.dashboard.dto.grafanadto;
 
 import lombok.Getter;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class DashboardCreateRequest {
+public class GrafanaCreateDashboardRequest {
     private final Dashboard dashboard;
     private final int folderId;
     private final boolean overwrite;
@@ -28,7 +28,7 @@ public class DashboardCreateRequest {
         }
     }
 
-    public DashboardCreateRequest(Dashboard dashboard, int folderId) {
+    public GrafanaCreateDashboardRequest(Dashboard dashboard, int folderId) {
         this.dashboard = dashboard;
         this.folderId = folderId;
         this.overwrite = false;

@@ -2,15 +2,22 @@ package com.nhnacademy.dashboard.service.impl;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
-import com.nhnacademy.dashboard.dto.request.ChartCreateRequest;
-import com.nhnacademy.dashboard.dto.request.ChartUpdateRequest;
-import com.nhnacademy.dashboard.dto.request.JsonGrafanaDashboardRequest;
-import com.nhnacademy.dashboard.dto.response.*;
-import com.nhnacademy.dashboard.dto.userdto.UserDepartment;
-import com.nhnacademy.dashboard.dto.userdto.UserInfo;
+import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.frontdto.response.IframePanelResponse;
+import com.nhnacademy.dashboard.dto.frontdto.create.CreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.frontdto.delete.DeleteDashboardRequest;
+import com.nhnacademy.dashboard.dto.frontdto.delete.DeletePanelRequest;
+import com.nhnacademy.dashboard.dto.frontdto.create.CreatePanelRequest;
+import com.nhnacademy.dashboard.dto.frontdto.read.ReadChartRequest;
+import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.frontdto.update.UpdateDashboardNameRequest;
+import com.nhnacademy.dashboard.dto.grafanadto.JsonGrafanaDashboardRequest;
+import com.nhnacademy.dashboard.dto.userdto.UserDepartmentResponse;
+import com.nhnacademy.dashboard.dto.userdto.UserInfoResponse;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
-import com.nhnacademy.dashboard.dto.request.DashboardCreateRequest;
+import com.nhnacademy.dashboard.dto.grafanadto.GrafanaCreateDashboardRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,40 +39,37 @@ public class GrafanaServiceImpl {
     private final UserApi userApi;
 
 
-    public void createDashboard(String id, String title) {
+    public void createDashboard(String id, CreateDashboardRequest createDashboardRequest) {
 
-        // x-user-id로 부서명 가져오기
         String folderTitle = getFolderTitle(id);
         log.info("folderTitle:{}", folderTitle);
 
-        // 폴더아이디 가져오기
         int folderId = getFolderIdByTitle(folderTitle);
 
-        grafanaApi.createDashboard(new DashboardCreateRequest(new DashboardCreateRequest.Dashboard(title), folderId));
+        grafanaApi.createDashboard(new GrafanaCreateDashboardRequest(new GrafanaCreateDashboardRequest.Dashboard(createDashboardRequest.getDashboardTitle()), folderId));
     }
 
     public String getFolderTitle(String id){
-        UserInfo userInfo = userApi.getDepartmentId(id).getBody();
+        UserInfoResponse userInfoResponse = userApi.getDepartmentId(id).getBody();
 
-        if(userInfo == null){
+        if(userInfoResponse == null){
             throw new NotFoundException("user 찾을 수 없습니다: "+id);
         }
-        String departmentId = userInfo.getUserDepartment();
-        UserDepartment userDepartment = userApi.getDepartmentName(departmentId).getBody();
+        String departmentId = userInfoResponse.getUserDepartment();
+        UserDepartmentResponse userDepartmentResponse = userApi.getDepartmentName(departmentId).getBody();
 
-        if(userDepartment == null){
+        if(userDepartmentResponse == null){
             throw new NotFoundException("department 찾을 수 없습니다: "+departmentId);
         }
-        return userDepartment.getDepartmentName();
+        return userDepartmentResponse.getDepartmentName();
     }
 
     /**
      * 주어진 필터 조건에 따라 차트를 생성합니다.
      *
      * @param request 차트 생성 요청 정보
-     * @return 생성된 대시보드의 응답 정보
      */
-    public GrafanaResponse createChart(String id, ChartCreateRequest request) {
+    public void createChart(String id, CreatePanelRequest request) {
 
         String folderTitle = getFolderTitle(id);
         JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
@@ -84,7 +88,7 @@ public class GrafanaServiceImpl {
 
             log.info("CREATE CHART -> request: {}", dashboardRequest);
 
-            return grafanaApi.createChart(dashboardRequest).getBody();
+            grafanaApi.createChart(dashboardRequest).getBody();
         }
 
         String fluxQuery = generateFluxQuery(request.getMeasurement(), request.getField(), request.getAggregation(), request.getTime());
@@ -109,7 +113,7 @@ public class GrafanaServiceImpl {
 
         log.info("CREATE CHART -> request: {}", dashboardRequest);
 
-        return grafanaApi.createChart(dashboardRequest).getBody();
+        grafanaApi.createChart(dashboardRequest).getBody();
     }
 
     /**
@@ -179,24 +183,24 @@ public class GrafanaServiceImpl {
     }
 
 
-    public List<IdAndUidResponse> getDashboard(String id) {
+    public List<DashboardInfoResponse> getDashboard(String id) {
 
         String folderTitle = getFolderTitle(id);
-        List<IdAndUidResponse> dashboards = grafanaApi.searchDashboards(getFolderIdByTitle(folderTitle), TYPE);
+        List<DashboardInfoResponse> dashboards = grafanaApi.searchDashboards(getFolderIdByTitle(folderTitle), TYPE);
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
         return dashboards;
     }
 
-    public List<IframeResponse> getChart(String dashboardUid) {
+    public List<IframePanelResponse> getChart(ReadChartRequest readChartRequest) {
 
-        JsonGrafanaDashboardRequest dashboard = grafanaApi.getDashboardInfo(dashboardUid);
+        JsonGrafanaDashboardRequest dashboard = grafanaApi.getDashboardInfo(readChartRequest.getDashboardUid());
         if (dashboard == null) {
-            throw new NotFoundException("존재하지 않는 uid : "+dashboardUid);
+            throw new NotFoundException("존재하지 않는 uid : "+readChartRequest.getDashboardUid());
         }
 
         List<JsonGrafanaDashboardRequest.Panel> panels = dashboard.getDashboard().getPanels();
-        List<IframeResponse> responseList = panels.stream()
-                .map(panel -> IframeResponse.iframeResponse(
+        List<IframePanelResponse> responseList = panels.stream()
+                .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
                         dashboard.getDashboard().getTitle(),
                         panel.getId()))
@@ -221,7 +225,7 @@ public class GrafanaServiceImpl {
     }
 
 
-    public List<IframeResponse> getFilterCharts(
+    public List<IframePanelResponse> getFilterCharts(
             String dashboardUid,
             Map<String, String> filterMap) {
 
@@ -234,7 +238,7 @@ public class GrafanaServiceImpl {
 
         return panel.stream()
                 .filter(p -> !"off".equalsIgnoreCase(filterMap.get(p.getTitle())))
-                .map(p -> IframeResponse.iframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId()))
+                .map(p -> IframePanelResponse.ofNewIframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId()))
                 .toList();
     }
 
@@ -246,7 +250,7 @@ public class GrafanaServiceImpl {
      */
     public FolderInfoResponse getFolderByTitle(String folderTitle) {
         return grafanaApi.getAllFolders().stream()
-                .filter(folder -> folderTitle.equals(folder.getTitle()))
+                .filter(folder -> folderTitle.equals(folder.getFolderTitle()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Folder not found: " + folderTitle));
     }
@@ -258,7 +262,7 @@ public class GrafanaServiceImpl {
      * @return 폴더 ID
      */
     public int getFolderIdByTitle(String folderTitle) {
-        return getFolderByTitle(folderTitle).getId();
+        return getFolderByTitle(folderTitle).getFolderId();
     }
 
     /**
@@ -268,7 +272,7 @@ public class GrafanaServiceImpl {
      * @return 폴더 UID
      */
     public String getFolderUidByTitle(String folderTitle) {
-        return getFolderByTitle(folderTitle).getUid();
+        return getFolderByTitle(folderTitle).getFolderUid();
     }
 
 
@@ -288,18 +292,18 @@ public class GrafanaServiceImpl {
      *                - type: 생성할 차트 타입 (예: line, bar 등)
      *                - aggregation: 데이터 집계 함수 (예: mean, sum 등)
      *                - time: 조회할 데이터 시간 범위
-     * @return 갱신된 대시보드에 대한 응답 객체
      */
-    public GrafanaResponse updateChart(ChartUpdateRequest request) {
+    public void updateChart(String userId, UpdatePanelRequest request) {
 
+        String folderUid = getFolderUidByTitle(getFolderTitle(userId));
         JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(request.getDashboardUid());
         String fluxQuery = generateFluxQuery(request.getMeasurement(), request.getField(), request.getAggregation(), request.getTime());
 
         List<JsonGrafanaDashboardRequest.Panel> panels = existDashboard.getDashboard().getPanels();
         for (JsonGrafanaDashboardRequest.Panel panel : panels) {
             if (panel.getTitle().equals(request.getChartTitle())) {
-                panel.setTitle(request.getTitle());
-                panel.setType(request.getType());
+                panel.setTitle(request.getChartNewTitle());
+                panel.setType(request.getGraphType());
 
                 if (panel.getTargets() != null) {
                     for (JsonGrafanaDashboardRequest.Target target : panel.getTargets()) {
@@ -318,26 +322,26 @@ public class GrafanaServiceImpl {
         dashboard.setVersion(existDashboard.getDashboard().getVersion());
 
         dashboardRequest.setDashboard(dashboard);
-        dashboardRequest.setFolderUid(request.getFolderUid());
+        dashboardRequest.setFolderUid(folderUid);
         dashboardRequest.setOverwrite(true);
 
         log.info("UPDATE CHART -> request: {}", dashboardRequest);
-        return grafanaApi.createChart(dashboardRequest).getBody();
+        grafanaApi.createChart(dashboardRequest).getBody();
     }
 
 
-    public GrafanaResponse updateDashboardName(String dashboardUid, String updateTitle) {
-        JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(dashboardUid);
+    public void updateDashboardName(UpdateDashboardNameRequest updateDashboardNameRequest) {
+        JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(updateDashboardNameRequest.getDashboardUid());
         log.info("updateDashboard -> 대시보드 title, uid:{},{}", existDashboard.getDashboard().getTitle(), existDashboard.getDashboard().getUid());
 
-        if(existDashboard.getDashboard().getTitle().equals(updateTitle)){
+        if(existDashboard.getDashboard().getTitle().equals(updateDashboardNameRequest.getDashboardNewTitle())){
             throw new BadRequestException("이미 존재하는 대시보드 이름입니다.");
         }
 
         JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
         JsonGrafanaDashboardRequest.Dashboard dashboard = new JsonGrafanaDashboardRequest.Dashboard();
         dashboard.setId(existDashboard.getDashboard().getId());
-        dashboard.setTitle(updateTitle);
+        dashboard.setTitle(updateDashboardNameRequest.getDashboardNewTitle());
         dashboard.setPanels(existDashboard.getDashboard().getPanels());
         dashboard.setSchemaVersion(existDashboard.getDashboard().getSchemaVersion());
         dashboard.setVersion(existDashboard.getDashboard().getVersion());
@@ -347,7 +351,7 @@ public class GrafanaServiceImpl {
         dashboardRequest.setOverwrite(true);
 
         log.info("UPDATE CHART Name -> request: {}", dashboardRequest);
-        return grafanaApi.createChart(dashboardRequest).getBody();
+        grafanaApi.createChart(dashboardRequest).getBody();
     }
 
     public JsonGrafanaDashboardRequest getDashboardInfo(String dashboardUid) {
@@ -439,14 +443,14 @@ public class GrafanaServiceImpl {
         grafanaApi.deleteFolder(uid);
     }
 
-    public void removeDashboard(String dashboardUid) {
-        grafanaApi.deleteDashboard(dashboardUid);
+    public void removeDashboard(DeleteDashboardRequest deleteDashboardRequest) {
+        grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
     }
 
-    public GrafanaResponse removeChart(String dashboardUid, String chartTitle) {
-        JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(dashboardUid);
+    public void removeChart(DeletePanelRequest deletePanelRequest) {
+        JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(deletePanelRequest.getDashboardUid());
         List<JsonGrafanaDashboardRequest.Panel> panels = existDashboard.getDashboard().getPanels();
-        panels.removeIf(panel -> panel.getTitle().equals(chartTitle));
+        panels.removeIf(panel -> panel.getTitle().equals(deletePanelRequest.getChartTitle()));
 
         JsonGrafanaDashboardRequest.Dashboard dashboard = getDashboard(existDashboard);
         dashboard.setPanels(panels);
@@ -455,7 +459,7 @@ public class GrafanaServiceImpl {
         existDashboard.setFolderUid(existDashboard.getFolderUid());
         existDashboard.setOverwrite(true);
 
-        return grafanaApi.createChart(existDashboard).getBody();
+        grafanaApi.createChart(existDashboard).getBody();
     }
 
 }

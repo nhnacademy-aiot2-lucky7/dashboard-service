@@ -1,17 +1,16 @@
-package com.nhnacademy.dashboard.dto.request;
+package com.nhnacademy.dashboard.dto.frontdto.create;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
+@Setter
 @AllArgsConstructor
-public class ChartUpdateRequest {
+public class CreatePanelRequest {
     private String folderUid;
-    private String dashboardTitle;
     private String dashboardUid;
-    private String chartTitle;
+    private String dashboardTitle;
     private String title;
     private String measurement;
     private List<String> field;

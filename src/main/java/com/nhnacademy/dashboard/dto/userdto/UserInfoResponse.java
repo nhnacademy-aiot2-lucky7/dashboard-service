@@ -2,10 +2,12 @@ package com.nhnacademy.dashboard.dto.userdto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-public class UserInfo {
+@NoArgsConstructor
+public class UserInfoResponse {
 
     private String userRole;
     private String userNo;

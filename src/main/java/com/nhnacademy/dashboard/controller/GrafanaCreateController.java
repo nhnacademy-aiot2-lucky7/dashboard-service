@@ -1,7 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.request.ChartCreateRequest;
-import com.nhnacademy.dashboard.dto.response.GrafanaResponse;
+import com.nhnacademy.dashboard.dto.frontdto.create.CreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.frontdto.create.CreatePanelRequest;
 import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +23,10 @@ public class GrafanaCreateController {
     @PostMapping("/dashboards")
     @Operation(summary = "새로운 대시보드 추가")
     public ResponseEntity<Void> createDashboard(
-            @RequestHeader String id,
-            @RequestBody String dashboardTitle) {
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody CreateDashboardRequest createDashboardRequest) {
 
-        grafanaService.createDashboard(id, dashboardTitle);
+        grafanaService.createDashboard(userId, createDashboardRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
@@ -34,15 +34,15 @@ public class GrafanaCreateController {
 
     @PostMapping("/charts")
     @Operation(summary = "새로운 차트 추가")
-    public ResponseEntity<GrafanaResponse> createChart(
-            @RequestHeader String id,
-            @RequestBody ChartCreateRequest chartCreateRequest
+    public ResponseEntity<Void> createChart(
+            @RequestHeader ("X-User-Id") String userId,
+            @RequestBody CreatePanelRequest createPanelRequest
     ) {
 
-        GrafanaResponse response =grafanaService.createChart(id, chartCreateRequest);
+        grafanaService.createChart(userId, createPanelRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .build();
     }
 }
