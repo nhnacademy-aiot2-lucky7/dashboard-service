@@ -36,6 +36,12 @@ public class GrafanaReadController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 모든 대시보드의 이름을 조회합니다.
+     *
+     * @param userId 요청자의 사용자 ID (헤더 X-User-Id)
+     * @return 대시보드 이름 목록을 반환합니다.
+     */
     @GetMapping("/dashboardsName")
     @Operation(summary ="모든 대시보드 이름 조회")
     public ResponseEntity<List<String>> getDashboardName(@RequestHeader("X-User-Id") String userId) {
@@ -48,6 +54,12 @@ public class GrafanaReadController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 사용자 ID를 기반으로 모든 대시보드 정보를 조회합니다.
+     *
+     * @param userId 요청자의 사용자 ID (헤더 X-User-Id)
+     * @return 전체 대시보드 정보 목록을 반환합니다.
+     */
     @GetMapping(value = "/dashboards")
     @Operation(summary ="모든 대시보드 조회")
     public ResponseEntity<List<DashboardInfoResponse>> getAllDashboard(@RequestHeader("X-User-Id") String userId) {
@@ -57,6 +69,12 @@ public class GrafanaReadController {
     }
 
 
+    /**
+     * 요청으로 전달된 대시보드 UID 및 제목을 기반으로 해당 차트들을 조회합니다.
+     *
+     * @param readChartRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
+     * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
+     */
     @GetMapping(value = "/dashboards/charts")
     @Operation(summary = "차트 조회")
     public ResponseEntity<List<IframePanelResponse>> getChartByName(
@@ -67,6 +85,12 @@ public class GrafanaReadController {
     }
 
 
+    /**
+     * 대시보드 UID 및 on/off 필터 값을 기준으로 필터링된 차트를 조회합니다.
+     *
+     * @param readFilterChartRequest 대시보드 UID 및 필터 조건이 포함된 요청 객체
+     * @return 필터 조건에 부합하는 차트 목록을 반환합니다.
+     */
     @GetMapping("/dashboards/filtered-chart")
     @Operation(summary ="메인페이지 on/off 필터 조회")
     public ResponseEntity<List<IframePanelResponse>> getDashboardCharts(
