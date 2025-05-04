@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ReadChartRequest {
+public class ReadPanelRequest {
     private String dashboardUid;
 }

@@ -9,7 +9,8 @@ import com.nhnacademy.dashboard.dto.frontdto.create.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.frontdto.delete.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.frontdto.delete.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.frontdto.create.CreatePanelRequest;
-import com.nhnacademy.dashboard.dto.frontdto.read.ReadChartRequest;
+import com.nhnacademy.dashboard.dto.frontdto.read.ReadPanelRequest;
+import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelPriorityRequest;
 import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelRequest;
 import com.nhnacademy.dashboard.dto.frontdto.update.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.grafanadto.*;
@@ -34,14 +35,19 @@ public class GrafanaServiceImpl {
     private final GrafanaApi grafanaApi;
     public static final String TYPE = "dash-db";
     private static final String INFLUXDB_UID = "o4aKnEJNk";
-    private static final int GRID_WIDTH = 12;
-    private static final int GRID_HEIGHT = 8;
     private final UserApi userApi;
 
 
-    public void createDashboard(String id, CreateDashboardRequest createDashboardRequest) {
+    /**
+     * 사용자의 부서 정보를 바탕으로 폴더를 조회한 뒤, 해당 폴더에 대시보드를 생성합니다.
+     *
+     * @param userId 사용자 ID
+     * @param createDashboardRequest 대시보드 생성 요청 정보
+     */
 
-        String folderTitle = getFolderTitle(id);
+    public void createDashboard(String userId, CreateDashboardRequest createDashboardRequest) {
+
+        String folderTitle = getFolderTitle(userId);
         log.info("folderTitle:{}", folderTitle);
 
         int folderId = getFolderIdByTitle(folderTitle);
@@ -49,11 +55,19 @@ public class GrafanaServiceImpl {
         grafanaApi.createDashboard(new GrafanaCreateDashboardRequest(new GrafanaCreateDashboardRequest.Dashboard(createDashboardRequest.getDashboardTitle()), folderId));
     }
 
-    public String getFolderTitle(String id){
-        UserInfoResponse userInfoResponse = userApi.getDepartmentId(id).getBody();
+    /**
+     * 사용자 ID를 기반으로 해당 사용자의 부서명을 반환합니다.
+     *
+     * @param userId 사용자 ID
+     * @return 부서 이름
+     * @throws NotFoundException 사용자가 없거나 부서가 없을 경우
+     */
+
+    public String getFolderTitle(String userId){
+        UserInfoResponse userInfoResponse = userApi.getDepartmentId(userId).getBody();
 
         if(userInfoResponse == null){
-            throw new NotFoundException("user 찾을 수 없습니다: "+id);
+            throw new NotFoundException("user 찾을 수 없습니다: "+userId);
         }
         String departmentId = userInfoResponse.getUserDepartment();
         UserDepartmentResponse userDepartmentResponse = userApi.getDepartmentName(departmentId).getBody();
@@ -65,20 +79,40 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 주어진 필터 조건에 따라 차트를 생성합니다.
+     * 주어진 대시보드 제목에 해당하는 대시보드 정보를 반환합니다.
      *
+     * @param userId 사용자 ID
+     * @param dashboardTitle 대시보드 제목
+     * @return 대시보드 정보
+     * @throws NotFoundException 해당 제목의 대시보드가 없을 경우
+     */
+
+    public DashboardInfoResponse getDashboardInfoRequest(String userId, String dashboardTitle){
+        List<DashboardInfoResponse> dashboardInfoResponseList = getDashboard(userId);
+        return dashboardInfoResponseList.stream()
+                .filter(d -> d.getDashboardTitle().equals(dashboardTitle))
+                .findFirst()
+                .orElseThrow(()->new NotFoundException("대시보드제목을 찾을 수 없습니다: "+dashboardTitle));
+    }
+
+    /**
+     * 주어진 정보에 따라 Grafana에 차트를 생성합니다.
+     * - 기존 대시보드가 비어있을 경우 새로 생성합니다.
+     * - 차트 제목이 중복될 경우 번호를 붙여 구분합니다.
+     *
+     * @param userId 사용자 ID
      * @param request 차트 생성 요청 정보
      */
-    public void createChart(String id, CreatePanelRequest request) {
+    public void createChart(String userId, CreatePanelRequest request) {
 
-        String folderTitle = getFolderTitle(id);
+        String folderTitle = getFolderTitle(userId);
         JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
         JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(folderTitle);
 
         // 패널이 존재하지 않는 경우
         if (existDashboard.getDashboard().getPanels().isEmpty()) {
             String fluxQuery = generateFluxQuery(request.getMeasurement(), request.getField(), request.getAggregation(), request.getTime());
-            JsonGrafanaDashboardRequest buildDashboardRequest = buildDashboardRequest(request.getType(), folderTitle, request.getTitle(), fluxQuery);
+            JsonGrafanaDashboardRequest buildDashboardRequest = buildDashboardRequest(userId, request.getGridPos(), request.getType(), folderTitle, request.getTitle(), fluxQuery);
 
             Dashboard dashboard = getDashboard(buildDashboardRequest);
 
@@ -100,7 +134,7 @@ public class GrafanaServiceImpl {
         }
 
         JsonGrafanaDashboardRequest buildDashboardRequest = buildDashboardRequest(
-                request.getType(), request.getDashboardTitle(), request.getTitle(), fluxQuery);
+                userId, request.getGridPos(), request.getType(), request.getDashboardTitle(), request.getTitle(), fluxQuery);
 
         List<Panel> panels = existDashboard.getDashboard().getPanels();
         panels.addAll(buildDashboardRequest.getDashboard().getPanels());
@@ -117,15 +151,10 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 중복된 제목 문자열을 입력받아, 숫자를 증가시켜 새로운 제목을 생성합니다.
-     * <p>
-     * 입력값이 "제목", "제목(1)", "제목(2)" 형식일 경우,
-     * 기존 숫자를 1 증가시켜 "제목(2)", "제목(3)"과 같은 새로운 제목을 반환합니다.
-     * 만약 숫자가 없는 경우에는 "(1)"을 붙여 반환합니다.
-     * </p>
+     * 중복된 차트 이름에 대해 번호를 붙여 새로운 이름을 생성합니다.
      *
-     * @param name 중복된 제목 문자열
-     * @return 숫자가 증가된 새로운 제목 문자열
+     * @param name 기존 이름
+     * @return 중복되지 않는 새로운 이름
      */
     private String sameName(String name) {
 
@@ -150,21 +179,19 @@ public class GrafanaServiceImpl {
     }
 
     private static Dashboard getDashboard(JsonGrafanaDashboardRequest buildDashboardRequest) {
-        Dashboard dashboard = new Dashboard();
-        dashboard.setId(buildDashboardRequest.getDashboard().getId());
-        dashboard.setTitle(buildDashboardRequest.getDashboard().getTitle());
-        dashboard.setUid(buildDashboardRequest.getDashboard().getUid());
-        dashboard.setPanels(buildDashboardRequest.getDashboard().getPanels());
-        dashboard.setSchemaVersion(buildDashboardRequest.getDashboard().getSchemaVersion());
-        dashboard.setVersion(buildDashboardRequest.getDashboard().getVersion());
-        return dashboard;
+        return new Dashboard(
+                buildDashboardRequest.getDashboard().getId(),
+                buildDashboardRequest.getDashboard().getUid(),
+                buildDashboardRequest.getDashboard().getTitle(),
+                buildDashboardRequest.getDashboard().getPanels()
+        );
     }
 
 
     /**
-     * 모든 폴더 목록을 조회합니다.
+     * Grafana에 등록된 모든 폴더를 조회합니다.
      *
-     * @return 폴더 리스트
+     * @return 폴더 정보 리스트
      */
     public List<FolderInfoResponse> getAllFolders() {
         List<FolderInfoResponse> folders = grafanaApi.getAllFolders();
@@ -174,19 +201,33 @@ public class GrafanaServiceImpl {
     }
 
 
-    public List<DashboardInfoResponse> getDashboard(String id) {
+    /**
+     * 사용자 ID를 기반으로 사용자의 부서 폴더에 포함된 대시보드 목록을 조회합니다.
+     *
+     * @param userId 사용자 ID
+     * @return 대시보드 목록
+     */
+    public List<DashboardInfoResponse> getDashboard(String userId) {
 
-        String folderTitle = getFolderTitle(id);
+        String folderTitle = getFolderTitle(userId);
         List<DashboardInfoResponse> dashboards = grafanaApi.searchDashboards(getFolderIdByTitle(folderTitle), TYPE);
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
         return dashboards;
     }
 
-    public List<IframePanelResponse> getChart(ReadChartRequest readChartRequest) {
+    /**
+     * 특정 대시보드 UID에 해당하는 모든 패널 정보를 Iframe 형식으로 반환합니다.
+     *
+     * @param readPanelRequest 대시보드 UID를 포함한 요청
+     * @return Iframe 패널 응답 목록
+     * @throws NotFoundException 대시보드 UID가 존재하지 않을 경우
+     */
 
-        JsonGrafanaDashboardRequest dashboard = grafanaApi.getDashboardInfo(readChartRequest.getDashboardUid());
+    public List<IframePanelResponse> getChart(ReadPanelRequest readPanelRequest) {
+
+        JsonGrafanaDashboardRequest dashboard = grafanaApi.getDashboardInfo(readPanelRequest.getDashboardUid());
         if (dashboard == null) {
-            throw new NotFoundException("존재하지 않는 uid : "+readChartRequest.getDashboardUid());
+            throw new NotFoundException("존재하지 않는 uid : "+ readPanelRequest.getDashboardUid());
         }
 
         List<Panel> panels = dashboard.getDashboard().getPanels();
@@ -202,9 +243,9 @@ public class GrafanaServiceImpl {
 
 
     /**
-     * 필터 문자열을 파싱하여 Map 형태로 변환합니다.
+     * 필터 문자열을 파싱하여 Map 형식으로 변환합니다.
      *
-     * @param filter 필터 문자열 (ex. "chart1:on, chart2:off")
+     * @param filter "key:value" 형식의 필터 문자열
      * @return 필터 Map
      */
     public Map<String, String> parseFilter(String filter) {
@@ -216,6 +257,14 @@ public class GrafanaServiceImpl {
     }
 
 
+    /**
+     * 필터 조건에 따라 특정 대시보드에서 표시할 차트만 선택하여 반환합니다.
+     *
+     * @param dashboardUid 대시보드 UID
+     * @param filterMap 필터 Map
+     * @return Iframe 응답 패널 목록
+     * @throws NotFoundException 패널이 없을 경우
+     */
     public List<IframePanelResponse> getFilterCharts(
             String dashboardUid,
             Map<String, String> filterMap) {
@@ -234,10 +283,11 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 주어진 폴더 제목에 해당하는 폴더를 반환합니다.
+     * 폴더 제목을 기반으로 해당 폴더 정보를 조회합니다.
      *
      * @param folderTitle 폴더 제목
-     * @return 폴더 객체
+     * @return 폴더 정보
+     * @throws NotFoundException 폴더가 존재하지 않을 경우
      */
     public FolderInfoResponse getFolderByTitle(String folderTitle) {
         return grafanaApi.getAllFolders().stream()
@@ -247,7 +297,7 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 폴더 제목에 해당하는 폴더의 ID를 반환합니다.
+     * 폴더 제목을 기반으로 폴더 ID를 반환합니다.
      *
      * @param folderTitle 폴더 제목
      * @return 폴더 ID
@@ -257,32 +307,23 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 폴더 제목에 해당하는 폴더의 UID를 반환합니다.
+     * 폴더 제목을 기반으로 폴더 UID를 반환합니다.
      *
      * @param folderTitle 폴더 제목
      * @return 폴더 UID
      */
+
     public String getFolderUidByTitle(String folderTitle) {
         return getFolderByTitle(folderTitle).getFolderUid();
     }
 
 
     /**
-     * 주어진 요청 정보를 기반으로 기존 Grafana 대시보드에 차트를 수정합니다.
-     * <p>
-     * - 기존 대시보드를 조회하여, 새 패널을 panels 리스트에 추가한 뒤 대시보드를 갱신합니다.
-     * - overwrite=true 설정을 통해 기존 대시보드를 덮어씁니다.
+     * 기존 대시보드에서 특정 패널의 정보를 수정합니다.
+     * - 제목, 차트 타입, 쿼리를 수정하며 기존 대시보드를 overwrite합니다.
      *
-     * @param request 차트 추가에 필요한 정보를 담은 요청 객체
-     *                - folderTitle: 대시보드가 속한 폴더 이름
-     *                - dashboardTitle: 패널을 추가할 대시보드 이름
-     *                - ChartTitle: 수정할 패널 제목
-     *                - title: 새로운 패널 제목
-     *                - measurement: 조회할 측정값(Measurement)
-     *                - field: 조회할 센서 필드 목록
-     *                - type: 생성할 차트 타입 (예: line, bar 등)
-     *                - aggregation: 데이터 집계 함수 (예: mean, sum 등)
-     *                - time: 조회할 데이터 시간 범위
+     * @param userId 사용자 ID
+     * @param request 패널 수정 요청 정보
      */
     public void updateChart(String userId, UpdatePanelRequest request) {
 
@@ -304,24 +345,22 @@ public class GrafanaServiceImpl {
             }
         }
 
-        JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
-        Dashboard dashboard = new Dashboard();
-        dashboard.setId(existDashboard.getDashboard().getId());
-        dashboard.setTitle(existDashboard.getDashboard().getTitle());
-        dashboard.setPanels(panels);
-        dashboard.setSchemaVersion(existDashboard.getDashboard().getSchemaVersion());
-        dashboard.setVersion(existDashboard.getDashboard().getVersion());
+        JsonGrafanaDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
 
-        dashboardRequest.setDashboard(dashboard);
-        dashboardRequest.setFolderUid(folderUid);
-        dashboardRequest.setOverwrite(true);
-
-        log.info("UPDATE CHART -> request: {}", dashboardRequest);
-        grafanaApi.createChart(dashboardRequest).getBody();
+        log.info("UPDATE CHART -> request: {}", fluxQuery);
+        grafanaApi.createChart(dashboardRequest);
     }
 
 
-    public void updateDashboardName(UpdateDashboardNameRequest updateDashboardNameRequest) {
+    /**
+     * 대시보드 이름을 수정합니다.
+     * - 중복되는 이름이 있는 경우 예외 발생
+     *
+     * @param userId 사용자 ID
+     * @param updateDashboardNameRequest 이름 변경 요청
+     * @throws BadRequestException 이미 존재하는 이름일 경우
+     */
+    public void updateDashboardName(String userId, UpdateDashboardNameRequest updateDashboardNameRequest) {
         JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(updateDashboardNameRequest.getDashboardUid());
         log.info("updateDashboard -> 대시보드 title, uid:{},{}", existDashboard.getDashboard().getTitle(), existDashboard.getDashboard().getUid());
 
@@ -330,9 +369,14 @@ public class GrafanaServiceImpl {
         }
 
         JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
-        Dashboard dashboard = new Dashboard(updateDashboardNameRequest.getDashboardNewTitle(), existDashboard.getDashboard().getPanels());
-        dashboard.setId(existDashboard.getDashboard().getId());
-        dashboard.setTitle(updateDashboardNameRequest.getDashboardNewTitle());
+        DashboardInfoResponse dashboardInfoResponse = getDashboardInfoRequest(userId, updateDashboardNameRequest.getDashboardNewTitle());
+        Dashboard dashboard = new Dashboard(
+                dashboardInfoResponse.getDashboardId(),
+                dashboardInfoResponse.getDashboardUid(),
+                updateDashboardNameRequest.getDashboardNewTitle(),
+                existDashboard.getDashboard().getPanels());
+        int version = dashboard.getVersion();
+        dashboard.setVersion(version+1);
 
         dashboardRequest.setDashboard(dashboard);
         dashboardRequest.setFolderUid(existDashboard.getFolderUid());
@@ -342,6 +386,13 @@ public class GrafanaServiceImpl {
         grafanaApi.createChart(dashboardRequest).getBody();
     }
 
+    /**
+     * 대시보드 UID를 기반으로 대시보드 상세 정보를 조회합니다.
+     *
+     * @param dashboardUid 대시보드 UID
+     * @return 대시보드 정보
+     * @throws NotFoundException 존재하지 않는 UID일 경우
+     */
     public JsonGrafanaDashboardRequest getDashboardInfo(String dashboardUid) {
         JsonGrafanaDashboardRequest dashboard = grafanaApi.getDashboardInfo(dashboardUid);
         if (dashboard == null || dashboard.getDashboard() == null) {
@@ -352,13 +403,13 @@ public class GrafanaServiceImpl {
 
 
     /**
-     * Flux 쿼리를 생성합니다.
+     * 주어진 조건에 맞춰 InfluxDB용 Flux 쿼리를 생성합니다.
      *
      * @param measurement 측정 항목
-     * @param field       센서 이름
-     * @param aggregation 집계 함수
-     * @param time        시간 범위
-     * @return 생성된 Flux 쿼리
+     * @param field 센서 필드 목록
+     * @param aggregation 집계 함수 (mean, sum 등)
+     * @param time 시간 범위 (예: 1h, 1d)
+     * @return Flux 쿼리 문자열
      */
     private String generateFluxQuery(String measurement, List<String> field, String aggregation, String time) {
         String fieldList = field.stream()
@@ -376,27 +427,30 @@ public class GrafanaServiceImpl {
     }
 
     /**
-     * 대시보드 요청을 위한 기본 구조를 만듭니다.
+     * 대시보드 요청을 위한 기본 구조를 생성합니다.
      *
+     * @param userId 사용자 ID
+     * @param gridPos 차트의 위치 및 크기 정보를 담은 GridPos 객체
+     * @param type 패널 타입 (예: "graph", "stat", "table" 등)
      * @param dashboardTitle 대시보드 제목
-     * @param panelTitle     패널 제목
-     * @param fluxQuery      Flux 쿼리
-     * @return 대시보드 요청 정보
+     * @param panelTitle 생성할 패널 제목
+     * @param fluxQuery InfluxDB용 Flux 쿼리
+     * @return Grafana 대시보드 요청 객체
      */
-    private JsonGrafanaDashboardRequest buildDashboardRequest(String type, String dashboardTitle, String panelTitle, String fluxQuery) {
+    private JsonGrafanaDashboardRequest buildDashboardRequest(String userId, GridPos gridPos, String type, String dashboardTitle, String panelTitle, String fluxQuery) {
 
-        GridPos gridPos = new GridPos(GRID_WIDTH, GRID_HEIGHT);
+        DashboardInfoResponse dashboardInfoResponse = getDashboardInfoRequest(userId, dashboardTitle);
 
-        Datasource datasource = new Datasource();
-        datasource.setType("influxdb");
-        datasource.setUid(INFLUXDB_UID);
+        Datasource datasource = new Datasource(INFLUXDB_UID);
 
         Target target = new Target(datasource, fluxQuery);
-        target.setRefId("A");
-
         Panel panel = new Panel(type, panelTitle, gridPos, List.of(target), datasource);
 
-        Dashboard dashboard = new Dashboard(dashboardTitle, List.of(panel));
+        Dashboard dashboard = new Dashboard(
+                dashboardInfoResponse.getDashboardId(),
+                dashboardInfoResponse.getDashboardUid(),
+                dashboardTitle,
+                List.of(panel));
 
         JsonGrafanaDashboardRequest jsonGrafanaDashboardRequest = new JsonGrafanaDashboardRequest();
         jsonGrafanaDashboardRequest.setDashboard(dashboard);
@@ -404,16 +458,32 @@ public class GrafanaServiceImpl {
         return jsonGrafanaDashboardRequest;
     }
 
-    public void removeFolder(String id) {
-        String folderTitle = getFolderTitle(id);
+    /**
+     * 사용자의 부서 정보를 기준으로 폴더를 찾아 해당 Grafana 폴더를 삭제합니다.
+     *
+     * @param userId 사용자 ID
+     */
+    public void removeFolder(String userId) {
+        String folderTitle = getFolderTitle(userId);
         String uid = getFolderUidByTitle(folderTitle);
         grafanaApi.deleteFolder(uid);
     }
 
+    /**
+     * 요청된 UID에 해당하는 Grafana 대시보드를 삭제합니다.
+     *
+     * @param deleteDashboardRequest 삭제할 대시보드 정보를 담은 요청 객체
+     */
     public void removeDashboard(DeleteDashboardRequest deleteDashboardRequest) {
         grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
     }
 
+
+    /**
+     * 요청된 제목에 해당하는 패널(차트)을 대시보드에서 제거하고 업데이트합니다.
+     *
+     * @param deletePanelRequest 삭제할 패널 정보를 담은 요청 객체
+     */
     public void removeChart(DeletePanelRequest deletePanelRequest) {
         JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(deletePanelRequest.getDashboardUid());
         List<Panel> panels = existDashboard.getDashboard().getPanels();
@@ -429,4 +499,67 @@ public class GrafanaServiceImpl {
         grafanaApi.createChart(existDashboard).getBody();
     }
 
+    /**
+     * 요청된 패널 ID 순서에 따라 각 차트의 우선순위를 재배치합니다.
+     *
+     * @param userId 사용자 ID
+     * @param updatePanelPriorityRequest 패널 우선순위 정보가 담긴 요청 객체
+     * @throws NotFoundException 요청된 패널 ID가 존재하지 않을 경우
+     */
+    public void updatePriority(String userId, UpdatePanelPriorityRequest updatePanelPriorityRequest){
+        String folderTitle = getFolderTitle(userId);
+        String folderUid = getFolderUidByTitle(folderTitle);
+        JsonGrafanaDashboardRequest existDashboard = getDashboardInfo(updatePanelPriorityRequest.getDashboardUid());
+        List<Panel> panels = existDashboard.getDashboard().getPanels();
+
+        int yPos = 0;
+        for(Integer targetPanelId : updatePanelPriorityRequest.getDashboardPriority()){
+            Panel panel = panels.stream()
+                    .filter(p -> p.getId().equals(targetPanelId))
+                    .findFirst()
+                    .orElseThrow(()-> new NotFoundException("해당 panelId가 없습니다."));
+
+            GridPos gridPos = panel.getGridPos();
+            if (gridPos == null) {
+                gridPos = new GridPos();
+                panel.setGridPos(gridPos);
+            }
+            gridPos.setX(0);
+            gridPos.setY(yPos);
+            gridPos.setW(panel.getGridPos().getW());
+            gridPos.setH(panel.getGridPos().getH());
+
+            yPos += panel.getGridPos().getH();
+        }
+
+        JsonGrafanaDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
+
+
+        grafanaApi.createChart(dashboardRequest);
+    }
+
+    /**
+     * 기존 대시보드 정보를 기반으로 새로운 패널 리스트와 폴더 UID를 설정하여
+     * overwrite 옵션이 적용된 대시보드 요청 객체를 생성합니다.
+     *
+     * @param existDashboard 기존 대시보드 정보
+     * @param panels 갱신된 패널 리스트
+     * @param folderUid 폴더 UID
+     * @return 대시보드 요청 객체 (overwrite 포함)
+     */
+    public JsonGrafanaDashboardRequest overwritten(JsonGrafanaDashboardRequest existDashboard, List<Panel> panels, String folderUid) {
+        JsonGrafanaDashboardRequest dashboardRequest = new JsonGrafanaDashboardRequest();
+        Dashboard dashboard = new Dashboard(
+                existDashboard.getDashboard().getId(),
+                existDashboard.getDashboard().getUid(),
+                existDashboard.getDashboard().getTitle(),
+                panels
+        );
+
+        dashboardRequest.setDashboard(dashboard);
+        dashboardRequest.setFolderUid(folderUid);
+        dashboardRequest.setOverwrite(true);
+
+        return dashboardRequest;
+    }
 }

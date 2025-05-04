@@ -1,6 +1,6 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.frontdto.read.ReadChartRequest;
+import com.nhnacademy.dashboard.dto.frontdto.read.ReadPanelRequest;
 import com.nhnacademy.dashboard.dto.frontdto.read.ReadFilterChartRequest;
 import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
 import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
@@ -72,15 +72,15 @@ public class GrafanaReadController {
     /**
      * 요청으로 전달된 대시보드 UID 및 제목을 기반으로 해당 차트들을 조회합니다.
      *
-     * @param readChartRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
+     * @param readPanelRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
      * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
      */
     @GetMapping(value = "/dashboards/charts")
     @Operation(summary = "차트 조회")
     public ResponseEntity<List<IframePanelResponse>> getChartByName(
-            @RequestBody ReadChartRequest readChartRequest) {
+            @RequestBody ReadPanelRequest readPanelRequest) {
 
-        List<IframePanelResponse> result = grafanaService.getChart(readChartRequest);
+        List<IframePanelResponse> result = grafanaService.getChart(readPanelRequest);
         return ResponseEntity.ok(result);
     }
 

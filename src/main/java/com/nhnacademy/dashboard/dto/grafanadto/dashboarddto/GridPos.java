@@ -19,4 +19,12 @@ public class GridPos {
         this.w = w;
         this.h = h;
     }
+
+    public GridPos(int w, int h, int y){
+        this.x = 0;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
+    }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Dashboard {
     private int id;
     private String title;
@@ -15,9 +16,9 @@ public class Dashboard {
     private int schemaVersion;
     private int version;
 
-    public Dashboard(String dashboardTitle, List<Panel> panels) {
-        this.id = 0;
-        this.uid = null;
+    public Dashboard(int id, String uid, String dashboardTitle, List<Panel> panels) {
+        this.id = id;
+        this.uid = uid;
         this.title = dashboardTitle;
         this.panels = panels;
         this.schemaVersion = 41;
