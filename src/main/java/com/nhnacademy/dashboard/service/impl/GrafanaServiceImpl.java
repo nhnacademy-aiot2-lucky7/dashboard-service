@@ -1,7 +1,9 @@
 package com.nhnacademy.dashboard.service.impl;
 
+import com.nhnacademy.dashboard.api.EventApi;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
+import com.nhnacademy.dashboard.dto.eventdto.Event;
 import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
 import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.frontdto.response.IframePanelResponse;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,7 @@ public class GrafanaServiceImpl {
     public static final String TYPE = "dash-db";
     private static final String INFLUXDB_UID = "o4aKnEJNk";
     private final UserApi userApi;
-
+    private final EventApi eventApi;
 
     /**
      * 사용자의 부서 정보를 바탕으로 폴더를 조회한 뒤, 해당 폴더에 대시보드를 생성합니다.
@@ -53,6 +56,15 @@ public class GrafanaServiceImpl {
         int folderId = getFolderIdByTitle(folderTitle);
 
         grafanaApi.createDashboard(new GrafanaCreateDashboardRequest(new GrafanaCreateDashboardRequest.Dashboard(createDashboardRequest.getDashboardTitle()), folderId));
+        Event event = new Event(
+                "info",
+                createDashboardRequest.getDashboardTitle()+ "대시보드가 생성되었습니다.",
+                "createDashboard",
+                "CREATE",
+                "0",
+                LocalDateTime.now());
+
+        eventApi.createEvent(event);
     }
 
     /**
