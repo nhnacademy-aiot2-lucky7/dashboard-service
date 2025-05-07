@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import java.util.List;
 
 @FeignClient(
-        name = "userAdapter",
+        name = "USER-SERVICE",
         path = "/users")
 public interface UserApi {
 
