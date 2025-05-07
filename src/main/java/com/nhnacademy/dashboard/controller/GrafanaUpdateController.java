@@ -1,9 +1,9 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelPriorityRequest;
-import com.nhnacademy.dashboard.dto.frontdto.update.UpdatePanelRequest;
-import com.nhnacademy.dashboard.dto.frontdto.update.UpdateDashboardNameRequest;
-import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
+import com.nhnacademy.dashboard.dto.front_dto.update.UpdatePanelPriorityRequest;
+import com.nhnacademy.dashboard.dto.front_dto.update.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.front_dto.update.UpdateDashboardNameRequest;
+import com.nhnacademy.dashboard.service.UpdateService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class GrafanaUpdateController {
 
-    private final GrafanaServiceImpl grafanaService;
+    private final UpdateService updateService;
 
     @PutMapping("/dashboard-name")
     @Operation(summary = "대시보드 이름 수정")
@@ -23,7 +23,7 @@ public class GrafanaUpdateController {
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdateDashboardNameRequest updateDashboardNameRequest
     ){
-        grafanaService.updateDashboardName(userId, updateDashboardNameRequest);
+        updateService.updateDashboardName(userId, updateDashboardNameRequest);
         return ResponseEntity
                 .ok().build();
     }
@@ -34,7 +34,7 @@ public class GrafanaUpdateController {
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelRequest updateRequest
     ){
-        grafanaService.updateChart(userId, updateRequest);
+        updateService.updateChart(userId, updateRequest);
 
         return ResponseEntity
                 .ok().build();
@@ -46,7 +46,7 @@ public class GrafanaUpdateController {
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelPriorityRequest updatePriority
     ){
-        grafanaService.updatePriority(userId, updatePriority);
+        updateService.updatePriority(userId, updatePriority);
 
         return ResponseEntity
                 .ok().build();

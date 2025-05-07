@@ -1,8 +1,8 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.frontdto.create.CreateDashboardRequest;
-import com.nhnacademy.dashboard.dto.frontdto.create.CreatePanelRequest;
-import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
+import com.nhnacademy.dashboard.dto.front_dto.create.CreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.front_dto.create.CreatePanelRequest;
+import com.nhnacademy.dashboard.service.CreateService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GrafanaCreateController {
 
-    private final GrafanaServiceImpl grafanaService;
+    private final CreateService createService;
+
+    @PostMapping("/folders")
+    @Operation(summary = "모든 폴더 생성")
+    public ResponseEntity<Void> createAllFolder(
+    ){
+        createService.createAllFolder();
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
+    }
+
+    @PostMapping("/folder")
+    @Operation(summary = "새로운 폴더 생성")
+    public ResponseEntity<Void> createFolder(
+            @RequestHeader("X-UserId") String userId
+    ){
+        createService.createFolder(userId);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
+    }
 
     @PostMapping("/dashboards")
     @Operation(summary = "새로운 대시보드 추가")
@@ -26,7 +49,7 @@ public class GrafanaCreateController {
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CreateDashboardRequest createDashboardRequest) {
 
-        grafanaService.createDashboard(userId, createDashboardRequest);
+        createService.createDashboard(userId, createDashboardRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
@@ -39,7 +62,7 @@ public class GrafanaCreateController {
             @RequestBody CreatePanelRequest createPanelRequest
     ) {
 
-        grafanaService.createChart(userId, createPanelRequest);
+        createService.createChart(userId, createPanelRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

@@ -1,8 +1,8 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.frontdto.delete.DeleteDashboardRequest;
-import com.nhnacademy.dashboard.dto.frontdto.delete.DeletePanelRequest;
-import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
+import com.nhnacademy.dashboard.dto.front_dto.delete.DeleteDashboardRequest;
+import com.nhnacademy.dashboard.dto.front_dto.delete.DeletePanelRequest;
+import com.nhnacademy.dashboard.service.DeleteService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class GrafanaDeleteController {
-    private final GrafanaServiceImpl grafanaService;
+    private final DeleteService deleteService;
 
 
     @DeleteMapping("/folder")
     @Operation(summary = "폴더 삭제")
     public ResponseEntity<Void> deleteFolder(@RequestHeader ("X-User-Id") String userId){
-        grafanaService.removeFolder(userId);
+        deleteService.removeFolder(userId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -29,7 +29,7 @@ public class GrafanaDeleteController {
     @DeleteMapping("/dashboard")
     @Operation(summary = "대시보드 삭제")
     public ResponseEntity<Void> deleteDashboard(@RequestBody DeleteDashboardRequest deleteDashboardRequest){
-        grafanaService.removeDashboard(deleteDashboardRequest);
+        deleteService.removeDashboard(deleteDashboardRequest);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -38,7 +38,7 @@ public class GrafanaDeleteController {
     @Operation(summary = "차트 삭제")
     public ResponseEntity<Void> deleteChart(
             @RequestBody DeletePanelRequest deletePanelRequest){
-        grafanaService.removeChart(deletePanelRequest);
+        deleteService.removeChart(deletePanelRequest);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

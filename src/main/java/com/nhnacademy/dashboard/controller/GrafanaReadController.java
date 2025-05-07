@@ -1,12 +1,12 @@
 package com.nhnacademy.dashboard.controller;
 
-import com.nhnacademy.dashboard.dto.frontdto.read.ReadPanelRequest;
-import com.nhnacademy.dashboard.dto.frontdto.read.ReadFilterChartRequest;
-import com.nhnacademy.dashboard.dto.frontdto.response.DashboardInfoResponse;
-import com.nhnacademy.dashboard.dto.frontdto.response.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.frontdto.response.IframePanelResponse;
+import com.nhnacademy.dashboard.dto.front_dto.read.ReadPanelRequest;
+import com.nhnacademy.dashboard.dto.front_dto.read.ReadFilterChartRequest;
+import com.nhnacademy.dashboard.dto.front_dto.response.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.front_dto.response.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.front_dto.response.IframePanelResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
-import com.nhnacademy.dashboard.service.impl.GrafanaServiceImpl;
+import com.nhnacademy.dashboard.service.GetService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GrafanaReadController {
 
-    private final GrafanaServiceImpl grafanaService;
+    private final GetService grafanaService;
     /**
      * 모든 폴더를 조회하는 API.
      *

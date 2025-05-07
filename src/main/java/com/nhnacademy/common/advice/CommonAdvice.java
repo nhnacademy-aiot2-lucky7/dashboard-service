@@ -4,12 +4,41 @@ import com.nhnacademy.common.exception.CommonHttpException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
 public class CommonAdvice {
+
+    /**
+     * 요청 본문(@RequestBody)이 없거나 JSON 형식이 잘못되었을 때 발생하는 예외를 처리합니다.
+     *
+     * @param ex {@link HttpMessageNotReadableException} 예외 객체
+     * @return 400 Bad Request와 오류 메시지를 포함한 응답
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleMissingRequestBody(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Request body 없거나 잘못된 형식입니다: "+ ex.getMessage());
+    }
+
+    /**
+     * 요청 헤더(@RequestHeader)가 누락되었을 때 발생하는 예외를 처리합니다.
+     *
+     * @param ex {@link MissingRequestHeaderException} 예외 객체
+     * @return 400 Bad Request와 오류 메시지를 포함한 응답
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleMissingRequestHeader(MissingRequestHeaderException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Required request header 없습니다: "+ex.getMessage());
+    }
 
     /**
      * {@link CommonHttpException} 예외 처리 메서드입니다.
