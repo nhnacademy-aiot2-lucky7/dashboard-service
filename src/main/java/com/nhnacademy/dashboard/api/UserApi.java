@@ -1,7 +1,7 @@
 package com.nhnacademy.dashboard.api;
 
-import com.nhnacademy.dashboard.dto.user_dto.UserDepartmentResponse;
-import com.nhnacademy.dashboard.dto.user_dto.UserInfoResponse;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
+import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,15 +12,16 @@ import java.util.List;
 
 @FeignClient(
         name = "USER-SERVICE",
-        path = "/users")
+        path = "/users",
+        configuration = FeignClient.class)
 public interface UserApi {
 
     @GetMapping("/me")
-    ResponseEntity<UserInfoResponse> getDepartmentId(@RequestHeader("X-User-Id") String id);
+    ResponseEntity<UserInfoResponse> getUserInfo(@RequestHeader("X-User-Id") String id);
 
     @GetMapping("/departments")
-    ResponseEntity<List<UserDepartmentResponse>> getDepartment();
+    ResponseEntity<List<UserDepartmentResponse>> getDepartments();
 
-    @GetMapping("/departments/{id}")
-    ResponseEntity<UserDepartmentResponse> getDepartmentName(@PathVariable String id);
+    @GetMapping("/{departmentId}")
+    ResponseEntity<UserDepartmentResponse> getDepartment(@PathVariable String departmentId);
 }

@@ -1,12 +1,12 @@
 package com.nhnacademy.dashboard.api;
 
+import com.nhnacademy.common.config.FeignConfig;
 import com.nhnacademy.common.config.GrafanaApiConfig;
-import com.nhnacademy.dashboard.dto.front_dto.create.CreateFolderRequest;
-import com.nhnacademy.dashboard.dto.grafana_dto.GrafanaResponse;
-import com.nhnacademy.dashboard.dto.grafana_dto.JsonGrafanaDashboardRequest;
-import com.nhnacademy.dashboard.dto.front_dto.response.DashboardInfoResponse;
-import com.nhnacademy.dashboard.dto.front_dto.response.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.grafana_dto.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
+import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
+import com.nhnacademy.dashboard.dto.dashboard.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +17,10 @@ import java.util.List;
  * Grafana API와 통신하기 위한 Feign Client입니다.
  */
 @FeignClient(
-        name = "GRAFANA-SERVICE",
+        url = "https://grafana.luckyseven.live",
         path = "/api",
-        configuration = GrafanaApiConfig.class)
+        configuration = {FeignConfig.class, GrafanaApiConfig.class}
+)
 public interface GrafanaApi {
 
     /**
@@ -45,16 +46,7 @@ public interface GrafanaApi {
      * @return 폴더 리스트
      */
     @PostMapping(value = "/folders")
-    ResponseEntity<List<FolderInfoResponse>> createAllFolder(@RequestBody List<CreateFolderRequest> createFolderRequest);
-
-
-    /**
-     * 모든 폴더 목록을 생성합니다.
-     *
-     * @return 폴더 리스트
-     */
-    @PostMapping(value = "/folders")
-    ResponseEntity<FolderInfoResponse> createFolder(@RequestBody CreateFolderRequest createFolderRequest);
+    ResponseEntity<FolderInfoResponse> createFolder(@RequestBody List<CreateFolderRequest> createFolderRequest);
 
     /**
      * 폴더 ID와 타입을 기반으로 대시보드를 검색합니다.
@@ -65,7 +57,7 @@ public interface GrafanaApi {
      */
     @GetMapping("/search")
     List<DashboardInfoResponse> searchDashboards(
-            @RequestParam("folderIds") int folderId,
+            @RequestParam("folderIds") List<Integer> folderId,
             @RequestParam("type") String type
     );
 
@@ -76,7 +68,7 @@ public interface GrafanaApi {
      * @return 대시보드 정보
      */
     @GetMapping("/dashboards/uid/{uid}")
-    JsonGrafanaDashboardRequest getDashboardInfo(@PathVariable("uid") String uid);
+    GrafanaCreateDashboardRequest getDashboardInfo(@PathVariable("uid") String uid);
 
 
     /**
@@ -86,7 +78,7 @@ public interface GrafanaApi {
      * @return 생성된 차트 응답
      */
     @PostMapping("/dashboards/db")
-    ResponseEntity<GrafanaResponse> createChart(@RequestBody JsonGrafanaDashboardRequest dashboardBody);
+    ResponseEntity<GrafanaMetaResponse> updateDashboard(@RequestBody GrafanaCreateDashboardRequest dashboardBody);
 
     /**
      * 주어진 UID에 해당하는 폴더를 삭제하는 API입니다.
