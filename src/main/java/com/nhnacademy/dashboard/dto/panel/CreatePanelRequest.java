@@ -21,6 +21,10 @@ public class CreatePanelRequest {
      */
     private Integer panelId;
 
+    /**
+     * 패널의 이름.
+     */
+    private String panelTitle;
 
     /**
      * 측정하려는 데이터의 종류 모음 dto(field, gatewayId, sensorId)

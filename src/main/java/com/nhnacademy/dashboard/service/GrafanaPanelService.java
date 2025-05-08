@@ -52,8 +52,8 @@ public class GrafanaPanelService {
                     userId,
                     request.getGridPos(),
                     request.getType(),
-                    folderTitle,
-                    request.getPanelId(),
+                    existDashboard.getDashboard().getTitle(),
+                    request.getPanelTitle(),
                     fluxQuery);
 
             Dashboard dashboard = grafanaDashboardService.getDashboard(buildDashboardRequest);
@@ -155,7 +155,8 @@ public class GrafanaPanelService {
                 .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
                         dashboard.getDashboard().getTitle(),
-                        panel.getId()))
+                        panel.getId(),
+                        readPanelRequest.getFrom()))
                 .toList();
 
         return ResponseEntity.ok(responseList).getBody();
