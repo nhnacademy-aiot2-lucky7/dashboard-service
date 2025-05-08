@@ -56,7 +56,7 @@ public class GrafanaPanelService {
                     request.getPanelTitle(),
                     fluxQuery);
 
-            Dashboard dashboard = grafanaDashboardService.getDashboard(buildDashboardRequest);
+            Dashboard dashboard = grafanaDashboardService.buildDashboard(buildDashboardRequest);
 
             dashboardRequest.setDashboard(dashboard);
             dashboardRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
@@ -85,7 +85,7 @@ public class GrafanaPanelService {
 
         List<Panel> panels = existDashboard.getDashboard().getPanels();
         panels.addAll(buildDashboardRequest.getDashboard().getPanels());
-        Dashboard dashboard = grafanaDashboardService.getDashboard(buildDashboardRequest);
+        Dashboard dashboard = grafanaDashboardService.buildDashboard(buildDashboardRequest);
         dashboard.setPanels(panels);
 
         dashboardRequest.setDashboard(dashboard);
@@ -294,7 +294,7 @@ public class GrafanaPanelService {
         List<Panel> panels = existDashboard.getDashboard().getPanels();
         panels.removeIf(p -> p.getId().equals(deletePanelRequest.getPanelId()));
 
-        Dashboard dashboard = grafanaDashboardService.getDashboard(existDashboard);
+        Dashboard dashboard = grafanaDashboardService.buildDashboard(existDashboard);
         dashboard.setPanels(panels);
 
         existDashboard.setDashboard(dashboard);

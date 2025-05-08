@@ -18,11 +18,11 @@ import java.util.List;
 public interface UserApi {
 
     @GetMapping("/me")
-    ResponseEntity<UserInfoResponse> getUserInfo(@RequestHeader("X-User-Id") String id);
+    UserInfoResponse getUserInfo(@RequestHeader("X-User-Id") String id);
 
     @GetMapping("/departments")
-    ResponseEntity<List<UserDepartmentResponse>> getDepartments();
+    List<UserDepartmentResponse> getDepartments();
 
     @GetMapping("/{departmentId}")
-    ResponseEntity<UserDepartmentResponse> getDepartment(@PathVariable String departmentId);
+    UserDepartmentResponse getDepartment(@PathVariable String departmentId);
 }
