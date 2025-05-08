@@ -42,59 +42,45 @@ public class GrafanaPanelService {
     public void createPanel(String userId, CreatePanelRequest request) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
-        GrafanaCreateDashboardRequest dashboardRequest = new GrafanaCreateDashboardRequest();
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(folderTitle);
 
-        // 패널이 존재하지 않는 경우
-        if (existDashboard.getDashboard().getPanels().isEmpty()) {
-            String fluxQuery = grafanaDashboardService.generateFluxQuery(request.getSensorFieldRequestDto(), request.getAggregation(), request.getTime());
-            GrafanaCreateDashboardRequest buildDashboardRequest = grafanaDashboardService.buildDashboardRequest(
-                    userId,
-                    request.getGridPos(),
-                    request.getType(),
-                    existDashboard.getDashboard().getTitle(),
-                    request.getPanelTitle(),
-                    fluxQuery);
-
-            Dashboard dashboard = grafanaDashboardService.buildDashboard(buildDashboardRequest);
-
-            dashboardRequest.setDashboard(dashboard);
-            dashboardRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
-            dashboardRequest.setOverwrite(true);
-
-            log.info("CREATE CHART -> request: {}", dashboardRequest);
-
-            grafanaApi.updateDashboard(dashboardRequest).getBody();
-        }
-
-        String fluxQuery = grafanaDashboardService.generateFluxQuery(request.getSensorFieldRequestDto(), request.getAggregation(), request.getTime());
+        String fluxQuery = grafanaDashboardService.generateFluxQuery(
+                request.getSensorFieldRequestDto(),
+                request.getAggregation(),
+                request.getTime());
 
         // 이름이 중복된 경우
-        if (request.getPanelTitle().equals(existDashboard.getDashboard().getPanels().getFirst().getTitle())) {
-            String newTitle = sameName(request.getPanelTitle());
-            request.setPanelTitle(newTitle);
+        String panelTitle = request.getPanelTitle();
+        for (Panel panel : existDashboard.getDashboard().getPanels()) {
+            if (panel.getTitle().equals(panelTitle)) {
+                panelTitle = sameName(panelTitle);
+                break;
+            }
         }
 
-        GrafanaCreateDashboardRequest buildDashboardRequest = grafanaDashboardService.buildDashboardRequest(
+        GrafanaCreateDashboardRequest newDashboardRequest = grafanaDashboardService.buildDashboardRequest(
                 userId,
                 request.getGridPos(),
                 request.getType(),
                 existDashboard.getDashboard().getTitle(),
-                request.getPanelTitle(),
+                panelTitle,
                 fluxQuery);
 
+        Dashboard newDashboard = grafanaDashboardService.buildDashboard(newDashboardRequest);
+
+        // 기존 패널과 합쳐서 구성
         List<Panel> panels = existDashboard.getDashboard().getPanels();
-        panels.addAll(buildDashboardRequest.getDashboard().getPanels());
-        Dashboard dashboard = grafanaDashboardService.buildDashboard(buildDashboardRequest);
-        dashboard.setPanels(panels);
+        panels.addAll(newDashboard.getPanels());
+        newDashboard.setPanels(panels);
 
-        dashboardRequest.setDashboard(dashboard);
-        dashboardRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
-        dashboardRequest.setOverwrite(true);
+        GrafanaCreateDashboardRequest finalRequest = new GrafanaCreateDashboardRequest();
+        finalRequest.setDashboard(newDashboard);
+        finalRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
+        finalRequest.setOverwrite(true);
 
-        log.info("CREATE CHART -> request: {}", dashboardRequest);
+        log.info("CREATE CHART -> request: {}", finalRequest);
 
-        grafanaApi.updateDashboard(dashboardRequest);
+        grafanaApi.updateDashboard(finalRequest);
     }
 
     /**
@@ -107,19 +93,17 @@ public class GrafanaPanelService {
         int index = 1;
         String baseTitle = name;
 
-        int lastOpen = name.lastIndexOf('(');
-        int lastClose = name.lastIndexOf(')');
+        if (name.contains("(")) {
+            String[] parts = name.split("\\(");
+            baseTitle = parts[0];
 
-        if (lastOpen != -1 && lastClose == name.length() - 1 && !name.matches(".*\\d+.*")) {
-            String numberPart = name.substring(lastOpen + 1, lastClose);
+            String numberPart = parts[1].replace(")", "");
             try {
-                index = Integer.parseInt(numberPart) + 1;
-                baseTitle = name.substring(0, lastOpen);
+                index = Integer.parseInt(numberPart) + 1; // 숫자 + 1
             } catch (NumberFormatException e) {
-                // 숫자가 아닌 경우는 무시하고 index = 1, baseTitle = name 유지
-                log.info(e.getMessage());
+                log.info("NumberFormatException: " + e.getMessage());
             }
-        }else {
+        } else {
             Pattern pattern = Pattern.compile("(.*?)(\\d+)$");
             Matcher matcher = pattern.matcher(name);
             if (matcher.find()) {
