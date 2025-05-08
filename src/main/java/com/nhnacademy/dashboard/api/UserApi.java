@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.api;
 
+import com.nhnacademy.common.config.FeignConfig;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,7 +14,7 @@ import java.util.List;
 @FeignClient(
         name = "USER-SERVICE",
         path = "/users",
-        configuration = FeignClient.class)
+        configuration = FeignConfig.class)
 public interface UserApi {
 
     @GetMapping("/me")
