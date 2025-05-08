@@ -16,7 +16,7 @@ public class UpdatePanelRequest {
     private String dashboardUid;
 
     /**
-     * 패널의 제목.
+     * 패널의 고유 아이디.
      */
     private int panelId;
 
@@ -46,7 +46,9 @@ public class UpdatePanelRequest {
     private String aggregation;
 
     /**
-     * 데이터를 가져올 시간 범위 (예: 1시간, 1일 등).
+     * 데이터를 가져올 시간 범위
+     * 예) 1시간 전 -> 1h
+     * 3일전 -> 3d
      */
     private String time;
 

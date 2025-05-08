@@ -25,7 +25,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ResponseEntity<List<UserDepartmentResponse>> departmentResponseList = userApi.getDepartments();
 
-        if (!departmentResponseList.getStatusCode().is2xxSuccessful()) {
+        if (departmentResponseList.getBody() == null || departmentResponseList.getBody().isEmpty()) {
             throw new NotFoundException("부서 리스트가 존재하지 않습니다.");
         }
 

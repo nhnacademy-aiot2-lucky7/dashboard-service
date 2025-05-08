@@ -4,7 +4,7 @@ import com.nhnacademy.common.config.FeignConfig;
 import com.nhnacademy.common.config.GrafanaApiConfig;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
-import com.nhnacademy.dashboard.dto.dashboard.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -56,7 +56,7 @@ public interface GrafanaApi {
      * @return 대시보드 정보 리스트
      */
     @GetMapping("/search")
-    List<DashboardInfoResponse> searchDashboards(
+    List<InfoDashboardResponse> searchDashboards(
             @RequestParam("folderIds") List<Integer> folderId,
             @RequestParam("type") String type
     );

@@ -31,9 +31,9 @@ public class GrafanaPanelController {
      * @param readPanelRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
      * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
      */
-    @GetMapping(value = "/dashboards/charts")
+    @GetMapping
     @Operation(summary = "차트 조회")
-    public ResponseEntity<List<IframePanelResponse>> getChartByName(
+    public ResponseEntity<List<IframePanelResponse>> getPanel(
             @RequestBody ReadPanelRequest readPanelRequest) {
 
         List<IframePanelResponse> result = grafanaPanelService.getPanel(readPanelRequest);
@@ -47,9 +47,9 @@ public class GrafanaPanelController {
      * @param readFilterPanelRequest 대시보드 UID 및 필터 조건이 포함된 요청 객체
      * @return 필터 조건에 부합하는 차트 목록을 반환합니다.
      */
-    @GetMapping("/dashboards/filtered-chart")
+    @GetMapping
     @Operation(summary ="메인페이지 on/off 필터 조회")
-    public ResponseEntity<List<IframePanelResponse>> getDashboardCharts(
+    public ResponseEntity<List<IframePanelResponse>> getFilterPanel(
             @RequestBody ReadPanelRequest readFilterPanelRequest,
             @RequestParam List<Integer> offPanelId
     ) {
@@ -58,9 +58,9 @@ public class GrafanaPanelController {
     }
 
 
-    @PostMapping("/charts")
+    @PostMapping
     @Operation(summary = "새로운 차트 추가")
-    public ResponseEntity<Void> createChart(
+    public ResponseEntity<Void> createPanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CreatePanelRequest createPanelRequest
     ) {
@@ -73,9 +73,9 @@ public class GrafanaPanelController {
     }
 
 
-    @PutMapping("/dashboards/charts")
+    @PutMapping
     @Operation(summary = "차트 쿼리 수정")
-    public ResponseEntity<Void> updateChart(
+    public ResponseEntity<Void> updatePanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelRequest updateRequest
     ){
@@ -85,7 +85,7 @@ public class GrafanaPanelController {
                 .ok().build();
     }
 
-    @PutMapping("/dashboards/priority")
+    @PutMapping("/priority")
     @Operation(summary = "차트 우선순위 수정")
     public ResponseEntity<Void> updatePriority(
             @RequestHeader("X-User-Id") String userId,
@@ -97,9 +97,9 @@ public class GrafanaPanelController {
                 .ok().build();
     }
 
-    @DeleteMapping("/chart")
+    @DeleteMapping
     @Operation(summary = "차트 삭제")
-    public ResponseEntity<Void> deleteChart(
+    public ResponseEntity<Void> deletePanel(
             @RequestBody DeletePanelRequest deletePanelRequest){
         grafanaPanelService.removePanel(deletePanelRequest);
 

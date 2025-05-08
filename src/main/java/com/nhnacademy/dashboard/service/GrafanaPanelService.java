@@ -234,7 +234,7 @@ public class GrafanaPanelService {
         List<Panel> panels = existDashboard.getDashboard().getPanels();
 
         int yPos = 0;
-        for(Integer targetPanelId : updatePanelPriorityRequest.getDashboardPriority()){
+        for(Integer targetPanelId : updatePanelPriorityRequest.getPanelPriority()){
             Panel panel = panels.stream()
                     .filter(p -> p.getId().equals(targetPanelId))
                     .findFirst()

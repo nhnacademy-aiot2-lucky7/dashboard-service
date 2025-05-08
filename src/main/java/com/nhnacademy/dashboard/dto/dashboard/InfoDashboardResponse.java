@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DashboardInfoResponse {
+public class InfoDashboardResponse {
     private int dashboardId;
     private String dashboardTitle;
     private String dashboardUid;

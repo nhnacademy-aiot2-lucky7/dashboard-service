@@ -12,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpdatePanelPriorityRequest {
     private String dashboardUid;
-    private List<Integer> dashboardPriority;
+    private List<Integer> panelPriority;
 }

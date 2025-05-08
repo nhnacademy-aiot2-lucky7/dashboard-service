@@ -2,7 +2,7 @@ package com.nhnacademy.dashboard.controller;
 
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
-import com.nhnacademy.dashboard.dto.dashboard.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,10 +31,10 @@ public class GrafanaDashboardController {
     @GetMapping("/names")
     @Operation(summary ="모든 대시보드 이름 조회")
     public ResponseEntity<List<String>> getDashboardName(@RequestHeader("X-User-Id") String userId) {
-        List<DashboardInfoResponse> dashboards = grafanaDashboardService.getDashboard(userId);
+        List<InfoDashboardResponse> dashboards = grafanaDashboardService.getDashboard(userId);
 
         List<String> result = dashboards.stream()
-                .map(DashboardInfoResponse::getDashboardTitle)
+                .map(InfoDashboardResponse::getDashboardTitle)
                 .toList();
 
         return ResponseEntity.ok(result);
@@ -48,9 +48,9 @@ public class GrafanaDashboardController {
      */
     @GetMapping
     @Operation(summary ="모든 대시보드 조회")
-    public ResponseEntity<List<DashboardInfoResponse>> getAllDashboard(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<List<InfoDashboardResponse>> getAllDashboard(@RequestHeader("X-User-Id") String userId) {
 
-        List<DashboardInfoResponse> result = grafanaDashboardService.getDashboard(userId);
+        List<InfoDashboardResponse> result = grafanaDashboardService.getDashboard(userId);
         return ResponseEntity.ok(result);
     }
 

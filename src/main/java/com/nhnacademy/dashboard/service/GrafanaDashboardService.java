@@ -3,7 +3,7 @@ package com.nhnacademy.dashboard.service;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
-import com.nhnacademy.dashboard.dto.dashboard.DashboardInfoResponse;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.*;
@@ -34,10 +34,10 @@ public class GrafanaDashboardService {
      * @param userId 사용자 ID
      * @return 대시보드 목록
      */
-    public List<DashboardInfoResponse> getDashboard(String userId) {
+    public List<InfoDashboardResponse> getDashboard(String userId) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
-        List<DashboardInfoResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
+        List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
         return dashboards;
     }
@@ -75,8 +75,8 @@ public class GrafanaDashboardService {
      * @return 대시보드 정보
      * @throws NotFoundException 해당 제목의 대시보드가 없을 경우
      */
-    public DashboardInfoResponse getDashboardInfoRequest(String userId, String dashboardTitle){
-        List<DashboardInfoResponse> dashboardInfoResponseList = getDashboard(userId);
+    public InfoDashboardResponse getDashboardInfoRequest(String userId, String dashboardTitle){
+        List<InfoDashboardResponse> dashboardInfoResponseList = getDashboard(userId);
         return dashboardInfoResponseList.stream()
                 .filter(d -> d.getDashboardTitle().equals(dashboardTitle))
                 .findFirst()
@@ -118,7 +118,7 @@ public class GrafanaDashboardService {
         }
 
         GrafanaCreateDashboardRequest dashboardRequest = new GrafanaCreateDashboardRequest();
-        DashboardInfoResponse dashboardInfoResponse = getDashboardInfoRequest(userId, updateDashboardNameRequest.getDashboardNewTitle());
+        InfoDashboardResponse dashboardInfoResponse = getDashboardInfoRequest(userId, updateDashboardNameRequest.getDashboardNewTitle());
         Dashboard dashboard = new Dashboard(
                 dashboardInfoResponse.getDashboardId(),
                 dashboardInfoResponse.getDashboardUid(),
@@ -157,7 +157,7 @@ public class GrafanaDashboardService {
      */
     public GrafanaCreateDashboardRequest buildDashboardRequest(String userId, GridPos gridPos, String type, String dashboardTitle, String panelTitle, String fluxQuery) {
 
-        DashboardInfoResponse dashboardInfoResponse = getDashboardInfoRequest(userId, dashboardTitle);
+        InfoDashboardResponse infoDashboardResponse = getDashboardInfoRequest(userId, dashboardTitle);
 
         Datasource datasource = new Datasource(INFLUXDB_UID);
 
@@ -165,8 +165,8 @@ public class GrafanaDashboardService {
         Panel panel = new Panel(type, panelTitle, gridPos, List.of(target), datasource);
 
         Dashboard dashboard = new Dashboard(
-                dashboardInfoResponse.getDashboardId(),
-                dashboardInfoResponse.getDashboardUid(),
+                infoDashboardResponse.getDashboardId(),
+                infoDashboardResponse.getDashboardUid(),
                 dashboardTitle,
                 List.of(panel));
 

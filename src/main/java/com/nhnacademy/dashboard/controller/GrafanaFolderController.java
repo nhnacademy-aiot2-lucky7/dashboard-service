@@ -36,20 +36,12 @@ public class GrafanaFolderController {
     @PostMapping
     @Operation(summary = "새로운 폴더 생성")
     public ResponseEntity<Void> createFolder(
-            @RequestBody String departmentId
+            @RequestBody String departmentName
     ){
-        grafanaFolderService.createFolder(departmentId);
+        grafanaFolderService.createFolder(departmentName);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
-    }
-
-    @DeleteMapping
-    @Operation(summary = "폴더 삭제")
-    public ResponseEntity<Void> deleteFolder(@RequestHeader("X-User-Id") String userId){
-        grafanaFolderService.removeFolder(userId);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -4,17 +4,14 @@ import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -91,26 +88,9 @@ public class GrafanaFolderService {
     /**
      * 새로운 부서 정보를 개별 생성합니다.
      */
-    public void createFolder(String departmentId) {
-        ResponseEntity<UserDepartmentResponse> userInfoResponse = userApi.getDepartment(departmentId);
+    public void createFolder(String departmentName) {
 
-        if(!userInfoResponse.getStatusCode().is2xxSuccessful()){
-            throw new NotFoundException("유저정보가 존재하지 않습니다.");
-        }
-
-        String departmentName = Objects.requireNonNull(userInfoResponse.getBody()).getDepartmentName();
         List<CreateFolderRequest> createFolderRequest = Collections.singletonList(new CreateFolderRequest(departmentName));
         grafanaApi.createFolder(createFolderRequest);
-    }
-
-    /**
-     * 사용자의 부서 정보를 기준으로 폴더를 찾아 해당 Grafana 폴더를 삭제합니다.
-     *
-     * @param userId 사용자 ID
-     */
-    public void removeFolder(String userId) {
-        String folderTitle = getFolderTitle(userId);
-        String uid = getFolderUidByTitle(folderTitle);
-        grafanaApi.deleteFolder(uid);
     }
 }
