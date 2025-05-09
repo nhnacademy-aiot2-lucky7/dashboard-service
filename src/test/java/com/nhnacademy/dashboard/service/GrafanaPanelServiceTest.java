@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +114,8 @@ class GrafanaPanelServiceTest {
                         Mockito.anyString()))
                 .thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.buildDashboard(grafanaCreateDashboardRequest)).thenReturn(grafanaCreateDashboardRequest.getDashboard());
-        Mockito.when(grafanaApi.updateDashboard(grafanaCreateDashboardRequest)).thenReturn(ResponseEntity.ok(null));
+        Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class)))
+                .thenReturn(null);
 
         panelService.createPanel("1", createPanelRequest);
 
@@ -190,6 +190,7 @@ class GrafanaPanelServiceTest {
                 "3d"
         );
 
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("1");
         Mockito.when(folderService.getFolderUidByTitle(Mockito.anyString())).thenReturn("folder-uid");
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
 

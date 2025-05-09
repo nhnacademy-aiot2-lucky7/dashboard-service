@@ -45,8 +45,6 @@ class GrafanaDashboardServiceTest {
     @Test
     @DisplayName("대시보드 조회")
     void getDashboard() {
-
-        Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
@@ -108,7 +106,7 @@ class GrafanaDashboardServiceTest {
     @Test
     @DisplayName("대시보드 제목에 해당하는 정보 반환")
     void getDashboardInfoRequest() {
-        Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
+
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
@@ -169,8 +167,6 @@ class GrafanaDashboardServiceTest {
         UpdateDashboardNameRequest updateDashboardNameRequest = new UpdateDashboardNameRequest("dashboard-uid", "dashboard-title");
 
         Mockito.when(grafanaApi.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
-        Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
         BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () ->
                 dashboardService.updateDashboardName("1",updateDashboardNameRequest));
@@ -211,7 +207,6 @@ class GrafanaDashboardServiceTest {
     @Test
     @DisplayName("대시보드 요청에 대한 기본 구조 생성")
     void buildDashboardRequest() {
-        Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 

@@ -102,7 +102,6 @@ class GrafanaFolderServiceTest {
     @DisplayName("부서명으로 폴더 ID 조회")
     void getFolderIdByTitle() {
 
-        Mockito.when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
         Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
         List<Integer> folderId = folderService.getFolderIdByTitle("folder-title");
 
@@ -114,7 +113,6 @@ class GrafanaFolderServiceTest {
     @DisplayName("부서명으로 폴더 UID 조회")
     void getFolderUidByTitle() {
 
-        Mockito.when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
         Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
         String folderUid = folderService.getFolderUidByTitle("folder-title");
 
