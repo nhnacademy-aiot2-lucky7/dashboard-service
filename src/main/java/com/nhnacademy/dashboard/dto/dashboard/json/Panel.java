@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.dto.dashboard.json;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Panel {
     private Integer id;
     private String type;
