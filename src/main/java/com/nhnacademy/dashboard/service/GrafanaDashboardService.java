@@ -52,13 +52,13 @@ public class GrafanaDashboardService {
     public GrafanaCreateDashboardRequest getDashboardInfo(String dashboardUid) {
         GrafanaCreateDashboardRequest dashboard = grafanaApi.getDashboardInfo(dashboardUid);
         if (dashboard == null || dashboard.getDashboard() == null) {
-            throw new NotFoundException("Dashboard not found for UID: " + dashboardUid);
+            throw new NotFoundException("대시보드의 상세 정보를 조회하지 못했습니다. 해당 UID: " + dashboardUid);
         }
         return dashboard;
     }
 
 
-    public Dashboard getDashboard(GrafanaCreateDashboardRequest buildDashboardRequest) {
+    public Dashboard buildDashboard(GrafanaCreateDashboardRequest buildDashboardRequest) {
         return new Dashboard(
                 buildDashboardRequest.getDashboard().getId(),
                 buildDashboardRequest.getDashboard().getUid(),
@@ -118,7 +118,7 @@ public class GrafanaDashboardService {
         }
 
         GrafanaCreateDashboardRequest dashboardRequest = new GrafanaCreateDashboardRequest();
-        InfoDashboardResponse dashboardInfoResponse = getDashboardInfoRequest(userId, updateDashboardNameRequest.getDashboardNewTitle());
+        InfoDashboardResponse dashboardInfoResponse = getDashboardInfoRequest(userId, existDashboard.getDashboard().getTitle());
         Dashboard dashboard = new Dashboard(
                 dashboardInfoResponse.getDashboardId(),
                 dashboardInfoResponse.getDashboardUid(),
@@ -132,7 +132,7 @@ public class GrafanaDashboardService {
         dashboardRequest.setOverwrite(true);
 
         log.info("UPDATE CHART Name -> request: {}", dashboardRequest);
-        grafanaApi.updateDashboard(dashboardRequest).getBody();
+        grafanaApi.updateDashboard(dashboardRequest);
     }
 
     /**
@@ -141,6 +141,8 @@ public class GrafanaDashboardService {
      * @param deleteDashboardRequest 삭제할 대시보드 정보를 담은 요청 객체
      */
     public void removeDashboard(DeleteDashboardRequest deleteDashboardRequest) {
+        getDashboardInfo(deleteDashboardRequest.getDashboardUid());
+
         grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
     }
 
@@ -170,10 +172,10 @@ public class GrafanaDashboardService {
                 dashboardTitle,
                 List.of(panel));
 
-        GrafanaCreateDashboardRequest jsonGrafanaDashboardRequest = new GrafanaCreateDashboardRequest();
-        jsonGrafanaDashboardRequest.setDashboard(dashboard);
+        GrafanaCreateDashboardRequest grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest();
+        grafanaCreateDashboardRequest.setDashboard(dashboard);
 
-        return jsonGrafanaDashboardRequest;
+        return grafanaCreateDashboardRequest;
     }
 
     public String generateFluxQuery(List<SensorFieldRequestDto> filters, String aggregation, String time) {

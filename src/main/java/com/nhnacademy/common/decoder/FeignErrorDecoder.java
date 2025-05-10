@@ -25,4 +25,3 @@ public class FeignErrorDecoder implements ErrorDecoder {
         return new CommonHttpException(response.status(), message);
     }
 }
-

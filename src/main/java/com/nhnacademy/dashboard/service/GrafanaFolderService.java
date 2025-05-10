@@ -29,7 +29,11 @@ public class GrafanaFolderService {
     public List<FolderInfoResponse> getAllFolders() {
         List<FolderInfoResponse> folders = grafanaApi.getAllFolders();
 
-        log.info("전체 폴더: {}", folders.toString());
+        if(folders.isEmpty()){
+            throw new NotFoundException("Grafana에 등록된 폴더가 없습니다.");
+        }
+
+        log.info("전체 폴더 개수: {}", folders.size());
         return folders;
     }
 
@@ -42,7 +46,7 @@ public class GrafanaFolderService {
      * @throws NotFoundException 사용자가 없거나 부서가 없을 경우
      */
     public String getFolderTitle(String userId){
-        UserInfoResponse userInfoResponse = userApi.getUserInfo(userId).getBody();
+        UserInfoResponse userInfoResponse = userApi.getUserInfo(userId);
 
         if(userInfoResponse == null){
             throw new NotFoundException("user 찾을 수 없습니다: "+userId);

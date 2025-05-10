@@ -55,7 +55,7 @@ public class GrafanaDashboardController {
     }
 
     @PostMapping
-    @Operation(summary = "새로운 대시보드 추가")
+    @Operation(summary = "대시보드 생성")
     public ResponseEntity<Void> createDashboard(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CreateDashboardRequest createDashboardRequest) {

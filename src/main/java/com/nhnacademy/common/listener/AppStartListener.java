@@ -8,7 +8,6 @@ import com.nhnacademy.dashboard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,13 +22,13 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        ResponseEntity<List<UserDepartmentResponse>> departmentResponseList = userApi.getDepartments();
+        List<UserDepartmentResponse> departmentResponseList = userApi.getDepartments();
 
-        if (departmentResponseList.getBody() == null || departmentResponseList.getBody().isEmpty()) {
+        if (departmentResponseList == null || departmentResponseList.isEmpty()) {
             throw new NotFoundException("부서 리스트가 존재하지 않습니다.");
         }
 
-        List<CreateFolderRequest> departmentNameList = Objects.requireNonNull(departmentResponseList.getBody()).stream()
+        List<CreateFolderRequest> departmentNameList = Objects.requireNonNull(departmentResponseList).stream()
                 .map(d -> new CreateFolderRequest(d.getDepartmentName()))
                 .toList();
 
