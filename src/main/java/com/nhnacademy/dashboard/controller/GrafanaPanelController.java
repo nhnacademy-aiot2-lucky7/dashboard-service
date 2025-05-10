@@ -32,7 +32,7 @@ public class GrafanaPanelController {
      * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
      */
     @GetMapping
-    @Operation(summary = "차트 조회")
+    @Operation(summary = "패널 조회")
     public ResponseEntity<List<IframePanelResponse>> getPanel(
             @RequestBody ReadPanelRequest readPanelRequest) {
 
@@ -59,7 +59,7 @@ public class GrafanaPanelController {
 
 
     @PostMapping
-    @Operation(summary = "새로운 차트 추가")
+    @Operation(summary = "새로운 패널 추가")
     public ResponseEntity<Void> createPanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CreatePanelRequest createPanelRequest
@@ -74,7 +74,7 @@ public class GrafanaPanelController {
 
 
     @PutMapping
-    @Operation(summary = "차트 쿼리 수정")
+    @Operation(summary = "패널 쿼리 수정")
     public ResponseEntity<Void> updatePanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelRequest updateRequest
@@ -86,7 +86,7 @@ public class GrafanaPanelController {
     }
 
     @PutMapping("/priority")
-    @Operation(summary = "차트 우선순위 수정")
+    @Operation(summary = "패널 우선순위 수정")
     public ResponseEntity<Void> updatePriority(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelPriorityRequest updatePriority
@@ -98,7 +98,7 @@ public class GrafanaPanelController {
     }
 
     @DeleteMapping
-    @Operation(summary = "차트 삭제")
+    @Operation(summary = "패널 삭제")
     public ResponseEntity<Void> deletePanel(
             @RequestBody DeletePanelRequest deletePanelRequest){
         grafanaPanelService.removePanel(deletePanelRequest);

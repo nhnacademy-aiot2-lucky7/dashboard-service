@@ -63,7 +63,7 @@ class GrafanaPanelServiceTest {
                         3,
                         "p-type3",
                         "p-title3",
-                        new GridPos(15, 7),
+                        new GridPos(15, 7, 8),
                         new ArrayList<>(),
                         new Datasource()
                 )

@@ -21,8 +21,7 @@ import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GrafanaPanelController.class)
 @AutoConfigureMockMvc
@@ -55,8 +54,8 @@ class GrafanaPanelControllerTest {
                 "D-TITLE",
                 1,
                 "P-TITLE",
-                List.of(new SensorFieldRequestDto("battery","12345","abc")),
-                new GridPos(12,8),
+                List.of(new SensorFieldRequestDto("battery", "12345", "abc")),
+                new GridPos(12, 8),
                 "time_series",
                 "mean",
                 "1d");
@@ -109,14 +108,14 @@ class GrafanaPanelControllerTest {
 
     @Test
     @DisplayName("패널 생성")
-    void createPanel() throws Exception{
+    void createPanel() throws Exception {
 
         Mockito.doNothing().when(panelService).createPanel(Mockito.anyString(), Mockito.any(CreatePanelRequest.class));
 
         mockMvc.perform(post("/panels")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("X-User-Id", "user123")
-                .content(new ObjectMapper().writeValueAsString(panelRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(panelRequest)))
                 .andExpect(status().isCreated())
                 .andDo(print());
 
@@ -125,14 +124,14 @@ class GrafanaPanelControllerTest {
 
     @Test
     @DisplayName("패널 수정")
-    void updatePanel() throws Exception{
+    void updatePanel() throws Exception {
 
         UpdatePanelRequest updatePanelRequest = new UpdatePanelRequest(
                 "update-dashboardUid",
                 1,
                 "update-panelTitle",
-                List.of(new SensorFieldRequestDto("co2","12345","abc")),
-                new GridPos(15,7),
+                List.of(new SensorFieldRequestDto("co2", "12345", "abc")),
+                new GridPos(15, 7),
                 "histogram",
                 "min",
                 "3d"
@@ -152,9 +151,9 @@ class GrafanaPanelControllerTest {
 
     @Test
     @DisplayName("우선순위 수정")
-    void updatePriority() throws Exception{
+    void updatePriority() throws Exception {
 
-        UpdatePanelPriorityRequest updatePanelPriorityRequest = new UpdatePanelPriorityRequest("dashboard-uid",List.of(1,2,3));
+        UpdatePanelPriorityRequest updatePanelPriorityRequest = new UpdatePanelPriorityRequest("dashboard-uid", List.of(1, 2, 3));
 
         Mockito.doNothing().when(panelService).updatePriority(Mockito.anyString(), Mockito.any(UpdatePanelPriorityRequest.class));
 
@@ -171,9 +170,9 @@ class GrafanaPanelControllerTest {
 
     @Test
     @DisplayName("패널 삭제")
-    void deletePanel() throws Exception{
+    void deletePanel() throws Exception {
 
-        DeletePanelRequest deletePanelRequest = new DeletePanelRequest("dashboard-uid",1);
+        DeletePanelRequest deletePanelRequest = new DeletePanelRequest("dashboard-uid", 1);
 
         Mockito.doNothing().when(panelService).removePanel(Mockito.any(DeletePanelRequest.class));
 

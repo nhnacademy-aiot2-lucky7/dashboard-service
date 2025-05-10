@@ -13,6 +13,7 @@ public class GrafanaApiConfig {
 
     @Bean
     public RequestInterceptor requestInterceptor() {
-        return template -> template.header("Authorization", "Bearer " + apiKey);
+        return template ->
+                template.header("Authorization", "Bearer " + apiKey);
     }
 }
