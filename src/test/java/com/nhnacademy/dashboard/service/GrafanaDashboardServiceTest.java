@@ -4,7 +4,6 @@ import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
@@ -34,11 +33,9 @@ class GrafanaDashboardServiceTest {
     GrafanaDashboardService dashboardService;
 
     private InfoDashboardResponse infoDashboardResponse;
-    private FolderInfoResponse folderInfoResponse;
 
     @BeforeEach
     void setUp() {
-        folderInfoResponse = new FolderInfoResponse(1, "folder-uid", "folder-title");
         infoDashboardResponse = new InfoDashboardResponse(1, "dashboard-title", "dashboard-uid", "folder-uid", 1);
     }
 

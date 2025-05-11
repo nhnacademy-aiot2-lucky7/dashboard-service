@@ -49,7 +49,7 @@ class IntegrationTest {
 
     @Test
     @DisplayName("폴더 생성")
-    void createFolder_success() {
+    void createFolder_actual_success() {
         String departmentName = "TEST Department";
 
         folderService.createFolder(departmentName);
