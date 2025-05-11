@@ -52,19 +52,19 @@ class GrafanaFolderControllerTest {
                 .andExpect(jsonPath("$[1].title").value("folder-2"));
 
     }
-//
-//    @Test
-//    @DisplayName("폴더 생성")
-//    void createFolder() throws Exception {
-//
-//        Mockito.doNothing().when(folderService).createFolder(Mockito.anyString());
-//
-//        mockMvc.perform(post("/folders")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString("IT Department")))
-//                .andExpect(status().isCreated())
-//                .andDo(print());
-//
-//        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
-//    }
+
+    @Test
+    @DisplayName("폴더 생성")
+    void createFolder() throws Exception {
+
+        Mockito.doNothing().when(folderService).createFolder(Mockito.anyString());
+
+        mockMvc.perform(post("/folders")
+                .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString("IT Department")))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
+    }
 }

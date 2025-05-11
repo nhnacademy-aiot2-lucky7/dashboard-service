@@ -48,9 +48,9 @@ class IntegrationTest {
 
 
     @Test
-    @DisplayName("폴더 생성")
-    void createFolder_actual_success() {
-        String departmentName = "TEST Department";
+    @DisplayName("폴더 생성 및 확인")
+    void createFolder_actual_check() {
+        String departmentName = "TEST Department1";
 
         folderService.createFolder(departmentName);
 
