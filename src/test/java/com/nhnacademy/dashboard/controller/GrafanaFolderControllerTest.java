@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @WebMvcTest(GrafanaFolderController.class)
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs
 class GrafanaFolderControllerTest {
 
     @Autowired
@@ -49,7 +52,8 @@ class GrafanaFolderControllerTest {
                 .andExpect(jsonPath("$[0].title").value("folder-1"))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].uid").value("UID-2"))
-                .andExpect(jsonPath("$[1].title").value("folder-2"));
+                .andExpect(jsonPath("$[1].title").value("folder-2"))
+                .andDo(document("get-folders"));
 
     }
 
@@ -63,7 +67,8 @@ class GrafanaFolderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString("IT Department")))
                 .andExpect(status().isCreated())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("create-folder"));
 
         Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
     }

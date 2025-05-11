@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(GrafanaDashboardController.class)
 @AutoConfigureMockMvc
 @Import(CommonAdvice.class)
+@AutoConfigureRestDocs
 class GrafanaDashboardControllerTest {
 
     @Autowired
@@ -62,7 +65,8 @@ class GrafanaDashboardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").value("D-TITLE"))
                 .andExpect(jsonPath("$[1]").value("D-TITLE2"))
-                .andExpect(jsonPath("$[2]").value("D-TITLE3"));
+                .andExpect(jsonPath("$[2]").value("D-TITLE3"))
+                .andDo(document("get-dashboard-names"));
 
 
         Mockito.verify(dashboardService, Mockito.times(1)).getDashboard("user123");
@@ -81,7 +85,8 @@ class GrafanaDashboardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].dashboardTitle").value("D-TITLE"))
                 .andExpect(jsonPath("$[1].dashboardUid").value("D-UID2"))
-                .andExpect(jsonPath("$[2].folderUid").value("F-UID3"));
+                .andExpect(jsonPath("$[2].folderUid").value("F-UID3"))
+                .andDo(document("get-all-dashboards"));
 
 
         Mockito.verify(dashboardService, Mockito.times(1)).getDashboard("user123");
@@ -98,7 +103,8 @@ class GrafanaDashboardControllerTest {
                         .header("X-User-Id", "user123")
                         .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("create-dashboard"));
 
         Mockito.verify(dashboardService, Mockito.times(1)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
     }
@@ -113,7 +119,8 @@ class GrafanaDashboardControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Required request header 없습니다: ")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Required request header 없습니다: ")))
+                .andDo(document("create-dashboard-fail-missing-header"));
 
         Mockito.verify(dashboardService, Mockito.times(0)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
     }
@@ -131,7 +138,8 @@ class GrafanaDashboardControllerTest {
                 .header("X-User-Id", "user123")
                 .content(new ObjectMapper().writeValueAsString(updateDashboardNameRequest)))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("update-dashboard-name"));
 
         Mockito.verify(dashboardService, Mockito.times(1)).updateDashboardName(Mockito.anyString(), Mockito.any(UpdateDashboardNameRequest.class));
     }
@@ -149,7 +157,8 @@ class GrafanaDashboardControllerTest {
                         .header("X-User-Id", "user123")
                         .content(new ObjectMapper().writeValueAsString(deleteDashboardRequest)))
                 .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("delete-dashboard"));
 
         Mockito.verify(dashboardService, Mockito.times(1)).removeDashboard(Mockito.any(DeleteDashboardRequest.class));
     }
