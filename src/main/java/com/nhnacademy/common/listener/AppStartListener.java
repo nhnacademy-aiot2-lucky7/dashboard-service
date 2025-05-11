@@ -32,6 +32,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
                 .map(d -> new CreateFolderRequest(d.getDepartmentName()))
                 .toList();
 
-        grafanaApi.createFolder(departmentNameList);
+        for(CreateFolderRequest department: departmentNameList){
+            grafanaApi.createFolder(department);
+        }
     }
 }

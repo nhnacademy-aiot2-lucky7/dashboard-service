@@ -1,6 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.common.advice.CommonAdvice;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
@@ -12,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(GrafanaPanelController.class)
 @AutoConfigureMockMvc
+@Import(CommonAdvice.class)
 class GrafanaPanelControllerTest {
 
     @Autowired
@@ -184,4 +187,19 @@ class GrafanaPanelControllerTest {
 
         Mockito.verify(panelService, Mockito.times(1)).removePanel(Mockito.any(DeletePanelRequest.class));
     }
+
+    @Test
+    @DisplayName("패널 삭제: 요청바디 누락")
+    void deletePanel_fail() throws Exception {
+
+        Mockito.doNothing().when(panelService).removePanel(Mockito.any(DeletePanelRequest.class));
+
+        mockMvc.perform(delete("/panels")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Request body 없거나 잘못된 형식입니다")));
+
+        Mockito.verify(panelService, Mockito.times(0)).removePanel(Mockito.any(DeletePanelRequest.class));
+    }
+
 }

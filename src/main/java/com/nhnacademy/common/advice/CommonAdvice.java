@@ -21,7 +21,6 @@ public class CommonAdvice {
      * @return 400 Bad Request와 오류 메시지를 포함한 응답
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleMissingRequestBody(HttpMessageNotReadableException ex) {
         String message = ex.getMessage() != null ? ex.getMessage() : "Request body 없거나 잘못된 형식입니다: 요청 본문이 없습니다.";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

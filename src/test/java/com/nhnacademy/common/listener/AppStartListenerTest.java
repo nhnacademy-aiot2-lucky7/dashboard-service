@@ -2,6 +2,7 @@ package com.nhnacademy.common.listener;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +42,7 @@ class AppStartListenerTest {
 
         listener.onApplicationEvent(Mockito.mock(ApplicationReadyEvent.class));
 
-        Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.anyList());
+        Mockito.verify(grafanaApi, Mockito.times(2)).createFolder(Mockito.any(CreateFolderRequest.class));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.common.advice.CommonAdvice;
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
@@ -13,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,11 +24,11 @@ import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GrafanaDashboardController.class)
 @AutoConfigureMockMvc
+@Import(CommonAdvice.class)
 class GrafanaDashboardControllerTest {
 
     @Autowired
@@ -102,6 +104,21 @@ class GrafanaDashboardControllerTest {
     }
 
     @Test
+    @DisplayName("대시보드 생성 실패: requestHeader 누락")
+    void createDashboard_fail() throws Exception {
+
+        Mockito.doNothing().when(dashboardService).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
+
+        mockMvc.perform(post("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Required request header 없습니다: ")));
+
+        Mockito.verify(dashboardService, Mockito.times(0)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
+    }
+
+    @Test
     @DisplayName("대시보드 수정")
     void updateDashboard() throws Exception {
 
@@ -131,7 +148,7 @@ class GrafanaDashboardControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-User-Id", "user123")
                         .content(new ObjectMapper().writeValueAsString(deleteDashboardRequest)))
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(status().isNoContent())
                 .andDo(print());
 
         Mockito.verify(dashboardService, Mockito.times(1)).removeDashboard(Mockito.any(DeleteDashboardRequest.class));

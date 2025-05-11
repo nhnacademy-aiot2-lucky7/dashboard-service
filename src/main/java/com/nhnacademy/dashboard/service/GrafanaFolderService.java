@@ -94,7 +94,7 @@ public class GrafanaFolderService {
      */
     public void createFolder(String departmentName) {
 
-        List<CreateFolderRequest> createFolderRequest = Collections.singletonList(new CreateFolderRequest(departmentName));
+        CreateFolderRequest createFolderRequest = new CreateFolderRequest(departmentName);
         grafanaApi.createFolder(createFolderRequest);
     }
 }

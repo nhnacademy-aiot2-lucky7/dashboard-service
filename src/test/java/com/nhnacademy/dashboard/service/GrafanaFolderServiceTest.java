@@ -2,6 +2,7 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
@@ -145,6 +146,6 @@ class GrafanaFolderServiceTest {
 
         folderService.createFolder(departmentName);
 
-        Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.anyList());
+        Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.any(CreateFolderRequest.class));
     }
 }

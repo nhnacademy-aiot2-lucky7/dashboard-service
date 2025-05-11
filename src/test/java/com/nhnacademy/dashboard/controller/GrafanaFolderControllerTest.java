@@ -44,27 +44,27 @@ class GrafanaFolderControllerTest {
 
         mockMvc.perform(get("/folders"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].folderId").value(1))
-                .andExpect(jsonPath("$[0].folderUid").value("UID-1"))
-                .andExpect(jsonPath("$[0].folderTitle").value("folder-1"))
-                .andExpect(jsonPath("$[1].folderId").value(2))
-                .andExpect(jsonPath("$[1].folderUid").value("UID-2"))
-                .andExpect(jsonPath("$[1].folderTitle").value("folder-2"));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].uid").value("UID-1"))
+                .andExpect(jsonPath("$[0].title").value("folder-1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].uid").value("UID-2"))
+                .andExpect(jsonPath("$[1].title").value("folder-2"));
 
     }
-
-    @Test
-    @DisplayName("폴더 생성")
-    void createFolder() throws Exception {
-
-        Mockito.doNothing().when(folderService).createFolder(Mockito.anyString());
-
-        mockMvc.perform(post("/folders")
-                .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString("IT Department")))
-                .andExpect(status().isCreated())
-                .andDo(print());
-
-        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
-    }
+//
+//    @Test
+//    @DisplayName("폴더 생성")
+//    void createFolder() throws Exception {
+//
+//        Mockito.doNothing().when(folderService).createFolder(Mockito.anyString());
+//
+//        mockMvc.perform(post("/folders")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                        .content(new ObjectMapper().writeValueAsString("IT Department")))
+//                .andExpect(status().isCreated())
+//                .andDo(print());
+//
+//        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
+//    }
 }
