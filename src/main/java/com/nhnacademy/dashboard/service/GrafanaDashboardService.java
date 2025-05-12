@@ -80,7 +80,7 @@ public class GrafanaDashboardService {
         return dashboardInfoResponseList.stream()
                 .filter(d -> d.getDashboardTitle().equals(dashboardTitle))
                 .findFirst()
-                .orElseThrow(()->new NotFoundException("대시보드제목을 찾을 수 없습니다: "+dashboardTitle));
+                .orElse(null);
     }
 
 
@@ -96,6 +96,11 @@ public class GrafanaDashboardService {
         log.info("folderTitle:{}", folderTitle);
 
         String folderUid = grafanaFolderService.getFolderUidByTitle(folderTitle);
+
+        InfoDashboardResponse dashboardResponse = getDashboardInfoRequest(userId, createDashboardRequest.getDashboardTitle());
+        if(dashboardResponse != null){
+            throw new BadRequestException("이미 존재하는 대시보드 이름입니다: "+createDashboardRequest.getDashboardTitle());
+        }
 
         GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(new Dashboard(createDashboardRequest.getDashboardTitle(), new ArrayList<>()), folderUid, true);
         grafanaApi.createDashboard(request);
@@ -121,17 +126,16 @@ public class GrafanaDashboardService {
         InfoDashboardResponse dashboardInfoResponse = getDashboardInfoRequest(userId, existDashboard.getDashboard().getTitle());
         Dashboard dashboard = new Dashboard(
                 dashboardInfoResponse.getDashboardId(),
-                dashboardInfoResponse.getDashboardUid(),
                 updateDashboardNameRequest.getDashboardNewTitle(),
+                dashboardInfoResponse.getDashboardUid(),
                 existDashboard.getDashboard().getPanels());
-        int version = dashboard.getVersion();
-        dashboard.setVersion(version+1);
+        dashboard.setVersion(existDashboard.getDashboard().getVersion()+1);
 
         dashboardRequest.setDashboard(dashboard);
-        dashboardRequest.setFolderUid(existDashboard.getFolderUid());
+        dashboardRequest.setFolderUid(dashboardInfoResponse.getFolderUid());
         dashboardRequest.setOverwrite(true);
 
-        log.info("UPDATE CHART Name -> request: {}", dashboardRequest);
+        log.info("folderUid : {}", dashboardInfoResponse.getFolderUid());
         grafanaApi.updateDashboard(dashboardRequest);
     }
 

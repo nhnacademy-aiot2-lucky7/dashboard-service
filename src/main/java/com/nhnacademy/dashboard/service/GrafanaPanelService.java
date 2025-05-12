@@ -2,6 +2,8 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
+import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
@@ -42,7 +44,7 @@ public class GrafanaPanelService {
     public void createPanel(String userId, CreatePanelRequest request) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
-        GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(folderTitle);
+        GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getSensorFieldRequestDto(),
@@ -157,8 +159,9 @@ public class GrafanaPanelService {
 
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(dashboardUid);
         List<Panel> panel = dashboard.getDashboard().getPanels();
+        log.info("panelId:{}", panel.getFirst().getId());
 
-        if (panel == null) {
+        if (panel.getFirst().getId() == null) {
             throw new NotFoundException("panel not found for uid: " + dashboardUid);
         }
 
@@ -240,8 +243,8 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboardRequest = new GrafanaCreateDashboardRequest();
         Dashboard dashboard = new Dashboard(
                 existDashboard.getDashboard().getId(),
-                existDashboard.getDashboard().getUid(),
                 existDashboard.getDashboard().getTitle(),
+                existDashboard.getDashboard().getUid(),
                 panels
         );
 

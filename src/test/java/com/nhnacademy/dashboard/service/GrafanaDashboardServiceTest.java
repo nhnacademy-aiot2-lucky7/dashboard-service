@@ -148,7 +148,7 @@ class GrafanaDashboardServiceTest {
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
 
-        dashboardService.updateDashboardName("1", new UpdateDashboardNameRequest("dashboard-uid", "NEW TITLE"));
+        dashboardService.updateDashboardName("user123",new UpdateDashboardNameRequest("dashboard-uid", "NEW TITLE"));
 
         Mockito.verify(grafanaApi, Mockito.times(1)).updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class));
     }

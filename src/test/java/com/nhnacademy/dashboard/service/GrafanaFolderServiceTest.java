@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -126,14 +127,15 @@ class GrafanaFolderServiceTest {
     void getFolderByTitle() {
 
         Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of(folderInfoResponse));
-        FolderInfoResponse folderInfoResponse1 = folderService.getFolderByTitle("folder-title");
+        Optional<FolderInfoResponse> folderInfoResponse1 = folderService.getFolderByTitle("folder-title");
 
         Assertions.assertNotNull(folderInfoResponse1);
+        Assertions.assertTrue(folderInfoResponse1.isPresent());
         Assertions.assertAll(
                 ()->{
-                    Assertions.assertEquals(1,folderInfoResponse1.getFolderId());
-                    Assertions.assertEquals("folder-uid",folderInfoResponse1.getFolderUid());
-                    Assertions.assertEquals("folder-title",folderInfoResponse1.getFolderTitle());
+                    Assertions.assertEquals(1,folderInfoResponse1.get().getFolderId());
+                    Assertions.assertEquals("folder-uid",folderInfoResponse1.get().getFolderUid());
+                    Assertions.assertEquals("folder-title",folderInfoResponse1.get().getFolderTitle());
                 }
         );
     }

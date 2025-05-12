@@ -47,8 +47,10 @@ class GrafanaDashboardControllerTest {
     void setUP() {
         dashboardResponses = new ArrayList<>();
         dashboardResponses.add(new InfoDashboardResponse(1, "D-TITLE", "D-UID", "F-UID", 1));
-        dashboardResponses.add(new InfoDashboardResponse(1, "D-TITLE2", "D-UID2", "F-UID2", 1));
-        dashboardResponses.add(new InfoDashboardResponse(1, "D-TITLE3", "D-UID3", "F-UID3", 1));
+        dashboardResponses.add(new InfoDashboardResponse(2, "D-TITLE2", "D-UID2", "F-UID", 1));
+        dashboardResponses.add(new InfoDashboardResponse(3, "D-TITLE3", "D-UID3", "F-UID", 1));
+        dashboardResponses.add(new InfoDashboardResponse(4, "A", "D-UID4", "F-UID", 1));
+
 
         request = new CreateDashboardRequest("A");
     }
@@ -83,9 +85,9 @@ class GrafanaDashboardControllerTest {
                         .header("X-User-Id", "user123")
                         .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].dashboardTitle").value("D-TITLE"))
-                .andExpect(jsonPath("$[1].dashboardUid").value("D-UID2"))
-                .andExpect(jsonPath("$[2].folderUid").value("F-UID3"))
+                .andExpect(jsonPath("$[0].title").value("D-TITLE"))
+                .andExpect(jsonPath("$[1].uid").value("D-UID2"))
+                .andExpect(jsonPath("$[2].folderUid").value("F-UID"))
                 .andDo(document("get-all-dashboards"));
 
 
@@ -110,6 +112,23 @@ class GrafanaDashboardControllerTest {
     }
 
     @Test
+    @DisplayName("대시보드 생성 실패: 중복된 이름")
+    void createDashboard_duplicated_fail() throws Exception {
+
+        Mockito.when(dashboardService.getDashboard(Mockito.anyString())).thenReturn(dashboardResponses);
+
+        mockMvc.perform(post("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("이미 존재하는 대시보드 이름입니다: ")))
+                .andDo(document("create-dashboard-duplicated-fail"));
+
+        Mockito.verify(dashboardService, Mockito.times(0)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
+    }
+
+    @Test
     @DisplayName("대시보드 생성 실패: requestHeader 누락")
     void createDashboard_fail() throws Exception {
 
@@ -131,7 +150,7 @@ class GrafanaDashboardControllerTest {
 
         UpdateDashboardNameRequest updateDashboardNameRequest = new UpdateDashboardNameRequest("dashboard-uid", "dashboard-title");
 
-        Mockito.doNothing().when(dashboardService).updateDashboardName(Mockito.anyString(), Mockito.any(UpdateDashboardNameRequest.class));
+        Mockito.doNothing().when(dashboardService).updateDashboardName(Mockito.anyString(),Mockito.any(UpdateDashboardNameRequest.class));
 
         mockMvc.perform(put("/dashboards/name")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +160,7 @@ class GrafanaDashboardControllerTest {
                 .andDo(print())
                 .andDo(document("update-dashboard-name"));
 
-        Mockito.verify(dashboardService, Mockito.times(1)).updateDashboardName(Mockito.anyString(), Mockito.any(UpdateDashboardNameRequest.class));
+        Mockito.verify(dashboardService, Mockito.times(1)).updateDashboardName(Mockito.anyString(),Mockito.any(UpdateDashboardNameRequest.class));
     }
 
     @Test

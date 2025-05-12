@@ -71,8 +71,8 @@ public class GrafanaDashboardController {
     public ResponseEntity<Void> updateDashboard(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdateDashboardNameRequest updateDashboardNameRequest
-    ){
-        grafanaDashboardService.updateDashboardName(userId, updateDashboardNameRequest);
+    ) {
+        grafanaDashboardService.updateDashboardName(userId,updateDashboardNameRequest);
         return ResponseEntity
                 .ok().build();
     }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -61,7 +62,13 @@ public class GrafanaFolderService {
      * @return 폴더 ID
      */
     public List<Integer> getFolderIdByTitle(String folderTitle) {
-        return Collections.singletonList(getFolderByTitle(folderTitle).getFolderId());
+
+        Optional<FolderInfoResponse> folderInfo = getFolderByTitle(folderTitle);
+        if (folderInfo.isPresent()) {
+            return Collections.singletonList(folderInfo.get().getFolderId());
+        } else {
+            throw new NotFoundException("폴더를 찾을 수 없습니다: " + folderTitle);
+        }
     }
 
     /**
@@ -72,21 +79,25 @@ public class GrafanaFolderService {
      */
 
     public String getFolderUidByTitle(String folderTitle) {
-        return getFolderByTitle(folderTitle).getFolderUid();
+        Optional<FolderInfoResponse> folderInfo = getFolderByTitle(folderTitle);
+        if (folderInfo.isPresent()) {
+            return folderInfo.get().getFolderUid();
+        } else {
+            throw new NotFoundException("폴더를 찾을 수 없습니다: " + folderTitle);
+        }
     }
 
     /**
      * 폴더 제목을 기반으로 해당 폴더 정보를 조회합니다.
      *
-     * @param folderTitle 폴더 제목
+     * @param folderTitle 폴더 제목S
      * @return 폴더 정보
      * @throws NotFoundException 폴더가 존재하지 않을 경우
      */
-    public FolderInfoResponse getFolderByTitle(String folderTitle) {
+    public Optional<FolderInfoResponse> getFolderByTitle(String folderTitle) {
         return grafanaApi.getAllFolders().stream()
                 .filter(folder -> folderTitle.equals(folder.getFolderTitle()))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Folder not found: " + folderTitle));
+                .findFirst();
     }
 
     /**
