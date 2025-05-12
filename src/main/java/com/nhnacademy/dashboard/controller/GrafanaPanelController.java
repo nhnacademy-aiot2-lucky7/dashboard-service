@@ -100,8 +100,9 @@ public class GrafanaPanelController {
     @DeleteMapping
     @Operation(summary = "패널 삭제")
     public ResponseEntity<Void> deletePanel(
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody DeletePanelRequest deletePanelRequest){
-        grafanaPanelService.removePanel(deletePanelRequest);
+        grafanaPanelService.removePanel(userId,deletePanelRequest);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

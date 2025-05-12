@@ -2,6 +2,7 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.Datasource;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
@@ -265,11 +266,20 @@ class GrafanaPanelServiceTest {
                 "dashboard-uid",
                 1
         );
+
+        InfoDashboardResponse infoDashboardResponse = new InfoDashboardResponse(
+                1,
+                "title",
+                "uid",
+                "f-uid",
+                1
+                );
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
+        Mockito.when(dashboardService.getDashboardInfoRequest(Mockito.anyString(), Mockito.anyString())).thenReturn(infoDashboardResponse);
         Mockito.when(dashboardService.buildDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(grafanaCreateDashboardRequest.getDashboard());
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
 
-        panelService.removePanel(deletePanelRequest);
+        panelService.removePanel("user123",deletePanelRequest);
 
         boolean panelExists = grafanaCreateDashboardRequest.getDashboard()
                 .getPanels()

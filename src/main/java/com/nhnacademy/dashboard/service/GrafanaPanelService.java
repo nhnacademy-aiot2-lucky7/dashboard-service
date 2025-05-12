@@ -3,7 +3,6 @@ package com.nhnacademy.dashboard.service;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
@@ -260,16 +259,18 @@ public class GrafanaPanelService {
      *
      * @param deletePanelRequest 삭제할 패널 정보를 담은 요청 객체
      */
-    public void removePanel(DeletePanelRequest deletePanelRequest) {
+    public void removePanel(String userId,DeletePanelRequest deletePanelRequest) {
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(deletePanelRequest.getDashboardUid());
         List<Panel> panels = new ArrayList<>(existDashboard.getDashboard().getPanels());
         panels.removeIf(p -> p.getId().equals(deletePanelRequest.getPanelId()));
+
+        InfoDashboardResponse dashboardInfoResponse = grafanaDashboardService.getDashboardInfoRequest(userId, existDashboard.getDashboard().getTitle());
 
         Dashboard dashboard = grafanaDashboardService.buildDashboard(existDashboard);
         dashboard.setPanels(panels);
 
         existDashboard.setDashboard(dashboard);
-        existDashboard.setFolderUid(existDashboard.getFolderUid());
+        existDashboard.setFolderUid(dashboardInfoResponse.getFolderUid());
         existDashboard.setOverwrite(true);
 
         grafanaApi.updateDashboard(existDashboard);

@@ -30,7 +30,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -67,6 +66,7 @@ class IntegrationTest {
     private UserApi userApi;
 
     private UserInfoResponse userInfoResponse;
+
     @BeforeEach
     void setUp(){
         userInfoResponse = new UserInfoResponse(
@@ -79,20 +79,20 @@ class IntegrationTest {
         );
     }
 
-//    @AfterAll
-//    void tearDown() {
-//        grafanaApi.getAllFolders().stream()
-//                .filter(f -> f.getFolderTitle().equals("TEST Department"))
-//                .forEach(f -> {
-//                    try {
-//                        grafanaApi.deleteFolder(f.getFolderUid());
-//                        log.info("uid:{}", f.getFolderUid());
-//                    } catch (Exception e) {
-//                        // 로그만 남기고 무시
-//                        log.warn("폴더 삭제 실패 (무시됨): {}", e.getMessage());
-//                    }
-//                });
-//    }
+    @AfterAll
+    void tearDown() {
+        grafanaApi.getAllFolders().stream()
+                .filter(f -> f.getFolderTitle().equals("TEST Department"))
+                .forEach(f -> {
+                    try {
+                        grafanaApi.deleteFolder(f.getFolderUid());
+                        log.info("uid:{}", f.getFolderUid());
+                    } catch (Exception e) {
+                        // 로그만 남기고 무시
+                        log.warn("폴더 삭제 실패 (무시됨): {}", e.getMessage());
+                    }
+                });
+    }
 
     @Test
     @Order(1)
@@ -325,52 +325,66 @@ class IntegrationTest {
                 .andDo(document("update-priority-actual"));
 
     }
-//
-//    @Test
-//    @Order(9)
-//    @DisplayName("패널 삭제")
-//    void deletePanel() throws Exception {
-//
-//        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-//
-//        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
-//        DeletePanelRequest deletePanelRequest = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 2);
-//
-//        mockMvc.perform(delete("/panels")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString(deletePanelRequest)))
-//                .andExpect(status().is2xxSuccessful())
-//                .andDo(print())
-//                .andDo(document("delete-panel-actual"));
-//    }
-//
-//    @Test
-//    @Order(10)
-//    @DisplayName("패널 조회")
-//    void getPanel_actual() throws Exception {
-//
-//        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-//
-//        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
-//        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
-//
-//        mockMvc.perform(get("/panels")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString(request)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].panelId").value(3))
-//                .andExpect(jsonPath("$[1].panelId").value(1))
-//                .andDo(document("get-panel-acutal"));
-//
-//        DeletePanelRequest deletePanelRequest1 = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 3);
-//        DeletePanelRequest deletePanelRequest2 = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 1);
-//        panelService.removePanel(deletePanelRequest1);
-//        panelService.removePanel(deletePanelRequest2);
-//    }
 
+    @Test
+    @Order(9)
+    @DisplayName("패널 조회")
+    void getPanel_actual() throws Exception {
+
+        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
+
+        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
+        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
+
+        mockMvc.perform(get("/panels")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].panelId").value(3))
+                .andExpect(jsonPath("$[1].panelId").value(2))
+                .andExpect(jsonPath("$[2].panelId").value(1))
+                .andDo(document("get-panel-actual"));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("패널 삭제")
+    void deletePanel_actual() throws Exception {
+
+        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
+
+        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
+        DeletePanelRequest deletePanelRequest = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 2);
+        DeletePanelRequest deletePanelRequest1 = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 1);
+
+        panelService.removePanel("user123",deletePanelRequest1);
+
+        mockMvc.perform(delete("/panels")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(deletePanelRequest)))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print())
+                .andDo(document("delete-panel-actual"));
+    }
 
     @Test
     @Order(11)
+    @DisplayName("패널 삭제: 잘못된 요청")
+    void deletePanel_400_actual() throws Exception {
+
+        mockMvc.perform(delete("/panels")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andDo(document("delete-panel-400-actual"));
+    }
+
+
+    @Test
+    @Order(12)
     @DisplayName("대시보드 삭제")
     void deleteDashboard_actual() throws Exception {
 
@@ -386,5 +400,19 @@ class IntegrationTest {
                 .andExpect(status().isNoContent())
                 .andDo(print())
                 .andDo(document("delete-dashboard-actual"));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("대시보드 삭제: 잘못된 요청")
+    void deleteDashboard_400_actual() throws Exception {
+
+        mockMvc.perform(delete("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andDo(document("delete-dashboard-400-actual"));
     }
 }

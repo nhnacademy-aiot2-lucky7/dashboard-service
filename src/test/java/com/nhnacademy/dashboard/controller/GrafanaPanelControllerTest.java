@@ -185,31 +185,33 @@ class GrafanaPanelControllerTest {
 
         DeletePanelRequest deletePanelRequest = new DeletePanelRequest("dashboard-uid", 1);
 
-        Mockito.doNothing().when(panelService).removePanel(Mockito.any(DeletePanelRequest.class));
+        Mockito.doNothing().when(panelService).removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
 
         mockMvc.perform(delete("/panels")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
                         .content(new ObjectMapper().writeValueAsString(deletePanelRequest)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print())
                 .andDo(document("delete-panel"));
 
-        Mockito.verify(panelService, Mockito.times(1)).removePanel(Mockito.any(DeletePanelRequest.class));
+        Mockito.verify(panelService, Mockito.times(1)).removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
     }
 
     @Test
     @DisplayName("패널 삭제: 요청바디 누락")
     void deletePanel_fail() throws Exception {
 
-        Mockito.doNothing().when(panelService).removePanel(Mockito.any(DeletePanelRequest.class));
+        Mockito.doNothing().when(panelService).removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
 
         mockMvc.perform(delete("/panels")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Request body 없거나 잘못된 형식입니다")))
                 .andDo(document("delete-panel-fail"));
 
-        Mockito.verify(panelService, Mockito.times(0)).removePanel(Mockito.any(DeletePanelRequest.class));
+        Mockito.verify(panelService, Mockito.times(0)).removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
     }
 
 }

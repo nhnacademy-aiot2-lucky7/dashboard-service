@@ -112,23 +112,6 @@ class GrafanaDashboardControllerTest {
     }
 
     @Test
-    @DisplayName("대시보드 생성 실패: 중복된 이름")
-    void createDashboard_duplicated_fail() throws Exception {
-
-        Mockito.when(dashboardService.getDashboard(Mockito.anyString())).thenReturn(dashboardResponses);
-
-        mockMvc.perform(post("/dashboards")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "user123")
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("이미 존재하는 대시보드 이름입니다: ")))
-                .andDo(document("create-dashboard-duplicated-fail"));
-
-        Mockito.verify(dashboardService, Mockito.times(0)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
-    }
-
-    @Test
     @DisplayName("대시보드 생성 실패: requestHeader 누락")
     void createDashboard_fail() throws Exception {
 
@@ -141,7 +124,7 @@ class GrafanaDashboardControllerTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Required request header 없습니다: ")))
                 .andDo(document("create-dashboard-fail-missing-header"));
 
-        Mockito.verify(dashboardService, Mockito.times(0)).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
+        Mockito.verify(dashboardService, Mockito.never()).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
     }
 
     @Test

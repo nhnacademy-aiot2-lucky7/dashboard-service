@@ -38,6 +38,7 @@ public class GrafanaDashboardService {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
         List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
+
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
         return dashboards;
     }
@@ -61,8 +62,8 @@ public class GrafanaDashboardService {
     public Dashboard buildDashboard(GrafanaCreateDashboardRequest buildDashboardRequest) {
         return new Dashboard(
                 buildDashboardRequest.getDashboard().getId(),
-                buildDashboardRequest.getDashboard().getUid(),
                 buildDashboardRequest.getDashboard().getTitle(),
+                buildDashboardRequest.getDashboard().getUid(),
                 buildDashboardRequest.getDashboard().getPanels()
         );
     }
@@ -172,8 +173,8 @@ public class GrafanaDashboardService {
 
         Dashboard dashboard = new Dashboard(
                 infoDashboardResponse.getDashboardId(),
-                infoDashboardResponse.getDashboardUid(),
                 dashboardTitle,
+                infoDashboardResponse.getDashboardUid(),
                 List.of(panel));
 
         GrafanaCreateDashboardRequest grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest();
