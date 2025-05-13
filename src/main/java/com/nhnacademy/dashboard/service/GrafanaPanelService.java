@@ -177,12 +177,12 @@ public class GrafanaPanelService {
 
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(dashboardUid);
         List<Panel> panel = dashboard.getDashboard().getPanels();
-        log.info("panelId:{}", panel.getFirst().getId());
 
-        if (panel.getFirst().getId() == null) {
-            throw new NotFoundException("panel not found for uid: " + dashboardUid);
+        if (panel.isEmpty()) {
+            throw new NotFoundException("Uid에 해당하는 패널이 없습니다: " + dashboardUid);
         }
 
+        log.info("panelId:{}", panel.size());
         return panel.stream()
                 .filter(p -> !offPanelId.contains(p.getId()))
                 .map(p -> IframePanelResponse.ofNewIframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId()))

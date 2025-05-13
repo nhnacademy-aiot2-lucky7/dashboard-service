@@ -147,6 +147,26 @@ class GrafanaDashboardControllerTest {
     }
 
     @Test
+    @DisplayName("대시보드 수정 -> 서버 내부 에러 발생 (500)")
+    void updateDashboard_500() throws Exception {
+
+        UpdateDashboardNameRequest updateDashboardNameRequest =
+                new UpdateDashboardNameRequest("dashboard-uid", "dashboard-title");
+
+        Mockito.doThrow(new RuntimeException("Internal Server Error"))
+                .when(dashboardService)
+                .updateDashboardName(Mockito.anyString(), Mockito.any(UpdateDashboardNameRequest.class));
+
+        mockMvc.perform(put("/dashboards/name")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(updateDashboardNameRequest)))
+                .andExpect(status().isInternalServerError())
+                .andDo(print())
+                .andDo(document("update-dashboard-name"));
+    }
+
+    @Test
     @DisplayName("대시보드 삭제")
     void deleteDashboard() throws Exception{
 

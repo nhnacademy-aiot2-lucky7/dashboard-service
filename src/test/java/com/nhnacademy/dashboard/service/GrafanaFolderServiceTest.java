@@ -112,6 +112,18 @@ class GrafanaFolderServiceTest {
     }
 
     @Test
+    @DisplayName("부서명으로 폴더 ID 조회 -> 비어있는 리스트 반환")
+    void getFolderIdByTitle_404() {
+
+        Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of());
+
+        Assertions.assertThrows(NotFoundException.class, ()->{
+            folderService.getFolderIdByTitle("folder-title");
+        });
+    }
+
+
+    @Test
     @DisplayName("부서명으로 폴더 UID 조회")
     void getFolderUidByTitle() {
 
@@ -120,6 +132,17 @@ class GrafanaFolderServiceTest {
 
         Assertions.assertNotNull(folderUid);
         Assertions.assertEquals("folder-uid", folderUid);
+    }
+
+    @Test
+    @DisplayName("부서명으로 폴더 UID 조회 -> 비어있는 리스트 반환")
+    void getFolderUidByTitle_404() {
+
+        Mockito.when(grafanaApi.getAllFolders()).thenReturn(List.of());
+
+        Assertions.assertThrows(NotFoundException.class, ()->{
+            folderService.getFolderUidByTitle("folder-title");
+        });
     }
 
     @Test

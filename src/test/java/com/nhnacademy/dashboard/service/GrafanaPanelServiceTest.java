@@ -9,6 +9,7 @@ import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
+import com.nhnacademy.dashboard.exception.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -173,7 +174,30 @@ class GrafanaPanelServiceTest {
                     Assertions.assertEquals(3, result.getLast().getPanelId());
                 }
         );
+    }
 
+    @Test
+    @DisplayName("off 제외 패널 조회 -> 비어있는 패널 반환")
+    void getFilterPanel_404() {
+
+        grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest(
+                new Dashboard(
+                        1,
+                        "D-TITLE",
+                        "dashboard-uid",
+                        new ArrayList<>(),
+                        1,
+                        1
+                ),
+                "folder-uid",
+                true
+        );
+
+        List<Integer> offPanelId = new ArrayList<>();
+        offPanelId.add(1);
+        Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
+
+        Assertions.assertThrows(NotFoundException.class, ()-> panelService.getFilterPanel("dashboard-uid", offPanelId));
     }
 
     @Test

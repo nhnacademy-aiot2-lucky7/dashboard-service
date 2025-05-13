@@ -10,7 +10,6 @@ import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.service.GrafanaDashboardService;
 import com.nhnacademy.dashboard.service.GrafanaFolderService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,11 +44,6 @@ class DashboardMemoryListenerTest {
 
     @InjectMocks
     private DashboardMemoryListener listener;
-
-    @BeforeEach
-    void setUp() {
-        DashboardMemory.clearAll();
-    }
 
     @Test
     @DisplayName("ApplicationReadyEvent 발생 시 패널 정보 메모리에 저장됨")

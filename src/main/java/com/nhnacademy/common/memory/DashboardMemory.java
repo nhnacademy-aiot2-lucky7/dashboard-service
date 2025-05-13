@@ -50,11 +50,4 @@ public class DashboardMemory {
     public static void clearDashboard(String dashboardUid) {
         DASHBOARD_PANELS.remove(dashboardUid);
     }
-
-    /**
-     * 모든 dashboardUid와 panelId 정보를 초기화합니다.
-     */
-    public static void clearAll() {
-        DASHBOARD_PANELS.clear();
-    }
 }
