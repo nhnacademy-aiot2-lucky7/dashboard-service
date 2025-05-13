@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import java.util.List;
 
 @FeignClient(
-        name = "USER-SERVICE",
-        path = "/users",
+        name = "user-service",
         configuration = FeignConfig.class)
 public interface UserApi {
 
-    @GetMapping("/me")
+    @GetMapping("/users/me")
     UserInfoResponse getUserInfo(@RequestHeader("X-User-Id") String id);
 
     @GetMapping("/departments")
     List<UserDepartmentResponse> getDepartments();
 
-    @GetMapping("/{departmentId}")
+    @GetMapping("/departments/{departmentId}")
     UserDepartmentResponse getDepartment(@PathVariable String departmentId);
+
 }

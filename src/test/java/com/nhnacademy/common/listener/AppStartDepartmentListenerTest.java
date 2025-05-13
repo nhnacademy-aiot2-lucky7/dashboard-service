@@ -18,7 +18,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class AppStartListenerTest {
+class AppStartDepartmentListenerTest {
 
     @Mock
     private UserApi userApi;
@@ -27,7 +27,7 @@ class AppStartListenerTest {
     private GrafanaApi grafanaApi;
 
     @InjectMocks
-    private AppStartListener listener;
+    private AppStartDepartmentListener listener;
 
     @Test
     @DisplayName("정상 부서 목록일 때 Grafana 폴더 생성 호출")

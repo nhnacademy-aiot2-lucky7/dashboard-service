@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.service;
 
+import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
@@ -20,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -82,6 +85,16 @@ public class GrafanaPanelService {
         log.info("CREATE CHART -> request: {}", finalRequest);
 
         grafanaApi.updateDashboard(finalRequest);
+
+        Set<Integer> panelIds = newDashboard.getPanels()
+                .stream()
+                .map(Panel::getId)
+                .collect(Collectors.toSet());
+
+        panelIds.forEach(panelId ->
+                DashboardMemory.addPanel(finalRequest.getDashboard().getUid(), panelId));
+
+        log.info("panelId size:{}", panelIds.size());
     }
 
     /**
@@ -133,6 +146,12 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
 
         List<Panel> panels = dashboard.getDashboard().getPanels();
+
+        boolean allIdsNull = panels.stream().allMatch(p -> p.getId() == null);
+        if (allIdsNull) {
+            throw new NotFoundException("panel not found for uid: " + readPanelRequest.getDashboardUid());
+        }
+
         List<IframePanelResponse> responseList = panels.stream()
                 .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
@@ -274,5 +293,7 @@ public class GrafanaPanelService {
         existDashboard.setOverwrite(true);
 
         grafanaApi.updateDashboard(existDashboard);
+
+        DashboardMemory.removePanel(deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
     }
 }

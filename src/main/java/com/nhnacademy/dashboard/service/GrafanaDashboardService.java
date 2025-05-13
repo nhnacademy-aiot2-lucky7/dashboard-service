@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.service;
 
+import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
@@ -149,6 +150,8 @@ public class GrafanaDashboardService {
         getDashboardInfo(deleteDashboardRequest.getDashboardUid());
 
         grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
+
+        DashboardMemory.clearDashboard(deleteDashboardRequest.getDashboardUid());
     }
 
     /**
@@ -169,7 +172,7 @@ public class GrafanaDashboardService {
         Datasource datasource = new Datasource(INFLUXDB_UID);
 
         Target target = new Target(datasource, fluxQuery);
-        Panel panel = new Panel(type, panelTitle, gridPos, List.of(target), datasource);
+        Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target), datasource);
 
         Dashboard dashboard = new Dashboard(
                 infoDashboardResponse.getDashboardId(),

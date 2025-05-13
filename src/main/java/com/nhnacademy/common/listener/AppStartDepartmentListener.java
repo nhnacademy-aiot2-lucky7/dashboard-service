@@ -5,6 +5,8 @@ import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import io.micrometer.common.lang.NonNullApi;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -14,8 +16,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
+@NonNullApi
 @RequiredArgsConstructor
-public class AppStartListener implements ApplicationListener<ApplicationReadyEvent> {
+@AllArgsConstructor
+public class AppStartDepartmentListener implements ApplicationListener<ApplicationReadyEvent> {
 
     private UserApi userApi;
     private GrafanaApi grafanaApi;
