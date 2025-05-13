@@ -130,6 +130,27 @@
 	<build>
 		<plugins>
 
+			<!-- Groovy 스크립트 자동 실행 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>groovy</executable>
+							<arguments>
+								<argument>src/main/groovy/UpdateAdoc.groovy</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- JaCoCo 커버리지 -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
