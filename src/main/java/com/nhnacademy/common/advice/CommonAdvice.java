@@ -1,7 +1,6 @@
 package com.nhnacademy.common.advice;
 
 import com.nhnacademy.common.exception.CommonHttpException;
-import com.nhnacademy.dashboard.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,8 @@ public class CommonAdvice {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleMissingRequestBody(HttpMessageNotReadableException ex) {
+        log.error("handleMissingRequestBody Error: {}", ex.getMessage(), ex);
+
         String message = ex.getMessage() != null ? ex.getMessage() : "요청 본문이 없습니다.";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Request body 없거나 잘못된 형식입니다: "+message);
@@ -37,6 +38,8 @@ public class CommonAdvice {
     @ExceptionHandler(MissingRequestHeaderException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleMissingRequestHeader(MissingRequestHeaderException ex) {
+        log.error("handleMissingRequestHeader Error: {}", ex.getMessage(), ex);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Required request header 없습니다: "+ex.getMessage());
     }
@@ -57,21 +60,6 @@ public class CommonAdvice {
         return ResponseEntity
                 .status(e.getStatusCode())
                 .body("CommonException: " + e.getMessage());
-    }
-
-    /**
-     * Handles {@link BadRequestException} by returning a 400 Bad Request response
-     * with the exception message as the response body.
-     *
-     * <p>이 메서드는 클라이언트의 요청이 유효하지 않아 {@code BadRequestException}이 발생했을 때
-     * 예외 메시지를 포함한 HTTP 400 응답을 반환합니다.</p>
-     *
-     * @param ex 처리할 {@code BadRequestException} 인스턴스
-     * @return HTTP 400 상태 코드와 예외 메시지를 포함한 {@link ResponseEntity}
-     */
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     /**ad

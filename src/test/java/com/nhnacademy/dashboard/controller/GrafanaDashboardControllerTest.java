@@ -6,6 +6,7 @@ import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
+import com.nhnacademy.dashboard.exception.NotFoundException;
 import com.nhnacademy.dashboard.service.GrafanaDashboardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -121,7 +123,7 @@ class GrafanaDashboardControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Required request header 없습니다: ")))
+                .andExpect(content().string(containsString("Required request header 없습니다: ")))
                 .andDo(document("create-dashboard-fail-missing-header"));
 
         Mockito.verify(dashboardService, Mockito.never()).createDashboard(Mockito.anyString(), Mockito.any(CreateDashboardRequest.class));
@@ -183,5 +185,26 @@ class GrafanaDashboardControllerTest {
                 .andDo(document("delete-dashboard"));
 
         Mockito.verify(dashboardService, Mockito.times(1)).removeDashboard(Mockito.any(DeleteDashboardRequest.class));
+    }
+
+    @Test
+    @DisplayName("대시보드 삭제 -> NotFoundException")
+    void deleteDashboard_404() throws Exception{
+
+        DeleteDashboardRequest deleteDashboardRequest = new DeleteDashboardRequest("");
+
+        Mockito.doThrow(new NotFoundException("해당 대시보드를 찾을 수 없습니다."))
+                .when(dashboardService)
+                .removeDashboard(Mockito.any(DeleteDashboardRequest.class));
+
+        mockMvc.perform(delete("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(deleteDashboardRequest)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().string(containsString("CommonException: ")))
+                .andDo(print())
+                .andDo(document("delete-dashboard-404"));
+
     }
 }

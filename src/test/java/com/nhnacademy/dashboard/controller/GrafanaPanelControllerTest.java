@@ -5,6 +5,7 @@ import com.nhnacademy.common.advice.CommonAdvice;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
+import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.service.GrafanaPanelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -212,6 +214,25 @@ class GrafanaPanelControllerTest {
                 .andDo(document("delete-panel-fail"));
 
         Mockito.verify(panelService, Mockito.times(0)).removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
+    }
+
+    @Test
+    @DisplayName("패널 삭제: Bad Request")
+    void deletePanel_400() throws Exception {
+
+        UpdatePanelPriorityRequest updatePanelPriorityRequest = new UpdatePanelPriorityRequest("dashboard-uid", List.of(1, 2, 3));
+
+        Mockito.doThrow(new BadRequestException("잘못된 요청입니다."))
+                .when(panelService)
+                .removePanel(Mockito.anyString(), Mockito.any(DeletePanelRequest.class));
+
+        mockMvc.perform(delete("/panels")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(updatePanelPriorityRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("CommonException: ")))
+                .andDo(document("delete-panel-fail"));
     }
 
 }
