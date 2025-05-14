@@ -74,6 +74,7 @@
 			<artifactId>spring-dotenv</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
@@ -99,13 +100,6 @@
 			<version>2.15.2</version>
 		</dependency>
 
-		<!-- Jackson Annotations -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>2.15.2</version>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -113,16 +107,24 @@
 			<version>2.19.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.asciidoctor/asciidoctorj -->
 		<dependency>
 			<groupId>org.asciidoctor</groupId>
 			<artifactId>asciidoctorj</artifactId>
-			<version>2.5.0</version>
+			<version>2.5.13</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.restdocs</groupId>
 			<artifactId>spring-restdocs-mockmvc</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.retry/spring-retry -->
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
+			<version>2.0.11</version>
 		</dependency>
 
 	</dependencies>

@@ -1,6 +1,5 @@
 package com.nhnacademy.common.memory;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,13 +33,11 @@ class DashboardMemoryTest {
     }
 
     @Test
-    @DisplayName("panelId가 null이지만 null 값도 추가되어 있었던 경우 제거 확인")
+    @DisplayName("panelId가 null -> dashboardUid 제거 확인")
     void removePanelWithDashboardUid() {
         DashboardMemory.removePanel("dashboard-uid", 1);
         DashboardMemory.removePanel("dashboard-uid", 2);
 
-        Set<Integer> panels = DashboardMemory.getPanels("dashboard-uid");
-        Assertions.assertTrue(panels.isEmpty(), "dashboardUid는 제거되어야 하므로 panel 목록은 비어 있어야 함");
-
+        assertTrue(DashboardMemory.getPanels("dashboard-uid").isEmpty());
     }
 }

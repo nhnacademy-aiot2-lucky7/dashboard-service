@@ -5,6 +5,7 @@ import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
+import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -29,10 +31,6 @@ public class GrafanaFolderService {
      */
     public List<FolderInfoResponse> getAllFolders() {
         List<FolderInfoResponse> folders = grafanaApi.getAllFolders();
-
-        if(folders.isEmpty()){
-            throw new NotFoundException("Grafana에 등록된 폴더가 없습니다.");
-        }
 
         log.info("전체 폴더 개수: {}", folders.size());
         return folders;
@@ -106,6 +104,17 @@ public class GrafanaFolderService {
     public void createFolder(String departmentName) {
 
         CreateFolderRequest createFolderRequest = new CreateFolderRequest(departmentName);
-        grafanaApi.createFolder(createFolderRequest);
+
+        Optional<FolderInfoResponse> duplicatedFolder = getAllFolders().stream()
+                .filter(folder -> Objects.equals(folder.getFolderTitle(), departmentName))
+                .findFirst();
+
+        if (duplicatedFolder.isPresent()) {
+            // 이미 존재하는 경우 처리
+            throw new BadRequestException("폴더 '" + departmentName + "'은 이미 존재합니다.");
+        } else {
+            // 생성 진행
+            grafanaApi.createFolder(createFolderRequest);
+        }
     }
 }

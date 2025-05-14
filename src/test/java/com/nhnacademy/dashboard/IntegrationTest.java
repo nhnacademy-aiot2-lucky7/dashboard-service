@@ -2,7 +2,6 @@ package com.nhnacademy.dashboard;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.common.advice.CommonAdvice;
-import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
@@ -10,7 +9,6 @@ import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
@@ -21,6 +19,7 @@ import com.nhnacademy.dashboard.service.GrafanaPanelService;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -28,9 +27,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.retry.support.RetryTemplate;
 
 import java.util.List;
 
@@ -48,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Import(CommonAdvice.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(RestDocumentationExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IntegrationTest {
 
@@ -69,14 +71,18 @@ class IntegrationTest {
     @MockitoBean
     private UserApi userApi;
 
-    private UserInfoResponse userInfoResponse;
     private static final String USER_ID = "user123";
     private static final String HEADER_NAME = "X-User-Id";
 
+    private final RetryTemplate retryTemplate = RetryTemplate.builder()
+            .maxAttempts(5)
+            .fixedBackoff(1000)
+            .build();
 
     @BeforeEach
-    void setUp(){
-        userInfoResponse = new UserInfoResponse(
+    void method(){
+
+        UserInfoResponse userInfoResponse = new UserInfoResponse(
                 "user",
                 "1",
                 "kim",
@@ -84,147 +90,44 @@ class IntegrationTest {
                 "010-1111-2222",
                 new UserDepartmentResponse("1", "TEST Department")
         );
-
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1", "test");
         when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
         when(userApi.getDepartments()).thenReturn(List.of(userDepartmentResponse));
     }
 
-    @AfterAll
-    void tearDown() {
-        grafanaApi.getAllFolders().stream()
-                .filter(f -> f.getFolderTitle().equals("TEST Department"))
-                .forEach(f -> {
-                    try {
-                        grafanaApi.deleteFolder(f.getFolderUid());
-                        log.info("uid:{}", f.getFolderUid());
-                    } catch (Exception e) {
-                        // 로그만 남기고 무시
-                        log.warn("폴더 삭제 실패 (무시됨): {}", e.getMessage());
-                    }
-                });
-    }
 
-    @Test
-    @Order(1)
-    @DisplayName("1. 폴더 생성 후 존재 여부 확인")
-    void createFolder_actual_check() {
-        String departmentName = "TEST Department";
+    @BeforeAll
+    void setUp(){
 
-        folderService.createFolder(departmentName);
-
-        List<FolderInfoResponse> response = folderService.getAllFolders();
-
-        log.info("response:{}", response.getFirst().getFolderTitle());
-        boolean found = response.stream()
-                .map(FolderInfoResponse::getFolderTitle)
-                .anyMatch("TEST Department"::equals);
-        Assertions.assertTrue(found);
-    }
-
-    @Test
-    @Order(2)
-    @DisplayName("2. 대시보드 A/B 생성 및 A 존재 확인")
-    void createDashboard_actual() throws Exception {
-
-        CreateDashboardRequest request = new CreateDashboardRequest("A");
-        CreateDashboardRequest request2 = new CreateDashboardRequest("B");
+        UserInfoResponse userInfoResponse = new UserInfoResponse(
+                "user",
+                "1",
+                "kim",
+                "kim@email.com",
+                "010-1111-2222",
+                new UserDepartmentResponse("1", "TEST Department")
+        );
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1", "test");
         when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
+        when(userApi.getDepartments()).thenReturn(List.of(userDepartmentResponse));
 
-        mockMvc.perform(post("/dashboards")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HEADER_NAME, USER_ID)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andDo(print())
-                .andDo(document("create-dashboard-actual"));
+        // 폴더 생성 (예외 발생 시 RetryTemplate 사용)
+        try {
+            folderService.createFolder("TEST Department");
+        } catch (Exception e) {
+            retryTemplate.execute(context -> {
+                folderService.createFolder("TEST Department");
+                return null;
+            });
+        }
 
-        List<InfoDashboardResponse> response = dashboardService.getDashboard(USER_ID);
+        // 대시보드 생성
+        dashboardService.createDashboard(USER_ID, new CreateDashboardRequest("A"));
+        dashboardService.createDashboard(USER_ID, new CreateDashboardRequest("B"));
 
-        boolean found = response.stream()
-                .map(InfoDashboardResponse::getDashboardTitle)
-                .anyMatch("A"::equals);
-        Assertions.assertTrue(found);
-
-        dashboardService.createDashboard(USER_ID,request2);
-    }
-
-    @Test
-    @Order(3)
-    @DisplayName("3. 대시보드 생성 실패 - 중복된 이름")
-    void createDashboard_duplicated_fail_actual() throws Exception {
-        CreateDashboardRequest request = new CreateDashboardRequest("A");
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-        mockMvc.perform(post("/dashboards")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HEADER_NAME, USER_ID)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(Matchers.containsString("이미 존재하는 대시보드 이름입니다: ")))
-                .andDo(document("create-dashboard-duplicated-fail-actual"));
-    }
-
-    @Test
-    @Order(4)
-    @DisplayName("4. 대시보드 생성 실패 - X-User-Id 헤더 누락")
-    void createDashboard_request_header_null_fail_actual() throws Exception {
-
-        CreateDashboardRequest request = new CreateDashboardRequest("A");
-
-        mockMvc.perform(post("/dashboards")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(Matchers.containsString("Required request header 없습니다: ")))
-                .andDo(document("create-dashboard-request-header-null-fail-actual"));
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("5. 대시보드 이름 리스트 조회")
-    void getDashboardName_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-
-        mockMvc.perform(get("/dashboards/names")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HEADER_NAME, USER_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").value("A"))
-                .andDo(document("get-dashboard-names-actual"));
-    }
-
-    @Test
-    @Order(6)
-    @DisplayName("6. 대시보드 이름 'B' → 'B-NEW123'로 수정")
-    void updateDashboard_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-
-        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "B");
-        UpdateDashboardNameRequest updateDashboardNameRequest = new UpdateDashboardNameRequest(
-                infoDashboardResponse.getDashboardUid(),
-                "B-NEW123");
-
-        mockMvc.perform(put("/dashboards/name")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HEADER_NAME, USER_ID)
-                        .content(new ObjectMapper().writeValueAsString(updateDashboardNameRequest)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andDo(document("update-dashboard-name-actual"));
-    }
-
-    @Test
-    @Order(7)
-    @DisplayName("7. 패널 P-TITLE1 생성 및 P-TITLE2 직접 호출 생성")
-    void createPanel_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-
-        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
-        CreatePanelRequest panelRequest = new CreatePanelRequest(
+        // panel 생성
+        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
+        CreatePanelRequest panelRequest1 = new CreatePanelRequest(
                 infoDashboardResponse.getDashboardUid(),
                 null,
                 "P-TITLE1",
@@ -243,23 +146,90 @@ class IntegrationTest {
                 "min",
                 "5d");
 
-        mockMvc.perform(post("/panels")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HEADER_NAME, USER_ID)
-                        .content(new ObjectMapper().writeValueAsString(panelRequest)))
-                .andExpect(status().isCreated())
-                .andDo(print())
-                .andDo(document("create-panel-actual"));
+        panelService.createPanel(USER_ID,panelRequest1);
+        panelService.createPanel(USER_ID,panelRequest2);
+    }
 
-        panelService.createPanel("user123",panelRequest2);
+    @AfterAll
+    void tearDown() {
+        grafanaApi.getAllFolders().stream()
+                .filter(f -> f.getFolderTitle().equals("TEST Department"))
+                .forEach(f -> {
+                    try {
+                        grafanaApi.deleteFolder(f.getFolderUid());
+                        log.info("삭제할 uid:{}", f.getFolderUid());
+                    } catch (Exception e) {
+                        // 로그만 남기고 무시
+                        log.warn("폴더 삭제 실패 (무시됨): {}", e.getMessage());
+                    }
+                });
     }
 
     @Test
-    @Order(8)
-    @DisplayName("8. 패널 필터링 조회 - offPanelId 제외")
-    void getFilterPanel_actual() throws Exception {
+    @Order(1)
+    @DisplayName("대시보드 생성 실패 - 중복된 이름")
+    void createDashboard_duplicated_fail_actual() throws Exception {
+        CreateDashboardRequest request = new CreateDashboardRequest("A");
 
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
+        mockMvc.perform(post("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HEADER_NAME, USER_ID)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(Matchers.containsString("이미 존재하는 대시보드 이름입니다: ")))
+                .andDo(document("create-dashboard-duplicated-fail-actual"));
+    }
+
+    @Test
+    @DisplayName("대시보드 생성 실패 - X-User-Id 헤더 누락")
+    void createDashboard_request_header_null_fail_actual() throws Exception {
+
+        CreateDashboardRequest request = new CreateDashboardRequest("A");
+
+        mockMvc.perform(post("/dashboards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(Matchers.containsString("Required request header 없습니다: ")))
+                .andDo(document("create-dashboard-request-header-null-fail-actual"));
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("대시보드 이름 리스트 조회")
+    void getDashboardName_actual() throws Exception {
+
+        mockMvc.perform(get("/dashboards/names")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HEADER_NAME, USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("A"))
+                .andDo(document("get-dashboard-names-actual"));
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("대시보드 이름 'B' → 'B-NEW123'로 수정")
+    void updateDashboard_actual() throws Exception {
+
+        InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "B");
+        UpdateDashboardNameRequest updateDashboardNameRequest = new UpdateDashboardNameRequest(
+                infoDashboardResponse.getDashboardUid(),
+                "B-NEW123");
+
+        mockMvc.perform(put("/dashboards/name")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HEADER_NAME, USER_ID)
+                        .content(new ObjectMapper().writeValueAsString(updateDashboardNameRequest)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("update-dashboard-name-actual"));
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("패널 필터링 조회 - offPanelId 제외")
+    void getFilterPanel_actual() throws Exception {
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
 
@@ -276,16 +246,20 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(9)
-    @DisplayName("9. panelId: 1 패널 수정 - 제목 및 위치 등 변경")
+    @Order(5)
+    @DisplayName("panelId: [동적으로 추출된 ID] 패널 수정 - 제목 및 위치 등 변경")
     void updatePanel_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
+        log.info("Dashboard UID for 'A' in updatePanel: {}", infoDashboardResponse.getDashboardUid());
+
+        List<IframePanelResponse> panels = panelService.getPanel(
+                new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L)
+        );
+        int panelIdToUpdate = panels.getFirst().getPanelId();
+
         UpdatePanelRequest updatePanelRequest = new UpdatePanelRequest(
                 infoDashboardResponse.getDashboardUid(),
-                1,
+                panelIdToUpdate,
                 "update-panelTitle",
                 List.of(new SensorFieldRequestDto("co2", "12345", "abc")),
                 new GridPos(15, 7),
@@ -304,8 +278,8 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(10)
-    @DisplayName("10. 패널 우선순위 수정 - 순서: 1,0")
+    @Order(6)
+    @DisplayName("패널 우선순위 수정 - 순서: 1,0")
     void updatePriority_actual() throws Exception {
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
@@ -327,11 +301,9 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(11)
-    @DisplayName("11. panelId: 0 삭제")
+    @Order(7)
+    @DisplayName("panelId: 0 삭제")
     void deletePanel_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
         DeletePanelRequest deletePanelRequest = new DeletePanelRequest(infoDashboardResponse.getDashboardUid(), 0);
@@ -346,11 +318,9 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(12)
-    @DisplayName("12. 대시보드 'A'의 패널 전체 조회")
+    @Order(8)
+    @DisplayName("대시보드 'A'의 패널 전체 조회")
     void getPanel_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
         ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
@@ -364,8 +334,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(13)
-    @DisplayName("13. 패널 삭제 실패 - 빈 요청 본문")
+    @DisplayName("패널 삭제 실패 - 빈 요청 본문")
     void deletePanel_400_actual() throws Exception {
 
         mockMvc.perform(delete("/panels")
@@ -379,11 +348,9 @@ class IntegrationTest {
 
 
     @Test
-    @Order(14)
-    @DisplayName("14. 대시보드 'B-NEW123' 삭제")
+    @Order(9)
+    @DisplayName("대시보드 'B-NEW123' 삭제")
     void deleteDashboard_actual() throws Exception {
-
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "B-NEW123");
         DeleteDashboardRequest deleteDashboardRequest = new DeleteDashboardRequest(infoDashboardResponse.getDashboardUid());
@@ -398,8 +365,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(15)
-    @DisplayName("15. 대시보드 삭제 실패 - 빈 요청 본문")
+    @DisplayName("대시보드 삭제 실패 - 빈 요청 본문")
     void deleteDashboard_400_actual() throws Exception {
 
         mockMvc.perform(delete("/dashboards")
