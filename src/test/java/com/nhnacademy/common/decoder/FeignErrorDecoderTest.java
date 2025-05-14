@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class FeignErrorDecoderTest {
 
-    private FeignErrorDecoder decoder = new FeignErrorDecoder();
+    private final FeignErrorDecoder decoder = new FeignErrorDecoder();
 
     @Test
     @DisplayName("feignError 문구 출력")

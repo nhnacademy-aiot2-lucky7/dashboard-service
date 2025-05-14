@@ -47,7 +47,7 @@ public interface GrafanaApi {
      * @return 폴더 리스트
      */
     @PostMapping(value = "/folders")
-    ResponseEntity<FolderInfoResponse> createFolder(@RequestBody List<CreateFolderRequest> createFolderRequest);
+    ResponseEntity<Void> createFolder(@RequestBody CreateFolderRequest createFolderRequest);
 
     /**
      * 폴더 ID와 타입을 기반으로 대시보드를 검색합니다.

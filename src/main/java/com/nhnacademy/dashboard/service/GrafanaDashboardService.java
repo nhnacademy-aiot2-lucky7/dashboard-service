@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.service;
 
+import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
@@ -38,6 +39,7 @@ public class GrafanaDashboardService {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
         List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
+
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
         return dashboards;
     }
@@ -61,8 +63,8 @@ public class GrafanaDashboardService {
     public Dashboard buildDashboard(GrafanaCreateDashboardRequest buildDashboardRequest) {
         return new Dashboard(
                 buildDashboardRequest.getDashboard().getId(),
-                buildDashboardRequest.getDashboard().getUid(),
                 buildDashboardRequest.getDashboard().getTitle(),
+                buildDashboardRequest.getDashboard().getUid(),
                 buildDashboardRequest.getDashboard().getPanels()
         );
     }
@@ -80,7 +82,7 @@ public class GrafanaDashboardService {
         return dashboardInfoResponseList.stream()
                 .filter(d -> d.getDashboardTitle().equals(dashboardTitle))
                 .findFirst()
-                .orElseThrow(()->new NotFoundException("대시보드제목을 찾을 수 없습니다: "+dashboardTitle));
+                .orElse(null);
     }
 
 
@@ -96,6 +98,11 @@ public class GrafanaDashboardService {
         log.info("folderTitle:{}", folderTitle);
 
         String folderUid = grafanaFolderService.getFolderUidByTitle(folderTitle);
+
+        InfoDashboardResponse dashboardResponse = getDashboardInfoRequest(userId, createDashboardRequest.getDashboardTitle());
+        if(dashboardResponse != null){
+            throw new BadRequestException("이미 존재하는 대시보드 이름입니다: "+createDashboardRequest.getDashboardTitle());
+        }
 
         GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(new Dashboard(createDashboardRequest.getDashboardTitle(), new ArrayList<>()), folderUid, true);
         grafanaApi.createDashboard(request);
@@ -121,17 +128,16 @@ public class GrafanaDashboardService {
         InfoDashboardResponse dashboardInfoResponse = getDashboardInfoRequest(userId, existDashboard.getDashboard().getTitle());
         Dashboard dashboard = new Dashboard(
                 dashboardInfoResponse.getDashboardId(),
-                dashboardInfoResponse.getDashboardUid(),
                 updateDashboardNameRequest.getDashboardNewTitle(),
+                dashboardInfoResponse.getDashboardUid(),
                 existDashboard.getDashboard().getPanels());
-        int version = dashboard.getVersion();
-        dashboard.setVersion(version+1);
+        dashboard.setVersion(existDashboard.getDashboard().getVersion()+1);
 
         dashboardRequest.setDashboard(dashboard);
-        dashboardRequest.setFolderUid(existDashboard.getFolderUid());
+        dashboardRequest.setFolderUid(dashboardInfoResponse.getFolderUid());
         dashboardRequest.setOverwrite(true);
 
-        log.info("UPDATE CHART Name -> request: {}", dashboardRequest);
+        log.info("folderUid : {}", dashboardInfoResponse.getFolderUid());
         grafanaApi.updateDashboard(dashboardRequest);
     }
 
@@ -144,6 +150,8 @@ public class GrafanaDashboardService {
         getDashboardInfo(deleteDashboardRequest.getDashboardUid());
 
         grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
+
+        DashboardMemory.clearDashboard(deleteDashboardRequest.getDashboardUid());
     }
 
     /**
@@ -164,12 +172,12 @@ public class GrafanaDashboardService {
         Datasource datasource = new Datasource(INFLUXDB_UID);
 
         Target target = new Target(datasource, fluxQuery);
-        Panel panel = new Panel(type, panelTitle, gridPos, List.of(target), datasource);
+        Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target), datasource);
 
         Dashboard dashboard = new Dashboard(
                 infoDashboardResponse.getDashboardId(),
-                infoDashboardResponse.getDashboardUid(),
                 dashboardTitle,
+                infoDashboardResponse.getDashboardUid(),
                 List.of(panel));
 
         GrafanaCreateDashboardRequest grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest();

@@ -2,8 +2,10 @@ package com.nhnacademy.dashboard.dto.panel;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@ToString
 @NoArgsConstructor
 public class IframePanelResponse {
     private String dashboardUid;

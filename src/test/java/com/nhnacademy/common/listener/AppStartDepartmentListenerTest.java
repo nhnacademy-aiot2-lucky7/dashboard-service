@@ -2,6 +2,7 @@ package com.nhnacademy.common.listener;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +18,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class AppStartListenerTest {
+class AppStartDepartmentListenerTest {
 
     @Mock
     private UserApi userApi;
@@ -26,7 +27,7 @@ class AppStartListenerTest {
     private GrafanaApi grafanaApi;
 
     @InjectMocks
-    private AppStartListener listener;
+    private AppStartDepartmentListener listener;
 
     @Test
     @DisplayName("정상 부서 목록일 때 Grafana 폴더 생성 호출")
@@ -41,7 +42,7 @@ class AppStartListenerTest {
 
         listener.onApplicationEvent(Mockito.mock(ApplicationReadyEvent.class));
 
-        Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.anyList());
+        Mockito.verify(grafanaApi, Mockito.times(2)).createFolder(Mockito.any(CreateFolderRequest.class));
     }
 
     @Test

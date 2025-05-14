@@ -1,7 +1,9 @@
 package com.nhnacademy.dashboard.service;
 
+import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
@@ -19,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,7 +46,7 @@ public class GrafanaPanelService {
     public void createPanel(String userId, CreatePanelRequest request) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId);
-        GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(folderTitle);
+        GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getSensorFieldRequestDto(),
@@ -81,6 +85,16 @@ public class GrafanaPanelService {
         log.info("CREATE CHART -> request: {}", finalRequest);
 
         grafanaApi.updateDashboard(finalRequest);
+
+        Set<Integer> panelIds = newDashboard.getPanels()
+                .stream()
+                .map(Panel::getId)
+                .collect(Collectors.toSet());
+
+        panelIds.forEach(panelId ->
+                DashboardMemory.addPanel(finalRequest.getDashboard().getUid(), panelId));
+
+        log.info("panelId size:{}", panelIds.size());
     }
 
     /**
@@ -104,7 +118,7 @@ public class GrafanaPanelService {
                 log.info("NumberFormatException: {}", e.getMessage());
             }
         } else {
-            Pattern pattern = Pattern.compile("(.*?)(\\d+)$");
+            Pattern pattern = Pattern.compile("^(\\D*?)(\\d+)$");
             Matcher matcher = pattern.matcher(name);
             if (matcher.find()) {
                 baseTitle = matcher.group(1);
@@ -132,6 +146,12 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
 
         List<Panel> panels = dashboard.getDashboard().getPanels();
+
+        boolean allIdsNull = panels.stream().allMatch(p -> p.getId() == null);
+        if (allIdsNull) {
+            throw new NotFoundException("panel not found for uid: " + readPanelRequest.getDashboardUid());
+        }
+
         List<IframePanelResponse> responseList = panels.stream()
                 .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
@@ -158,10 +178,11 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(dashboardUid);
         List<Panel> panel = dashboard.getDashboard().getPanels();
 
-        if (panel == null) {
-            throw new NotFoundException("panel not found for uid: " + dashboardUid);
+        if (panel.isEmpty()) {
+            throw new NotFoundException("Uid에 해당하는 패널이 없습니다: " + dashboardUid);
         }
 
+        log.info("panelId:{}", panel.size());
         return panel.stream()
                 .filter(p -> !offPanelId.contains(p.getId()))
                 .map(p -> IframePanelResponse.ofNewIframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId()))
@@ -240,8 +261,8 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboardRequest = new GrafanaCreateDashboardRequest();
         Dashboard dashboard = new Dashboard(
                 existDashboard.getDashboard().getId(),
-                existDashboard.getDashboard().getUid(),
                 existDashboard.getDashboard().getTitle(),
+                existDashboard.getDashboard().getUid(),
                 panels
         );
 
@@ -257,18 +278,22 @@ public class GrafanaPanelService {
      *
      * @param deletePanelRequest 삭제할 패널 정보를 담은 요청 객체
      */
-    public void removePanel(DeletePanelRequest deletePanelRequest) {
+    public void removePanel(String userId,DeletePanelRequest deletePanelRequest) {
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(deletePanelRequest.getDashboardUid());
         List<Panel> panels = new ArrayList<>(existDashboard.getDashboard().getPanels());
         panels.removeIf(p -> p.getId().equals(deletePanelRequest.getPanelId()));
+
+        InfoDashboardResponse dashboardInfoResponse = grafanaDashboardService.getDashboardInfoRequest(userId, existDashboard.getDashboard().getTitle());
 
         Dashboard dashboard = grafanaDashboardService.buildDashboard(existDashboard);
         dashboard.setPanels(panels);
 
         existDashboard.setDashboard(dashboard);
-        existDashboard.setFolderUid(existDashboard.getFolderUid());
+        existDashboard.setFolderUid(dashboardInfoResponse.getFolderUid());
         existDashboard.setOverwrite(true);
 
         grafanaApi.updateDashboard(existDashboard);
+
+        DashboardMemory.removePanel(deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
     }
 }

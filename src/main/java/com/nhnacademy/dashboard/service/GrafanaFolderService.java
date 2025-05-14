@@ -5,6 +5,7 @@ import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
+import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,10 +31,6 @@ public class GrafanaFolderService {
      */
     public List<FolderInfoResponse> getAllFolders() {
         List<FolderInfoResponse> folders = grafanaApi.getAllFolders();
-
-        if(folders.isEmpty()){
-            throw new NotFoundException("Grafana에 등록된 폴더가 없습니다.");
-        }
 
         log.info("전체 폴더 개수: {}", folders.size());
         return folders;
@@ -61,7 +60,13 @@ public class GrafanaFolderService {
      * @return 폴더 ID
      */
     public List<Integer> getFolderIdByTitle(String folderTitle) {
-        return Collections.singletonList(getFolderByTitle(folderTitle).getFolderId());
+
+        Optional<FolderInfoResponse> folderInfo = getFolderByTitle(folderTitle);
+        if (folderInfo.isPresent()) {
+            return Collections.singletonList(folderInfo.get().getFolderId());
+        } else {
+            throw new NotFoundException("폴더를 찾을 수 없습니다: " + folderTitle);
+        }
     }
 
     /**
@@ -72,21 +77,25 @@ public class GrafanaFolderService {
      */
 
     public String getFolderUidByTitle(String folderTitle) {
-        return getFolderByTitle(folderTitle).getFolderUid();
+        Optional<FolderInfoResponse> folderInfo = getFolderByTitle(folderTitle);
+        if (folderInfo.isPresent()) {
+            return folderInfo.get().getFolderUid();
+        } else {
+            throw new NotFoundException("폴더를 찾을 수 없습니다: " + folderTitle);
+        }
     }
 
     /**
      * 폴더 제목을 기반으로 해당 폴더 정보를 조회합니다.
      *
-     * @param folderTitle 폴더 제목
+     * @param folderTitle 폴더 제목S
      * @return 폴더 정보
      * @throws NotFoundException 폴더가 존재하지 않을 경우
      */
-    public FolderInfoResponse getFolderByTitle(String folderTitle) {
+    public Optional<FolderInfoResponse> getFolderByTitle(String folderTitle) {
         return grafanaApi.getAllFolders().stream()
                 .filter(folder -> folderTitle.equals(folder.getFolderTitle()))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Folder not found: " + folderTitle));
+                .findFirst();
     }
 
     /**
@@ -94,7 +103,18 @@ public class GrafanaFolderService {
      */
     public void createFolder(String departmentName) {
 
-        List<CreateFolderRequest> createFolderRequest = Collections.singletonList(new CreateFolderRequest(departmentName));
-        grafanaApi.createFolder(createFolderRequest);
+        CreateFolderRequest createFolderRequest = new CreateFolderRequest(departmentName);
+
+        Optional<FolderInfoResponse> duplicatedFolder = getAllFolders().stream()
+                .filter(folder -> Objects.equals(folder.getFolderTitle(), departmentName))
+                .findFirst();
+
+        if (duplicatedFolder.isPresent()) {
+            // 이미 존재하는 경우 처리
+            throw new BadRequestException("폴더 '" + departmentName + "'은 이미 존재합니다.");
+        } else {
+            // 생성 진행
+            grafanaApi.createFolder(createFolderRequest);
+        }
     }
 }

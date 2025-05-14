@@ -4,7 +4,6 @@ import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
@@ -34,11 +33,9 @@ class GrafanaDashboardServiceTest {
     GrafanaDashboardService dashboardService;
 
     private InfoDashboardResponse infoDashboardResponse;
-    private FolderInfoResponse folderInfoResponse;
 
     @BeforeEach
     void setUp() {
-        folderInfoResponse = new FolderInfoResponse(1, "folder-uid", "folder-title");
         infoDashboardResponse = new InfoDashboardResponse(1, "dashboard-title", "dashboard-uid", "folder-uid", 1);
     }
 
@@ -151,7 +148,7 @@ class GrafanaDashboardServiceTest {
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
 
-        dashboardService.updateDashboardName("1", new UpdateDashboardNameRequest("dashboard-uid", "NEW TITLE"));
+        dashboardService.updateDashboardName("user123",new UpdateDashboardNameRequest("dashboard-uid", "NEW TITLE"));
 
         Mockito.verify(grafanaApi, Mockito.times(1)).updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class));
     }
