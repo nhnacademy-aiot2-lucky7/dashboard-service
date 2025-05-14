@@ -118,7 +118,7 @@ public class GrafanaPanelService {
                 log.info("NumberFormatException: {}", e.getMessage());
             }
         } else {
-            Pattern pattern = Pattern.compile("(.*?)(\\d+)$");
+            Pattern pattern = Pattern.compile("^(\\D*?)(\\d+)$");
             Matcher matcher = pattern.matcher(name);
             if (matcher.find()) {
                 baseTitle = matcher.group(1);
