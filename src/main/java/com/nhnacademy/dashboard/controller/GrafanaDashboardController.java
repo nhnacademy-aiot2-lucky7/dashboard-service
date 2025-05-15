@@ -79,8 +79,10 @@ public class GrafanaDashboardController {
 
     @DeleteMapping
     @Operation(summary = "대시보드 삭제")
-    public ResponseEntity<Void> deleteDashboard(@RequestBody DeleteDashboardRequest deleteDashboardRequest){
-        grafanaDashboardService.removeDashboard(deleteDashboardRequest);
+    public ResponseEntity<Void> deleteDashboard(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody DeleteDashboardRequest deleteDashboardRequest){
+        grafanaDashboardService.removeDashboard(userId, deleteDashboardRequest);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -13,12 +13,16 @@ import com.nhnacademy.dashboard.dto.panel.UpdatePanelRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
 import com.nhnacademy.dashboard.dto.dashboard.json.Target;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +36,7 @@ import java.util.stream.Collectors;
 public class GrafanaPanelService {
 
     private final GrafanaApi grafanaApi;
+    private final EventProducer eventProducer;
     private final GrafanaFolderService grafanaFolderService;
     private final GrafanaDashboardService grafanaDashboardService;
 
@@ -45,7 +50,9 @@ public class GrafanaPanelService {
      */
     public void createPanel(String userId, CreatePanelRequest request) {
 
-        String folderTitle = grafanaFolderService.getFolderTitle(userId);
+        UserDepartmentResponse departmentResponse = grafanaFolderService.getFolderTitle(userId);
+        String departmentId = departmentResponse.getDepartmentId();
+        String folderTitle = departmentResponse.getDepartmentName();
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
@@ -57,7 +64,7 @@ public class GrafanaPanelService {
         String panelTitle = request.getPanelTitle();
         for (Panel panel : existDashboard.getDashboard().getPanels()) {
             if (panel.getTitle().equals(panelTitle)) {
-                panelTitle = sameName(panelTitle);
+                panelTitle = duplicatedName(panelTitle);
                 break;
             }
         }
@@ -95,6 +102,15 @@ public class GrafanaPanelService {
                 DashboardMemory.addPanel(finalRequest.getDashboard().getUid(), panelId));
 
         log.info("panelId size:{}", panelIds.size());
+
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "패널 생성",
+                Integer.toString(panelIds.size()),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
@@ -103,7 +119,7 @@ public class GrafanaPanelService {
      * @param name 기존 이름
      * @return 중복되지 않는 새로운 이름
      */
-    public String sameName(String name) {
+    public String duplicatedName(String name) {
         int index = 1;
         String baseTitle = name;
 
@@ -198,7 +214,7 @@ public class GrafanaPanelService {
      */
     public void updatePanel(String userId, UpdatePanelRequest request) {
 
-        String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId));
+        String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId).getDepartmentName());
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
         String fluxQuery = grafanaDashboardService.generateFluxQuery(request.getSensorFieldRequestDto(), request.getAggregation(), request.getTime());
 
@@ -220,6 +236,16 @@ public class GrafanaPanelService {
 
         log.info("UPDATE CHART -> request: {}", fluxQuery);
         grafanaApi.updateDashboard(dashboardRequest);
+
+        String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "패널 수정",
+                existDashboard.getDashboard().getPanels().getFirst().getId().toString(),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
@@ -230,7 +256,9 @@ public class GrafanaPanelService {
      * @throws NotFoundException 요청된 패널 ID가 존재하지 않을 경우
      */
     public void updatePriority(String userId, UpdatePanelPriorityRequest updatePanelPriorityRequest) {
-        String folderTitle = grafanaFolderService.getFolderTitle(userId);
+
+        UserDepartmentResponse userDepartmentResponse = grafanaFolderService.getFolderTitle(userId);
+        String folderTitle = userDepartmentResponse.getDepartmentName();
         String folderUid = grafanaFolderService.getFolderUidByTitle(folderTitle);
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(updatePanelPriorityRequest.getDashboardUid());
         List<Panel> originalPanels = existDashboard.getDashboard().getPanels();
@@ -246,6 +274,15 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboardRequest = overwritten(existDashboard, sortedPanels, folderUid);
 
         grafanaApi.updateDashboard(dashboardRequest);
+
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "패널 우선순위 변경",
+                sortedPanels.getFirst().toString(),
+                userDepartmentResponse.getDepartmentId(),
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
@@ -295,5 +332,15 @@ public class GrafanaPanelService {
         grafanaApi.updateDashboard(existDashboard);
 
         DashboardMemory.removePanel(deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
+
+        String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "패널 삭제",
+                dashboard.getPanels().getFirst().getId().toString(),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 }

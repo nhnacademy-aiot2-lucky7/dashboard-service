@@ -9,12 +9,16 @@ import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.*;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +32,7 @@ public class GrafanaDashboardService {
     public static final String TYPE = "dash-db";
     private static final String INFLUXDB_UID = "o4aKnEJNk";
     private final GrafanaFolderService grafanaFolderService;
+    private final EventProducer eventProducer;
 
     /**
      * 사용자 ID를 기반으로 사용자의 부서 폴더에 포함된 대시보드 목록을 조회합니다.
@@ -37,7 +42,7 @@ public class GrafanaDashboardService {
      */
     public List<InfoDashboardResponse> getDashboard(String userId) {
 
-        String folderTitle = grafanaFolderService.getFolderTitle(userId);
+        String folderTitle = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
         List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
 
         log.info("getDashboardByTitle -> dashboards: {}", dashboards);
@@ -94,7 +99,9 @@ public class GrafanaDashboardService {
      */
     public void createDashboard(String userId, CreateDashboardRequest createDashboardRequest) {
 
-        String folderTitle = grafanaFolderService.getFolderTitle(userId);
+        UserDepartmentResponse departmentResponse = grafanaFolderService.getFolderTitle(userId);
+        String departmentId = departmentResponse.getDepartmentId();
+        String folderTitle = departmentResponse.getDepartmentName();
         log.info("folderTitle:{}", folderTitle);
 
         String folderUid = grafanaFolderService.getFolderUidByTitle(folderTitle);
@@ -106,6 +113,15 @@ public class GrafanaDashboardService {
 
         GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(new Dashboard(createDashboardRequest.getDashboardTitle(), new ArrayList<>()), folderUid, true);
         grafanaApi.createDashboard(request);
+
+        EventCreateRequest event = new EventCreateRequest(
+          "INFO",
+                "대시보드 생성",
+                request.getDashboard().getUid(),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
@@ -139,6 +155,16 @@ public class GrafanaDashboardService {
 
         log.info("folderUid : {}", dashboardInfoResponse.getFolderUid());
         grafanaApi.updateDashboard(dashboardRequest);
+
+        String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "대시보드 수정",
+                dashboard.getUid(),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
@@ -146,12 +172,22 @@ public class GrafanaDashboardService {
      *
      * @param deleteDashboardRequest 삭제할 대시보드 정보를 담은 요청 객체
      */
-    public void removeDashboard(DeleteDashboardRequest deleteDashboardRequest) {
+    public void removeDashboard(String userId, DeleteDashboardRequest deleteDashboardRequest) {
         getDashboardInfo(deleteDashboardRequest.getDashboardUid());
 
         grafanaApi.deleteDashboard(deleteDashboardRequest.getDashboardUid());
 
         DashboardMemory.clearDashboard(deleteDashboardRequest.getDashboardUid());
+
+        String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "대시보드 삭제",
+                deleteDashboardRequest.getDashboardUid(),
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
     }
 
     /**
