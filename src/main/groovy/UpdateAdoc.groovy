@@ -18,13 +18,13 @@ snippetDir.eachDir { dir ->
     lines << "== ${snippetName.replace('-', ' ').capitalize()}"
     lines << ""
 
-    // 상대 경로로 수정된 include
+    // 절대 경로로 수정된 include
     lines << "[source,http]"
-    lines << "include::{snippets}/${snippetName}/http-request.adoc[]"
+    lines << "include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/${snippetName}/http-request.adoc[]"
     lines << ""
 
     lines << "[source,http]"
-    lines << "include::{snippets}/${snippetName}/http-response.adoc[]"
+    lines << "include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/${snippetName}/http-response.adoc[]"
 }
 
 // 정리한 내용을 index.adoc에 다시 저장
