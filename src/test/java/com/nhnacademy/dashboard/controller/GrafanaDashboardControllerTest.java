@@ -174,7 +174,7 @@ class GrafanaDashboardControllerTest {
 
         DeleteDashboardRequest deleteDashboardRequest = new DeleteDashboardRequest("dashboard-uid");
 
-        Mockito.doNothing().when(dashboardService).removeDashboard(Mockito.any(DeleteDashboardRequest.class));
+        Mockito.doNothing().when(dashboardService).removeDashboard(Mockito.anyString(), Mockito.any(DeleteDashboardRequest.class));
 
         mockMvc.perform(delete("/dashboards")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +184,8 @@ class GrafanaDashboardControllerTest {
                 .andDo(print())
                 .andDo(document("delete-dashboard"));
 
-        Mockito.verify(dashboardService, Mockito.times(1)).removeDashboard(Mockito.any(DeleteDashboardRequest.class));
+        Mockito.verify(dashboardService, Mockito.times(1)).removeDashboard(
+                Mockito.anyString(),Mockito.any(DeleteDashboardRequest.class));
     }
 
     @Test
@@ -195,7 +196,7 @@ class GrafanaDashboardControllerTest {
 
         Mockito.doThrow(new NotFoundException("해당 대시보드를 찾을 수 없습니다."))
                 .when(dashboardService)
-                .removeDashboard(Mockito.any(DeleteDashboardRequest.class));
+                .removeDashboard(Mockito.anyString(), Mockito.any(DeleteDashboardRequest.class));
 
         mockMvc.perform(delete("/dashboards")
                         .contentType(MediaType.APPLICATION_JSON)

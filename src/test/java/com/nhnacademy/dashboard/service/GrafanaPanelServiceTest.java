@@ -9,7 +9,10 @@ import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.doNothing;
+
 @ExtendWith(MockitoExtension.class)
 class GrafanaPanelServiceTest {
 
@@ -34,6 +39,9 @@ class GrafanaPanelServiceTest {
 
     @Mock
     GrafanaDashboardService dashboardService;
+
+    @Mock
+    private EventProducer eventProducer;
 
     @InjectMocks
     GrafanaPanelService panelService;
@@ -99,8 +107,8 @@ class GrafanaPanelServiceTest {
     @DisplayName("패널 생성")
     void createPanel() {
 
-
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.generateFluxQuery(
                 Mockito.anyList(),
@@ -118,6 +126,7 @@ class GrafanaPanelServiceTest {
         Mockito.when(dashboardService.buildDashboard(grafanaCreateDashboardRequest)).thenReturn(grafanaCreateDashboardRequest.getDashboard());
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class)))
                 .thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         panelService.createPanel("1", createPanelRequest);
 
@@ -127,10 +136,10 @@ class GrafanaPanelServiceTest {
 
     @Test
     @DisplayName("중복된 이름에 숫자 붙이기")
-    void sameName() {
+    void duplicatedName() {
 
-        String name1 = panelService.sameName("a");
-        String name2 = panelService.sameName("a(5)");
+        String name1 = panelService.duplicatedName("a");
+        String name2 = panelService.duplicatedName("a(5)");
 
         Assertions.assertEquals("a(1)", name1);
         Assertions.assertEquals("a(6)", name2);
@@ -215,9 +224,11 @@ class GrafanaPanelServiceTest {
                 "3d"
         );
 
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("1");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(folderService.getFolderUidByTitle(Mockito.anyString())).thenReturn("folder-uid");
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         panelService.updatePanel("1", updatePanelRequest);
 
@@ -240,10 +251,12 @@ class GrafanaPanelServiceTest {
                 "1",
                 panelPriority
         );
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(folderService.getFolderUidByTitle(Mockito.anyString())).thenReturn("folder-uid");
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         panelService.updatePriority("1", updatePanelPriorityRequest);
 
@@ -298,10 +311,14 @@ class GrafanaPanelServiceTest {
                 "f-uid",
                 1
                 );
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.getDashboardInfoRequest(Mockito.anyString(), Mockito.anyString())).thenReturn(infoDashboardResponse);
         Mockito.when(dashboardService.buildDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(grafanaCreateDashboardRequest.getDashboard());
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         panelService.removePanel("user123",deletePanelRequest);
 

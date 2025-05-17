@@ -17,4 +17,4 @@ RUN GITHUB_ACTOR=${GITHUB_ACTOR} GITHUB_TOKEN=${GITHUB_TOKEN} ./mvnw clean insta
 # 런타임 이미지
 FROM eclipse-temurin:21-jdk
 COPY --from=builder /app/target/*.jar /app/app.jar
-ENTRYPOINT ["top", "-b"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

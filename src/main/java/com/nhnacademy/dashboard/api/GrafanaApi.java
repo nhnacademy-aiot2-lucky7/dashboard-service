@@ -3,6 +3,7 @@ package com.nhnacademy.dashboard.api;
 import com.nhnacademy.common.config.FeignConfig;
 import com.nhnacademy.common.config.GrafanaApiConfig;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
 import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
@@ -40,6 +41,15 @@ public interface GrafanaApi {
      */
     @GetMapping(value = "/folders")
     List<FolderInfoResponse> getAllFolders();
+
+    /**
+     * 폴더 이름을 수정합니다.
+     *
+     * @param request 수정할 폴더 요청 정보
+     * @return 생성 결과 응답 (Body 없음)
+     */
+    @PutMapping("/folders/{uid}")
+    ResponseEntity<Void> updateFolder(@PathVariable String uid, @RequestBody GrafanaUpdateFolderRequest request);
 
     /**
      * 모든 폴더 목록을 생성합니다.

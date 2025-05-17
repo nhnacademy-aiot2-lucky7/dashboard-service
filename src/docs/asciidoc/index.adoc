@@ -7,386 +7,210 @@
 == Create folder
 
 [source,http]
-include::{snippets}/create-folder/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-folder/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-folder/http-response.adoc[]
-
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-folder/http-response.adoc[]
 == Delete dashboard 400 actual
 
 [source,http]
-include::{snippets}/delete-dashboard-400-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-400-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-dashboard-400-actual/http-response.adoc[]
-
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-400-actual/http-response.adoc[]
 == Get panel
 
 [source,http]
-include::{snippets}/get-panel/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-panel/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-panel/http-response.adoc[]
-
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-panel/http-response.adoc[]
 == Get filter panel actual
 
 [source,http]
-include::{snippets}/get-filter-panel-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-filter-panel-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-filter-panel-actual/http-response.adoc[]
-
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-filter-panel-actual/http-response.adoc[]
 == Create dashboard duplicated fail actual
 
 [source,http]
-include::{snippets}/create-dashboard-duplicated-fail-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-duplicated-fail-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-dashboard-duplicated-fail-actual/http-response.adoc[]
-
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-duplicated-fail-actual/http-response.adoc[]
 == Create panel
 
 [source,http]
-include::{snippets}/create-panel/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-panel/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-panel/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-panel/http-response.adoc[]
 == Get all dashboards
 
 [source,http]
-include::{snippets}/get-all-dashboards/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-all-dashboards/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-all-dashboards/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-all-dashboards/http-response.adoc[]
 == Delete panel fail
 
 [source,http]
-include::{snippets}/delete-panel-fail/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-fail/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-panel-fail/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-fail/http-response.adoc[]
 == Update priority
 
 [source,http]
-include::{snippets}/update-priority/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-priority/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-priority/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-priority/http-response.adoc[]
 == Create dashboard fail missing header
 
 [source,http]
-include::{snippets}/create-dashboard-fail-missing-header/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-fail-missing-header/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-dashboard-fail-missing-header/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-fail-missing-header/http-response.adoc[]
 == Update dashboard name actual
 
 [source,http]
-include::{snippets}/update-dashboard-name-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-dashboard-name-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-dashboard-name-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-dashboard-name-actual/http-response.adoc[]
 == Get dashboard names
 
 [source,http]
-include::{snippets}/get-dashboard-names/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-dashboard-names/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-dashboard-names/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-dashboard-names/http-response.adoc[]
 == Get filter panel
 
 [source,http]
-include::{snippets}/get-filter-panel/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-filter-panel/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-filter-panel/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-filter-panel/http-response.adoc[]
 == Delete panel
 
 [source,http]
-include::{snippets}/delete-panel/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-panel/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel/http-response.adoc[]
 == Get dashboard names actual
 
 [source,http]
-include::{snippets}/get-dashboard-names-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-dashboard-names-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-dashboard-names-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-dashboard-names-actual/http-response.adoc[]
 == Update panel
 
 [source,http]
-include::{snippets}/update-panel/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-panel/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-panel/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-panel/http-response.adoc[]
 == Delete panel actual
 
 [source,http]
-include::{snippets}/delete-panel-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-panel-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-actual/http-response.adoc[]
 == Get panel actual
 
 [source,http]
-include::{snippets}/get-panel-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-panel-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-panel-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-panel-actual/http-response.adoc[]
 == Delete dashboard
 
 [source,http]
-include::{snippets}/delete-dashboard/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-dashboard/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard/http-response.adoc[]
 == Create dashboard request header null fail actual
 
 [source,http]
-include::{snippets}/create-dashboard-request-header-null-fail-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-request-header-null-fail-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-dashboard-request-header-null-fail-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard-request-header-null-fail-actual/http-response.adoc[]
+== Delete dashboard 404
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-404/http-request.adoc[]
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-404/http-response.adoc[]
+== Update folder
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-folder/http-request.adoc[]
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-folder/http-response.adoc[]
 == Update priority actual
 
 [source,http]
-include::{snippets}/update-priority-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-priority-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-priority-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-priority-actual/http-response.adoc[]
 == Create dashboard
 
 [source,http]
-include::{snippets}/create-dashboard/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard/http-request.adoc[]
 
 [source,http]
-include::{snippets}/create-dashboard/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-dashboard/http-response.adoc[]
 == Update panel actual
 
 [source,http]
-include::{snippets}/update-panel-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-panel-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-panel-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-panel-actual/http-response.adoc[]
 == Get folders
 
 [source,http]
-include::{snippets}/get-folders/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-folders/http-request.adoc[]
 
 [source,http]
-include::{snippets}/get-folders/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/get-folders/http-response.adoc[]
 == Update dashboard name
 
 [source,http]
-include::{snippets}/update-dashboard-name/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-dashboard-name/http-request.adoc[]
 
 [source,http]
-include::{snippets}/update-dashboard-name/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/update-dashboard-name/http-response.adoc[]
+== Create folder duplicated fail actual
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-folder-duplicated-fail-actual/http-request.adoc[]
+
+[source,http]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/create-folder-duplicated-fail-actual/http-response.adoc[]
 == Delete panel 400 actual
 
 [source,http]
-include::{snippets}/delete-panel-400-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-400-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-panel-400-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-panel-400-actual/http-response.adoc[]
 == Delete dashboard actual
 
 [source,http]
-include::{snippets}/delete-dashboard-actual/http-request.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-actual/http-request.adoc[]
 
 [source,http]
-include::{snippets}/delete-dashboard-actual/http-response.adoc[]
-
-// === 자동 생성된 API 문서 ===
-
-== Create folder
-
-[source,http]
-include::{snippets}/create-folder/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-folder/http-response.adoc[]
-== Delete dashboard 400 actual
-
-[source,http]
-include::{snippets}/delete-dashboard-400-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-dashboard-400-actual/http-response.adoc[]
-== Get panel
-
-[source,http]
-include::{snippets}/get-panel/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-panel/http-response.adoc[]
-== Get filter panel actual
-
-[source,http]
-include::{snippets}/get-filter-panel-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-filter-panel-actual/http-response.adoc[]
-== Create dashboard duplicated fail actual
-
-[source,http]
-include::{snippets}/create-dashboard-duplicated-fail-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-dashboard-duplicated-fail-actual/http-response.adoc[]
-== Create panel
-
-[source,http]
-include::{snippets}/create-panel/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-panel/http-response.adoc[]
-== Get all dashboards
-
-[source,http]
-include::{snippets}/get-all-dashboards/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-all-dashboards/http-response.adoc[]
-== Delete panel fail
-
-[source,http]
-include::{snippets}/delete-panel-fail/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-panel-fail/http-response.adoc[]
-== Update priority
-
-[source,http]
-include::{snippets}/update-priority/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-priority/http-response.adoc[]
-== Create dashboard fail missing header
-
-[source,http]
-include::{snippets}/create-dashboard-fail-missing-header/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-dashboard-fail-missing-header/http-response.adoc[]
-== Update dashboard name actual
-
-[source,http]
-include::{snippets}/update-dashboard-name-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-dashboard-name-actual/http-response.adoc[]
-== Get dashboard names
-
-[source,http]
-include::{snippets}/get-dashboard-names/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-dashboard-names/http-response.adoc[]
-== Get filter panel
-
-[source,http]
-include::{snippets}/get-filter-panel/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-filter-panel/http-response.adoc[]
-== Delete panel
-
-[source,http]
-include::{snippets}/delete-panel/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-panel/http-response.adoc[]
-== Get dashboard names actual
-
-[source,http]
-include::{snippets}/get-dashboard-names-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-dashboard-names-actual/http-response.adoc[]
-== Update panel
-
-[source,http]
-include::{snippets}/update-panel/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-panel/http-response.adoc[]
-== Delete panel actual
-
-[source,http]
-include::{snippets}/delete-panel-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-panel-actual/http-response.adoc[]
-== Get panel actual
-
-[source,http]
-include::{snippets}/get-panel-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-panel-actual/http-response.adoc[]
-== Delete dashboard
-
-[source,http]
-include::{snippets}/delete-dashboard/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-dashboard/http-response.adoc[]
-== Create dashboard request header null fail actual
-
-[source,http]
-include::{snippets}/create-dashboard-request-header-null-fail-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-dashboard-request-header-null-fail-actual/http-response.adoc[]
-== Update priority actual
-
-[source,http]
-include::{snippets}/update-priority-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-priority-actual/http-response.adoc[]
-== Create dashboard
-
-[source,http]
-include::{snippets}/create-dashboard/http-request.adoc[]
-
-[source,http]
-include::{snippets}/create-dashboard/http-response.adoc[]
-== Update panel actual
-
-[source,http]
-include::{snippets}/update-panel-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-panel-actual/http-response.adoc[]
-== Get folders
-
-[source,http]
-include::{snippets}/get-folders/http-request.adoc[]
-
-[source,http]
-include::{snippets}/get-folders/http-response.adoc[]
-== Update dashboard name
-
-[source,http]
-include::{snippets}/update-dashboard-name/http-request.adoc[]
-
-[source,http]
-include::{snippets}/update-dashboard-name/http-response.adoc[]
-== Delete panel 400 actual
-
-[source,http]
-include::{snippets}/delete-panel-400-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-panel-400-actual/http-response.adoc[]
-== Delete dashboard actual
-
-[source,http]
-include::{snippets}/delete-dashboard-actual/http-request.adoc[]
-
-[source,http]
-include::{snippets}/delete-dashboard-actual/http-response.adoc[]
+include::/home/nhnacademy/IdeaProjects/dashboard/target/generated-snippets/delete-dashboard-actual/http-response.adoc[]

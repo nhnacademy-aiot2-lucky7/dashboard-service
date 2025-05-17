@@ -14,12 +14,14 @@ import io.micrometer.common.lang.NonNullApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @NonNullApi
+@Profile("!test")
 @RequiredArgsConstructor
 public class DashboardMemoryListener implements ApplicationListener<ApplicationReadyEvent> {
 

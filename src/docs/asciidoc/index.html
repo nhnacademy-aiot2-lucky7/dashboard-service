@@ -449,7 +449,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_get_filter_panel_actual">Get filter panel actual</a></li>
 <li><a href="#_create_dashboard_duplicated_fail_actual">Create dashboard duplicated fail actual</a></li>
 <li><a href="#_create_panel">Create panel</a></li>
-<li><a href="#_create_folder_2">Create folder</a></li>
+<li><a href="#_get_all_dashboards">Get all dashboards</a></li>
+<li><a href="#_delete_panel_fail">Delete panel fail</a></li>
+<li><a href="#_update_priority">Update priority</a></li>
+<li><a href="#_create_dashboard_fail_missing_header">Create dashboard fail missing header</a></li>
+<li><a href="#_update_dashboard_name_actual">Update dashboard name actual</a></li>
+<li><a href="#_get_dashboard_names">Get dashboard names</a></li>
+<li><a href="#_get_filter_panel">Get filter panel</a></li>
+<li><a href="#_delete_panel">Delete panel</a></li>
+<li><a href="#_get_dashboard_names_actual">Get dashboard names actual</a></li>
+<li><a href="#_update_panel">Update panel</a></li>
+<li><a href="#_delete_panel_actual">Delete panel actual</a></li>
+<li><a href="#_get_panel_actual">Get panel actual</a></li>
+<li><a href="#_delete_dashboard">Delete dashboard</a></li>
+<li><a href="#_create_dashboard_request_header_null_fail_actual">Create dashboard request header null fail actual</a></li>
+<li><a href="#_delete_dashboard_404">Delete dashboard 404</a></li>
+<li><a href="#_update_folder">Update folder</a></li>
+<li><a href="#_update_priority_actual">Update priority actual</a></li>
+<li><a href="#_create_dashboard">Create dashboard</a></li>
+<li><a href="#_update_panel_actual">Update panel actual</a></li>
+<li><a href="#_get_folders">Get folders</a></li>
+<li><a href="#_update_dashboard_name">Update dashboard name</a></li>
+<li><a href="#_create_folder_duplicated_fail_actual">Create folder duplicated fail actual</a></li>
+<li><a href="#_delete_panel_400_actual">Delete panel 400 actual</a></li>
+<li><a href="#_delete_dashboard_actual">Delete dashboard actual</a></li>
 </ul>
 </div>
 </div>
@@ -459,12 +482,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-folder/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /folders HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 15
+Host: localhost:8080
+
+"IT Department"</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-folder/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 201 Created</code></pre>
 </div>
 </div>
 </div>
@@ -474,12 +502,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-400-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-400-actual/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 305
+
+Request body 없거나 잘못된 형식입니다: Required request body is missing: public org.springframework.http.ResponseEntity&lt;java.lang.Void&gt; com.nhnacademy.dashboard.controller.GrafanaDashboardController.deleteDashboard(java.lang.String,com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest)</code></pre>
 </div>
 </div>
 </div>
@@ -489,12 +524,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 41
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid","from":1}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 245
+
+[{"dashboardUid":"dashboard-uid","dashboardTitle":"dashboard-title","panelId":1,"now":1747298347832,"from":1747294747832},{"dashboardUid":"dashboard-uid2","dashboardTitle":"dashboard-title2","panelId":2,"now":1747298347832,"from":1747298347830}]</code></pre>
 </div>
 </div>
 </div>
@@ -504,12 +548,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /panels/filter?offPanelId=0 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 37
+Host: localhost:8080
+
+{"dashboardUid":"0_TQv5-Hz","from":1}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel-actual/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 104
+
+[{"dashboardUid":"0_TQv5-Hz","dashboardTitle":"A","panelId":1,"now":1747298336830,"from":1747294736830}]</code></pre>
 </div>
 </div>
 </div>
@@ -519,12 +572,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-duplicated-fail-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 22
+Host: localhost:8080
+
+{"dashboardTitle":"A"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-duplicated-fail-actual/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 68
+
+CommonException: 이미 존재하는 대시보드 이름입니다: A</code></pre>
 </div>
 </div>
 </div>
@@ -534,544 +597,549 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-panel/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 235
+Host: localhost:8080
+
+{"dashboardUid":"D-TITLE","panelId":1,"panelTitle":"P-TITLE","sensorFieldRequestDto":[{"field":"battery","gatewayId":"12345","sensorId":"abc"}],"gridPos":{"h":8,"w":12,"x":0,"y":0},"type":"time_series","aggregation":"mean","time":"1d"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-panel/http-response.adoc[]
-== Get all dashboards</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-all-dashboards/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-all-dashboards/http-response.adoc[]
-== Delete panel fail</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-fail/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-fail/http-response.adoc[]
-== Update priority</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority/http-response.adoc[]
-== Create dashboard fail missing header</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-fail-missing-header/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-fail-missing-header/http-response.adoc[]
-== Update dashboard name actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name-actual/http-response.adoc[]
-== Get dashboard names</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names/http-response.adoc[]
-== Get filter panel</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel/http-response.adoc[]
-== Delete panel</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel/http-response.adoc[]
-== Get dashboard names actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names-actual/http-response.adoc[]
-== Update panel</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel/http-response.adoc[]
-== Delete panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-actual/http-response.adoc[]
-== Get panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel-actual/http-response.adoc[]
-== Delete dashboard</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard/http-response.adoc[]
-== Create dashboard request header null fail actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-request-header-null-fail-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-request-header-null-fail-actual/http-response.adoc[]
-== Update priority actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority-actual/http-response.adoc[]
-== Create dashboard</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard/http-response.adoc[]
-== Update panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel-actual/http-response.adoc[]
-== Get folders</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-folders/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-folders/http-response.adoc[]
-== Update dashboard name</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name/http-response.adoc[]
-== Delete panel 400 actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-400-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-400-actual/http-response.adoc[]
-== Delete dashboard actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-actual/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 201 Created</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_create_folder_2">Create folder</h2>
+<h2 id="_get_all_dashboards">Get all dashboards</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-folder/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 22
+Host: localhost:8080
+
+{"dashboardTitle":"A"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-folder/http-response.adoc[]
-== Delete dashboard 400 actual</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 296
+
+[{"id":1,"title":"D-TITLE","uid":"D-UID","folderUid":"F-UID","folderId":1},{"id":2,"title":"D-TITLE2","uid":"D-UID2","folderUid":"F-UID","folderId":1},{"id":3,"title":"D-TITLE3","uid":"D-UID3","folderUid":"F-UID","folderId":1},{"id":4,"title":"A","uid":"D-UID4","folderUid":"F-UID","folderId":1}]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_panel_fail">Delete panel fail</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-400-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 289
+
+Request body 없거나 잘못된 형식입니다: Required request body is missing: public org.springframework.http.ResponseEntity&lt;java.lang.Void&gt; com.nhnacademy.dashboard.controller.GrafanaPanelController.deletePanel(java.lang.String,com.nhnacademy.dashboard.dto.panel.DeletePanelRequest)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_priority">Update priority</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /panels/priority HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 56
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid","panelPriority":[1,2,3]}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-400-actual/http-response.adoc[]
-== Get panel</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_dashboard_fail_missing_header">Create dashboard fail missing header</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 22
+Host: localhost:8080
+
+{"dashboardTitle":"A"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 121
+
+Required request header 없습니다: Required request header 'X-User-Id' for method parameter type String is not present</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_dashboard_name_actual">Update dashboard name actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /dashboards/name HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 59
+Host: localhost:8080
+
+{"dashboardUid":"weAwD5-Nk","dashboardNewTitle":"B-NEW123"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel/http-response.adoc[]
-== Get filter panel actual</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_dashboard_names">Get dashboard names</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /dashboards/names HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 37
+
+["D-TITLE","D-TITLE2","D-TITLE3","A"]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_filter_panel">Get filter panel</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /panels/filter?offPanelId=1 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 41
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid","from":1}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel-actual/http-response.adoc[]
-== Create dashboard duplicated fail actual</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 124
+
+[{"dashboardUid":"dashboard-uid2","dashboardTitle":"dashboard-title2","panelId":2,"now":1747298347768,"from":1747298347766}]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_panel">Delete panel</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 44
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid","panelId":1}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-duplicated-fail-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_dashboard_names_actual">Get dashboard names actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /dashboards/names HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-duplicated-fail-actual/http-response.adoc[]
-== Create panel</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 9
+
+["A","B"]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_panel">Update panel</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 253
+Host: localhost:8080
+
+{"dashboardUid":"update-dashboardUid","panelId":1,"panelNewTitle":"update-panelTitle","sensorFieldRequestDto":[{"field":"co2","gatewayId":"12345","sensorId":"abc"}],"gridPos":{"h":7,"w":15,"x":0,"y":0},"type":"histogram","aggregation":"min","time":"3d"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-panel/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_panel_actual">Delete panel actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 40
+Host: localhost:8080
+
+{"dashboardUid":"0_TQv5-Hz","panelId":0}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-panel/http-response.adoc[]
-== Get all dashboards</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_panel_actual">Get panel actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 37
+Host: localhost:8080
+
+{"dashboardUid":"0_TQv5-Hz","from":1}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-all-dashboards/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 104
+
+[{"dashboardUid":"0_TQv5-Hz","dashboardTitle":"A","panelId":1,"now":1747298345384,"from":1747298345383}]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_dashboard">Delete dashboard</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 32
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-all-dashboards/http-response.adoc[]
-== Delete panel fail</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_dashboard_request_header_null_fail_actual">Create dashboard request header null fail actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 22
+Host: localhost:8080
+
+{"dashboardTitle":"A"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-fail/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 121
+
+Required request header 없습니다: Required request header 'X-User-Id' for method parameter type String is not present</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_dashboard_404">Delete dashboard 404</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 19
+Host: localhost:8080
+
+{"dashboardUid":""}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-fail/http-response.adoc[]
-== Update priority</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 404 Not Found
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 64
+
+CommonException: 해당 대시보드를 찾을 수 없습니다.</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_folder">Update folder</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /folders HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 48
+Host: localhost:8080
+
+{"departmentId":"1","newFolderName":"new-title"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_priority_actual">Update priority actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /panels/priority HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 50
+Host: localhost:8080
+
+{"dashboardUid":"0_TQv5-Hz","panelPriority":[1,0]}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority/http-response.adoc[]
-== Create dashboard fail missing header</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_dashboard">Create dashboard</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 22
+Host: localhost:8080
+
+{"dashboardTitle":"A"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-fail-missing-header/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 201 Created</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_panel_actual">Update panel actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 243
+Host: localhost:8080
+
+{"dashboardUid":"0_TQv5-Hz","panelId":0,"panelNewTitle":"update-panelTitle","sensorFieldRequestDto":[{"field":"co2","gatewayId":"12345","sensorId":"abc"}],"gridPos":{"h":7,"w":15,"x":0,"y":0},"type":"histogram","aggregation":"min","time":"3d"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-fail-missing-header/http-response.adoc[]
-== Update dashboard name actual</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_folders">Get folders</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /folders HTTP/1.1
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name-actual/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 85
+
+[{"id":1,"uid":"UID-1","title":"folder-1"},{"id":2,"uid":"UID-2","title":"folder-2"}]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_update_dashboard_name">Update dashboard name</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /dashboards/name HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 70
+Host: localhost:8080
+
+{"dashboardUid":"dashboard-uid","dashboardNewTitle":"dashboard-title"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name-actual/http-response.adoc[]
-== Get dashboard names</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_folder_duplicated_fail_actual">Create folder duplicated fail actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">PUT /folders HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 54
+Host: localhost:8080
+
+{"departmentId":"1","newFolderName":"TEST Department"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names/http-request.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 76
+
+CommonException: 이미 존재하는 폴더 이름입니다: TEST Department</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_panel_400_actual">Delete panel 400 actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /panels HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names/http-response.adoc[]
-== Get filter panel</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 400 Bad Request
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 289
+
+Request body 없거나 잘못된 형식입니다: Required request body is missing: public org.springframework.http.ResponseEntity&lt;java.lang.Void&gt; com.nhnacademy.dashboard.controller.GrafanaPanelController.deletePanel(java.lang.String,com.nhnacademy.dashboard.dto.panel.DeletePanelRequest)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_delete_dashboard_actual">Delete dashboard actual</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">DELETE /dashboards HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: user123
+Content-Length: 28
+Host: localhost:8080
+
+{"dashboardUid":"weAwD5-Nk"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-filter-panel/http-response.adoc[]
-== Delete panel</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel/http-response.adoc[]
-== Get dashboard names actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-dashboard-names-actual/http-response.adoc[]
-== Update panel</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel/http-response.adoc[]
-== Delete panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-actual/http-response.adoc[]
-== Get panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-panel-actual/http-response.adoc[]
-== Delete dashboard</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard/http-response.adoc[]
-== Create dashboard request header null fail actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-request-header-null-fail-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard-request-header-null-fail-actual/http-response.adoc[]
-== Update priority actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-priority-actual/http-response.adoc[]
-== Create dashboard</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/create-dashboard/http-response.adoc[]
-== Update panel actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-panel-actual/http-response.adoc[]
-== Get folders</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-folders/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/get-folders/http-response.adoc[]
-== Update dashboard name</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/update-dashboard-name/http-response.adoc[]
-== Delete panel 400 actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-400-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-panel-400-actual/http-response.adoc[]
-== Delete dashboard actual</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-actual/http-request.adoc[]</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-http" data-lang="http">Unresolved directive in index.adoc - include::{snippets}/delete-dashboard-actual/http-response.adoc[]</code></pre>
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 204 No Content</code></pre>
 </div>
 </div>
 </div>
@@ -1079,7 +1147,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-05-14 14:27:30 +0900
+Last updated 2025-05-15 17:39:08 +0900
 </div>
 </div>
 </body>

@@ -4,13 +4,20 @@ import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
+import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +29,7 @@ import java.util.Optional;
 public class GrafanaFolderService {
 
     private final GrafanaApi grafanaApi;
+    private final EventProducer eventProducer;
     private final UserApi userApi;
 
     /**
@@ -44,13 +52,13 @@ public class GrafanaFolderService {
      * @return 부서 이름
      * @throws NotFoundException 사용자가 없거나 부서가 없을 경우
      */
-    public String getFolderTitle(String userId){
+    public UserDepartmentResponse getFolderTitle(String userId){
         UserInfoResponse userInfoResponse = userApi.getUserInfo(userId);
 
         if(userInfoResponse == null){
             throw new NotFoundException("user 찾을 수 없습니다: "+userId);
         }
-        return userInfoResponse.getUserDepartment().getDepartmentName();
+        return userInfoResponse.getUserDepartment();
     }
 
     /**
@@ -101,20 +109,57 @@ public class GrafanaFolderService {
     /**
      * 새로운 부서 정보를 개별 생성합니다.
      */
-    public void createFolder(String departmentName) {
+    public void createFolder(String departmentId) {
 
+        String departmentName = userApi.getDepartment(departmentId).getDepartmentName();
         CreateFolderRequest createFolderRequest = new CreateFolderRequest(departmentName);
 
-        Optional<FolderInfoResponse> duplicatedFolder = getAllFolders().stream()
-                .filter(folder -> Objects.equals(folder.getFolderTitle(), departmentName))
-                .findFirst();
+        duplicatedNameCheck(createFolderRequest.getTitle());
 
-        if (duplicatedFolder.isPresent()) {
-            // 이미 존재하는 경우 처리
-            throw new BadRequestException("폴더 '" + departmentName + "'은 이미 존재합니다.");
-        } else {
-            // 생성 진행
-            grafanaApi.createFolder(createFolderRequest);
+        grafanaApi.createFolder(createFolderRequest);
+
+        String folderUid = getFolderUidByTitle(departmentName);
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "폴더 생성",
+                folderUid,
+                departmentId,
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
+    }
+
+    /**
+     * ADMIN
+     * 기존 부서 이름을 수정합니다.
+     */
+    public void updateFolder(String userId, UpdateFolderRequest updateFolderRequest){
+        GrafanaUpdateFolderRequest grafanaUpdateFolderRequest = new GrafanaUpdateFolderRequest(
+                updateFolderRequest.getNewFolderName(), 1
+        );
+
+        duplicatedNameCheck(updateFolderRequest.getNewFolderName());
+        String folderUid = getFolderUidByTitle(getFolderTitle(userId).getDepartmentName());
+        grafanaApi.updateFolder(folderUid, grafanaUpdateFolderRequest);
+
+        EventCreateRequest event = new EventCreateRequest(
+                "INFO",
+                "폴더 이름 수정",
+                folderUid,
+                updateFolderRequest.getDepartmentId(),
+                LocalDateTime.now()
+        );
+        eventProducer.sendEvent(event);
+    }
+
+    private void duplicatedNameCheck(String folderTitle) {
+        List<FolderInfoResponse> folderInfoResponseList = grafanaApi.getAllFolders();
+
+        boolean isDuplicated = folderInfoResponseList.stream()
+                .anyMatch(f -> f.getFolderTitle().equals(folderTitle));
+
+        if (isDuplicated) {
+            throw new AlreadyFolderNameException("이미 존재하는 폴더 이름입니다: " + folderTitle);
         }
     }
 }

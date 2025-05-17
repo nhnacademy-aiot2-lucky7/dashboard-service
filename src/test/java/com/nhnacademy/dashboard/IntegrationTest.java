@@ -9,6 +9,7 @@ import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
+import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
@@ -16,6 +17,8 @@ import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import com.nhnacademy.dashboard.service.GrafanaDashboardService;
 import com.nhnacademy.dashboard.service.GrafanaFolderService;
 import com.nhnacademy.dashboard.service.GrafanaPanelService;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
@@ -33,8 +36,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.retry.support.RetryTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -71,6 +76,9 @@ class IntegrationTest {
     @MockitoBean
     private UserApi userApi;
 
+    @MockitoBean
+    private EventProducer event;
+
     private static final String USER_ID = "user123";
     private static final String HEADER_NAME = "X-User-Id";
 
@@ -79,9 +87,7 @@ class IntegrationTest {
             .fixedBackoff(1000)
             .build();
 
-    @BeforeEach
-    void method(){
-
+    private void setupUserApiMock() {
         UserInfoResponse userInfoResponse = new UserInfoResponse(
                 "user",
                 "1",
@@ -90,33 +96,26 @@ class IntegrationTest {
                 "010-1111-2222",
                 new UserDepartmentResponse("1", "TEST Department")
         );
-        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1", "test");
+
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1", "TEST Department");
+
         when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
         when(userApi.getDepartments()).thenReturn(List.of(userDepartmentResponse));
+        when(userApi.getDepartment(Mockito.anyString())).thenReturn(userDepartmentResponse);
+        doNothing().when(event).sendEvent(Mockito.any(EventCreateRequest.class));
     }
-
 
     @BeforeAll
     void setUp(){
 
-        UserInfoResponse userInfoResponse = new UserInfoResponse(
-                "user",
-                "1",
-                "kim",
-                "kim@email.com",
-                "010-1111-2222",
-                new UserDepartmentResponse("1", "TEST Department")
-        );
-        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1", "test");
-        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-        when(userApi.getDepartments()).thenReturn(List.of(userDepartmentResponse));
+        setupUserApiMock();
 
         // 폴더 생성 (예외 발생 시 RetryTemplate 사용)
         try {
-            folderService.createFolder("TEST Department");
+            folderService.createFolder("1");
         } catch (Exception e) {
             retryTemplate.execute(context -> {
-                folderService.createFolder("TEST Department");
+                folderService.createFolder("1");
                 return null;
             });
         }
@@ -150,10 +149,16 @@ class IntegrationTest {
         panelService.createPanel(USER_ID,panelRequest2);
     }
 
+    @BeforeEach
+    void method(){
+
+        Mockito.reset(userApi);
+        setupUserApiMock();
+    }
+
     @AfterAll
     void tearDown() {
-        grafanaApi.getAllFolders().stream()
-                .filter(f -> f.getFolderTitle().equals("TEST Department"))
+        grafanaApi.getAllFolders()
                 .forEach(f -> {
                     try {
                         grafanaApi.deleteFolder(f.getFolderUid());
@@ -167,6 +172,21 @@ class IntegrationTest {
 
     @Test
     @Order(1)
+    @DisplayName("폴더 이름 수정 실패 - 중복된 이름")
+    void updateFolder_duplicated_fail_actual() throws Exception {
+        UpdateFolderRequest request = new UpdateFolderRequest("1","TEST Department");
+
+        mockMvc.perform(put("/folders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HEADER_NAME, USER_ID)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(Matchers.containsString("이미 존재하는 폴더 이름입니다: ")))
+                .andDo(document("create-folder-duplicated-fail-actual"));
+    }
+
+    @Test
+    @Order(2)
     @DisplayName("대시보드 생성 실패 - 중복된 이름")
     void createDashboard_duplicated_fail_actual() throws Exception {
         CreateDashboardRequest request = new CreateDashboardRequest("A");
@@ -195,7 +215,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     @DisplayName("대시보드 이름 리스트 조회")
     void getDashboardName_actual() throws Exception {
 
@@ -208,7 +228,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("대시보드 이름 'B' → 'B-NEW123'로 수정")
     void updateDashboard_actual() throws Exception {
 
@@ -227,7 +247,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("패널 필터링 조회 - offPanelId 제외")
     void getFilterPanel_actual() throws Exception {
 
@@ -246,7 +266,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("panelId: [동적으로 추출된 ID] 패널 수정 - 제목 및 위치 등 변경")
     void updatePanel_actual() throws Exception {
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
@@ -278,7 +298,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     @DisplayName("패널 우선순위 수정 - 순서: 1,0")
     void updatePriority_actual() throws Exception {
 
@@ -301,7 +321,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     @DisplayName("panelId: 0 삭제")
     void deletePanel_actual() throws Exception {
 
@@ -318,7 +338,7 @@ class IntegrationTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @DisplayName("대시보드 'A'의 패널 전체 조회")
     void getPanel_actual() throws Exception {
 
@@ -348,7 +368,7 @@ class IntegrationTest {
 
 
     @Test
-    @Order(9)
+    @Order(10)
     @DisplayName("대시보드 'B-NEW123' 삭제")
     void deleteDashboard_actual() throws Exception {
 

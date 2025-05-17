@@ -1,5 +1,6 @@
 package com.nhnacademy.common.memory;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +22,16 @@ class DashboardMemoryTest {
         DashboardMemory.addPanel("dashboard-uid", 1);
         DashboardMemory.addPanel("dashboard-uid", 2);
     }
+
+    @AfterEach
+    void tearDown() throws NoSuchFieldException, IllegalAccessException {
+        Field memoryField = DashboardMemory.class.getDeclaredField("DASHBOARD_PANELS");
+        memoryField.setAccessible(true);
+
+        Map<?, ?> memoryMap = (Map<?, ?>) memoryField.get(null);
+        memoryMap.clear();
+    }
+
 
     @Test
     @DisplayName("생성자 생성 금지")
