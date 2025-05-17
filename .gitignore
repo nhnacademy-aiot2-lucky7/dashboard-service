@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### .env 무시
+.env
+
 # Spring Boot의 application-dev.properties 파일을 git에서 무시하도록 설정
 /src/main/resources/application-dev.properties
 /src/test/resources/application-test.properties
