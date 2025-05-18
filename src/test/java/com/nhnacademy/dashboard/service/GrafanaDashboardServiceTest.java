@@ -5,8 +5,11 @@ import com.nhnacademy.dashboard.dto.dashboard.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
+import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.doNothing;
+
 @ExtendWith(MockitoExtension.class)
 class GrafanaDashboardServiceTest {
 
@@ -28,6 +33,9 @@ class GrafanaDashboardServiceTest {
 
     @Mock
     GrafanaFolderService folderService;
+
+    @Mock
+    private EventProducer eventProducer;
 
     @InjectMocks
     GrafanaDashboardService dashboardService;
@@ -42,7 +50,8 @@ class GrafanaDashboardServiceTest {
     @Test
     @DisplayName("대시보드 조회")
     void getDashboard() {
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
         List<InfoDashboardResponse> infoDashboardResponses = dashboardService.getDashboard("1");
@@ -104,7 +113,8 @@ class GrafanaDashboardServiceTest {
     @DisplayName("대시보드 제목에 해당하는 정보 반환")
     void getDashboardInfoRequest() {
 
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
         InfoDashboardResponse infoDashboardResponses = dashboardService.getDashboardInfoRequest("1", "dashboard-title");
@@ -126,9 +136,11 @@ class GrafanaDashboardServiceTest {
     @DisplayName("대시보드 생성")
     void createDashboard() {
 
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(folderService.getFolderUidByTitle(Mockito.anyString())).thenReturn("folder-uid");
         Mockito.when(grafanaApi.createDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         dashboardService.createDashboard("1", new CreateDashboardRequest("dashboard-title"));
 
@@ -143,10 +155,12 @@ class GrafanaDashboardServiceTest {
                 "folder-uid",
                 false);
 
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(grafanaApi.getDashboardInfo("dashboard-uid")).thenReturn(grafanaCreateDashboardRequest);
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         dashboardService.updateDashboardName("user123",new UpdateDashboardNameRequest("dashboard-uid", "NEW TITLE"));
 
@@ -183,8 +197,13 @@ class GrafanaDashboardServiceTest {
                 "folder-uid",
                 false);
 
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(grafanaApi.getDashboardInfo("dashboard-uid")).thenReturn(grafanaCreateDashboardRequest);
-        dashboardService.removeDashboard(request);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
+
+        dashboardService.removeDashboard("user123", request);
 
         Mockito.verify(grafanaApi, Mockito.times(1)).deleteDashboard(dashboardUid);
     }
@@ -197,14 +216,16 @@ class GrafanaDashboardServiceTest {
         DeleteDashboardRequest request = new DeleteDashboardRequest(dashboardUid);
 
         Mockito.when(grafanaApi.getDashboardInfo("dashboard-uid")).thenReturn(Mockito.any(GrafanaCreateDashboardRequest.class));
-        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> dashboardService.removeDashboard(request));
+        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () ->
+                dashboardService.removeDashboard("user123", request));
         Assertions.assertEquals("대시보드의 상세 정보를 조회하지 못했습니다. 해당 UID: dashboard-uid", exception.getMessage());
     }
 
     @Test
     @DisplayName("대시보드 요청에 대한 기본 구조 생성")
     void buildDashboardRequest() {
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn("folder-title");
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
         GridPos gridPos = new GridPos(12, 8);

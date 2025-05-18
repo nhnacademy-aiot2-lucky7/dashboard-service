@@ -4,10 +4,14 @@ import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
+import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
-import com.nhnacademy.dashboard.exception.BadRequestException;
+import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
+import com.nhnacademy.event.event.EventCreateRequest;
+import com.nhnacademy.event.rabbitmq.EventProducer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +37,9 @@ class GrafanaFolderServiceTest {
 
     @Mock
     private UserApi userApi;
+
+    @Mock
+    private EventProducer eventProducer;
 
     @InjectMocks
     GrafanaFolderService folderService;
@@ -48,7 +56,7 @@ class GrafanaFolderServiceTest {
                 "name",
                 "email",
                 "phone",
-                new UserDepartmentResponse("1","부서명")
+                new UserDepartmentResponse("1", "부서명")
         );
     }
 
@@ -62,7 +70,7 @@ class GrafanaFolderServiceTest {
 
         assertNotNull(folders);
         assertAll(
-                ()->{
+                () -> {
                     assertEquals(1, folders.getFirst().getFolderId());
                     assertEquals("folder-uid", folders.getFirst().getFolderUid());
                     assertEquals("folder-title", folders.getFirst().getFolderTitle());
@@ -75,7 +83,7 @@ class GrafanaFolderServiceTest {
     void getFolderTitle() {
 
         when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
-        String departmentName = folderService.getFolderTitle(Mockito.anyString());
+        String departmentName = folderService.getFolderTitle(Mockito.anyString()).getDepartmentName();
 
         Assertions.assertEquals("부서명", departmentName);
 
@@ -87,7 +95,7 @@ class GrafanaFolderServiceTest {
 
         when(userApi.getUserInfo(Mockito.anyString())).thenReturn(Mockito.any(UserInfoResponse.class));
 
-        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, ()-> folderService.getFolderTitle("1"));
+        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> folderService.getFolderTitle("1"));
         Assertions.assertEquals("user 찾을 수 없습니다: 1", exception.getMessage());
     }
 
@@ -108,7 +116,7 @@ class GrafanaFolderServiceTest {
 
         when(grafanaApi.getAllFolders()).thenReturn(List.of());
 
-        Assertions.assertThrows(NotFoundException.class, ()-> folderService.getFolderIdByTitle("folder-title"));
+        Assertions.assertThrows(NotFoundException.class, () -> folderService.getFolderIdByTitle("folder-title"));
     }
 
 
@@ -129,7 +137,7 @@ class GrafanaFolderServiceTest {
 
         when(grafanaApi.getAllFolders()).thenReturn(List.of());
 
-        Assertions.assertThrows(NotFoundException.class, ()-> folderService.getFolderUidByTitle("folder-title"));
+        Assertions.assertThrows(NotFoundException.class, () -> folderService.getFolderUidByTitle("folder-title"));
     }
 
     @Test
@@ -142,10 +150,10 @@ class GrafanaFolderServiceTest {
         Assertions.assertNotNull(folderInfoResponse1);
         Assertions.assertTrue(folderInfoResponse1.isPresent());
         Assertions.assertAll(
-                ()->{
-                    Assertions.assertEquals(1,folderInfoResponse1.get().getFolderId());
-                    Assertions.assertEquals("folder-uid",folderInfoResponse1.get().getFolderUid());
-                    Assertions.assertEquals("folder-title",folderInfoResponse1.get().getFolderTitle());
+                () -> {
+                    Assertions.assertEquals(1, folderInfoResponse1.get().getFolderId());
+                    Assertions.assertEquals("folder-uid", folderInfoResponse1.get().getFolderUid());
+                    Assertions.assertEquals("folder-title", folderInfoResponse1.get().getFolderTitle());
                 }
         );
     }
@@ -154,9 +162,30 @@ class GrafanaFolderServiceTest {
     @DisplayName("부서명으로 폴더 생성")
     void createFolder() {
 
-        String departmentName = "부서A";
+        String departmentId = "1";
 
-        folderService.createFolder(departmentName);
+        FolderInfoResponse newFolder = new FolderInfoResponse(
+                1,
+                "folder-uid",
+                "부서A"
+        );
+
+        FolderInfoResponse infoResponse = new FolderInfoResponse(
+                2,
+                "folder-uid-2",
+                "new"
+        );
+
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse(
+                "1",
+                "부서A"
+        );
+        when(userApi.getDepartment(Mockito.anyString())).thenReturn(userDepartmentResponse);
+        when(grafanaApi.getAllFolders())
+                .thenReturn(List.of(infoResponse))
+                .thenReturn(List.of(newFolder));
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
+        folderService.createFolder(departmentId);
 
         Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.any(CreateFolderRequest.class));
     }
@@ -165,16 +194,74 @@ class GrafanaFolderServiceTest {
     @DisplayName("부서명으로 폴더 생성 실패 -> 중복 이름")
     void createFolder_duplicated() {
 
-        String departmentName = "부서A";
+        String departmentId = "1";
 
         FolderInfoResponse infoResponse = new FolderInfoResponse(
                 1,
                 "folder-uid",
                 "부서A"
         );
-        when(grafanaApi.getAllFolders()).thenReturn(List.of(infoResponse));
-        BadRequestException exception = Assertions.assertThrows(BadRequestException.class, ()-> folderService.createFolder(departmentName));
 
-        Assertions.assertEquals("폴더 '" + departmentName + "'은 이미 존재합니다.", exception.getMessage());
+        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse(
+                "1",
+                "부서A"
+        );
+        when(userApi.getDepartment(Mockito.anyString())).thenReturn(userDepartmentResponse);
+        when(grafanaApi.getAllFolders()).thenReturn(List.of(infoResponse));
+        AlreadyFolderNameException exception = Assertions.assertThrows(AlreadyFolderNameException.class,
+                () -> folderService.createFolder(departmentId));
+
+        Assertions.assertEquals("이미 존재하는 폴더 이름입니다: "+userDepartmentResponse.getDepartmentName(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("새로운/잘못된 부서명으로 폴더 수정")
+    void updateFolder() {
+
+        UpdateFolderRequest updateFolderRequest = new UpdateFolderRequest("1", "new");
+
+        FolderInfoResponse infoResponse = new FolderInfoResponse(
+                1,
+                "folder-uid",
+                "부서명"
+        );
+
+        FolderInfoResponse newFolder = new FolderInfoResponse(
+                1,
+                "folder-uid",
+                "new"
+        );
+
+        when(grafanaApi.getAllFolders())
+                .thenReturn(List.of(infoResponse))
+                .thenReturn(List.of(infoResponse))
+                .thenReturn(List.of(newFolder));
+        when(userApi.getUserInfo(Mockito.anyString())).thenReturn(userInfoResponse);
+        when(grafanaApi.updateFolder(Mockito.anyString(), Mockito.any(GrafanaUpdateFolderRequest.class))).thenReturn(null);
+        doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
+        folderService.updateFolder("user123", updateFolderRequest);
+
+        Mockito.verify(grafanaApi, Mockito.times(1)).updateFolder(Mockito.anyString(), Mockito.any(GrafanaUpdateFolderRequest.class));
+    }
+
+    @Test
+    @DisplayName("새로운/잘못된 부서명으로 폴더 수정 실패 : 중복 이름")
+    void updateFolder_400() {
+
+        UpdateFolderRequest updateFolderRequest = new UpdateFolderRequest("1", "new");
+
+        FolderInfoResponse infoResponse = new FolderInfoResponse(
+                1,
+                "folder-uid",
+                "new"
+        );
+
+
+        when(grafanaApi.getAllFolders()).thenReturn(List.of(infoResponse));
+
+        Assertions.assertThrows(AlreadyFolderNameException.class, ()-> folderService.updateFolder("user123", updateFolderRequest));
+
+        Mockito.verify(grafanaApi, Mockito.never()).updateFolder(
+                Mockito.anyString(), Mockito.any(GrafanaUpdateFolderRequest.class));
     }
 }
