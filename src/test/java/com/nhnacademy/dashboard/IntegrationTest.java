@@ -51,7 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
-@ActiveProfiles("test")
+@ActiveProfiles("dev")
 @Import(CommonAdvice.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(RestDocumentationExtension.class)

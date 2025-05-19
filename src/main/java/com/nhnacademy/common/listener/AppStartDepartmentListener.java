@@ -17,7 +17,6 @@ import java.util.Objects;
 
 @Component
 @NonNullApi
-@Profile("!test")
 @AllArgsConstructor
 public class AppStartDepartmentListener implements ApplicationListener<ApplicationReadyEvent> {
 

@@ -13,14 +13,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 @Import(RabbitConfig.class)
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("dev")
 class RabbitConfigIntegrationTest {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    Jackson2JsonMessageConverter messageConverter;
 
     @Autowired
     DirectExchange eventExchange;
@@ -31,7 +28,7 @@ class RabbitConfigIntegrationTest {
         Assertions.assertThat(rabbitTemplate.getMessageConverter()).isInstanceOf(Jackson2JsonMessageConverter.class);
 
         Assertions.assertThat(eventExchange).isNotNull();
-        Assertions.assertThat(eventExchange.getName()).isEqualTo("event.exchange");
+        Assertions.assertThat(eventExchange.getName()).isEqualTo("event.create");
     }
 }
 

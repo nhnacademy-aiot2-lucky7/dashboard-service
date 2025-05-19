@@ -6,34 +6,15 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: write  # GHCR 푸시용 권한
+
+env:
+  GITHUB_ACTOR: ${{ github.actor }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
-    name: Generate & Build
-    runs-on: ubuntu-latest
-
-    env:
-      GITHUB_ACTOR: ${{ github.actor }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GRAFANA_TOKEN: ${{ secrets.TEST_GRAFANA_TOKEN }}
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Generate application-test.properties
-        run: |
-          cat <<EOF > src/test/resources/application-test.properties
-          grafana.api-key=${TEST_GRAFANA_TOKEN}
-
-      - name: Build with Gradle
-        run: ./gradlew build
-
-  docker:
-    name: Docker Build and Push
-    needs: build
     uses: nhnacademy-aiot2-lucky7/common-infra/.github/workflows/reusable-docker-publish.yml@main
     with:
       image-name: dashboard-service
-      use-github-token: true
+      use-github-token: false  # 필요하면 true, 아니면 생략 or false
