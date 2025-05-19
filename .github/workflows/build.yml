@@ -16,15 +16,7 @@ jobs:
     env:
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
-      GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
-      MQ_HOST: ${{ secrets.MQ_HOST }}
-      MQ_PORT: ${{ secrets.MQ_PORT }}
-      MQ_USER: ${{ secrets.MQ_USER }}
-      MQ_PASSWORD: ${{ secrets.MQ_PASSWORD }}
-      MQ_EXCHANGE: ${{ secrets.MQ_EXCHANGE }}
-      MQ_ROUTING_KEY: ${{ secrets.MQ_ROUTING_KEY }}
-      SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
+      GRAFANA_TOKEN: ${{ secrets.TEST_GRAFANA_TOKEN }}
 
     steps:
       - name: Checkout source
@@ -33,19 +25,7 @@ jobs:
       - name: Generate application-test.properties
         run: |
           cat <<EOF > src/test/resources/application-test.properties
-          grafana.api.url=${GRAFANA_URL}
-          grafana.api-key=${GRAFANA_TOKEN}
-
-          spring.rabbitmq.host=${MQ_HOST}
-          spring.rabbitmq.port=${MQ_PORT}
-          spring.rabbitmq.username=${MQ_USER}
-          spring.rabbitmq.password=${MQ_PASSWORD}
-
-          mq.exchange.event=${MQ_EXCHANGE}
-          mq.routing-key.event=${MQ_ROUTING_KEY}
-
-          spring.profiles.active=${SPRING_PROFILES_ACTIVE}
-          EOF
+          grafana.api-key=${TEST_GRAFANA_TOKEN}
 
       - name: Build with Gradle
         run: ./gradlew build
