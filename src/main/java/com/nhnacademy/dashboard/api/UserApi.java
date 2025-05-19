@@ -23,5 +23,4 @@ public interface UserApi {
 
     @GetMapping("/departments/{departmentId}")
     UserDepartmentResponse getDepartment(@PathVariable String departmentId);
-
 }
