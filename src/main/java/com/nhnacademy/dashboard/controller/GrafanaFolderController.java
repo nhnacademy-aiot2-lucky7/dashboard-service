@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class GrafanaFolderController {
     @Operation(summary = "폴더 이름 수정")
     public ResponseEntity<Void> updateFolder(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody UpdateFolderRequest updateFolderRequest
+            @RequestBody @Validated UpdateFolderRequest updateFolderRequest
             ) {
         grafanaFolderService.updateFolder(userId, updateFolderRequest);
 
@@ -69,7 +70,7 @@ public class GrafanaFolderController {
     @PostMapping
     @Operation(summary = "새로운 폴더 생성")
     public ResponseEntity<Void> createFolder(
-            @RequestBody @Valid CreateFolderDepartmentIdRequest departmentId
+            @RequestBody @Validated CreateFolderDepartmentIdRequest departmentId
     ) {
         grafanaFolderService.createFolder(departmentId);
 

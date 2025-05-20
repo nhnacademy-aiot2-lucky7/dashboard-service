@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.rmi.NoSuchObjectException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -51,11 +52,15 @@ public class GrafanaFolderService {
      */
     public UserDepartmentResponse getFolderTitle(String userId){
         UserInfoResponse userInfoResponse = userApi.getUserInfo(userId);
+        log.debug("userInfo: {}", userInfoResponse.toString());
 
-        if(userInfoResponse == null){
-            throw new NotFoundException("user 찾을 수 없습니다: "+userId);
+        UserDepartmentResponse department = userInfoResponse.getUserDepartment();
+        log.debug("userDepartment: {}", userInfoResponse.getUserDepartment());
+        if (department == null) {
+            throw new NotFoundException("부서 정보를 찾을 수 없습니다: userId = " + userId);
         }
-        return userInfoResponse.getUserDepartment();
+
+        return department;
     }
 
     /**
@@ -136,7 +141,12 @@ public class GrafanaFolderService {
         );
 
         duplicatedNameCheck(updateFolderRequest.getNewFolderName());
-        String folderUid = getFolderUidByTitle(getFolderTitle(userId).getDepartmentName());
+        String folderTitle = getFolderTitle(userId).getDepartmentName();
+
+        if(folderTitle == null || folderTitle.isEmpty()){
+            throw new NotFoundException(folderTitle+" 을 찾지 못했습니다");
+        }
+        String folderUid = getFolderUidByTitle(folderTitle);
         log.info("folderUid: {}", folderUid);
         grafanaApi.updateFolder(folderUid, grafanaUpdateFolderRequest);
 
