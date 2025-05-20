@@ -3,6 +3,7 @@ package com.nhnacademy.common.listener;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import io.micrometer.common.lang.NonNullApi;
@@ -34,8 +35,15 @@ public class AppStartDepartmentListener implements ApplicationListener<Applicati
                 .map(d -> new CreateFolderRequest(d.getDepartmentName()))
                 .toList();
 
-        for(CreateFolderRequest department: departmentNameList){
-            grafanaApi.createFolder(department);
+        List<FolderInfoResponse> existingFolder = grafanaApi.getAllFolders();
+
+        for (CreateFolderRequest department : departmentNameList) {
+            boolean alreadyExists = existingFolder.stream()
+                    .anyMatch(folder -> folder.getFolderTitle().equalsIgnoreCase(department.getTitle()));
+
+            if (!alreadyExists) {
+                grafanaApi.createFolder(department);
+            }
         }
     }
 }
