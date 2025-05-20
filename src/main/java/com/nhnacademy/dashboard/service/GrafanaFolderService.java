@@ -2,10 +2,7 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
-import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
-import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
@@ -109,9 +106,9 @@ public class GrafanaFolderService {
     /**
      * 새로운 부서 정보를 개별 생성합니다.
      */
-    public void createFolder(String departmentId) {
+    public void createFolder(CreateFolderDepartmentIdRequest departmentId) {
 
-        String departmentName = userApi.getDepartment(departmentId).getDepartmentName();
+        String departmentName = userApi.getDepartment(departmentId.getDepartmentId()).getDepartmentName();
         CreateFolderRequest createFolderRequest = new CreateFolderRequest(departmentName);
 
         duplicatedNameCheck(createFolderRequest.getTitle());
@@ -123,7 +120,7 @@ public class GrafanaFolderService {
                 "INFO",
                 "폴더 생성",
                 folderUid,
-                departmentId,
+                departmentId.getDepartmentId(),
                 LocalDateTime.now()
         );
         eventProducer.sendEvent(event);
@@ -140,6 +137,7 @@ public class GrafanaFolderService {
 
         duplicatedNameCheck(updateFolderRequest.getNewFolderName());
         String folderUid = getFolderUidByTitle(getFolderTitle(userId).getDepartmentName());
+        log.info("folderUid: {}", folderUid);
         grafanaApi.updateFolder(folderUid, grafanaUpdateFolderRequest);
 
         EventCreateRequest event = new EventCreateRequest(

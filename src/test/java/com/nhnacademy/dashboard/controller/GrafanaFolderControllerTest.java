@@ -1,6 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderDepartmentIdRequest;
 import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
 import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
 import com.nhnacademy.dashboard.service.GrafanaFolderService;
@@ -63,7 +64,7 @@ class GrafanaFolderControllerTest {
     @DisplayName("폴더 생성")
     void createFolder() throws Exception {
 
-        Mockito.doNothing().when(folderService).createFolder(Mockito.anyString());
+        Mockito.doNothing().when(folderService).createFolder(Mockito.any(CreateFolderDepartmentIdRequest.class));
 
         mockMvc.perform(post("/folders")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +73,7 @@ class GrafanaFolderControllerTest {
                 .andDo(print())
                 .andDo(document("create-folder"));
 
-        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.anyString());
+        Mockito.verify(folderService, Mockito.times(1)).createFolder(Mockito.any(CreateFolderDepartmentIdRequest.class));
     }
 
     @Test

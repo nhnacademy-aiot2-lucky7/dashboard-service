@@ -9,6 +9,7 @@ import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
 import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
+import com.nhnacademy.dashboard.dto.folder.CreateFolderDepartmentIdRequest;
 import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
@@ -110,12 +111,13 @@ class IntegrationTest {
 
         setupUserApiMock();
 
+        CreateFolderDepartmentIdRequest departmentIdRequest = new CreateFolderDepartmentIdRequest("1");
         // 폴더 생성 (예외 발생 시 RetryTemplate 사용)
         try {
-            folderService.createFolder("1");
+            folderService.createFolder(departmentIdRequest);
         } catch (Exception e) {
             retryTemplate.execute(context -> {
-                folderService.createFolder("1");
+                folderService.createFolder(departmentIdRequest);
                 return null;
             });
         }

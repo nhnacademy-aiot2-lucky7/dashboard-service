@@ -2,10 +2,7 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.api.UserApi;
-import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
-import com.nhnacademy.dashboard.dto.folder.FolderInfoResponse;
-import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
-import com.nhnacademy.dashboard.dto.folder.UpdateFolderRequest;
+import com.nhnacademy.dashboard.dto.folder.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
@@ -180,12 +177,14 @@ class GrafanaFolderServiceTest {
                 "1",
                 "부서A"
         );
+        CreateFolderDepartmentIdRequest departmentIdRequest = new CreateFolderDepartmentIdRequest("1");
+
         when(userApi.getDepartment(Mockito.anyString())).thenReturn(userDepartmentResponse);
         when(grafanaApi.getAllFolders())
                 .thenReturn(List.of(infoResponse))
                 .thenReturn(List.of(newFolder));
         doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
-        folderService.createFolder(departmentId);
+        folderService.createFolder(departmentIdRequest);
 
         Mockito.verify(grafanaApi, Mockito.times(1)).createFolder(Mockito.any(CreateFolderRequest.class));
     }
@@ -206,10 +205,12 @@ class GrafanaFolderServiceTest {
                 "1",
                 "부서A"
         );
+
+        CreateFolderDepartmentIdRequest departmentIdRequest = new CreateFolderDepartmentIdRequest("1");
         when(userApi.getDepartment(Mockito.anyString())).thenReturn(userDepartmentResponse);
         when(grafanaApi.getAllFolders()).thenReturn(List.of(infoResponse));
         AlreadyFolderNameException exception = Assertions.assertThrows(AlreadyFolderNameException.class,
-                () -> folderService.createFolder(departmentId));
+                () -> folderService.createFolder(departmentIdRequest));
 
         Assertions.assertEquals("이미 존재하는 폴더 이름입니다: "+userDepartmentResponse.getDepartmentName(), exception.getMessage());
     }
