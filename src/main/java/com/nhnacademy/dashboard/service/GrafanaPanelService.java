@@ -218,14 +218,18 @@ public class GrafanaPanelService {
 
         String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId).getDepartmentName());
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
+        log.info("기존 Panel Name: {}", existDashboard.getDashboard().getPanels().getFirst().getTitle());
+
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getBucket(),
                 request.getMeasurement(),
                 request.getSensorFieldRequestDto(),
                 request.getAggregation(),
                 request.getTime());
+        log.info("UPDATE query(before): {}", fluxQuery);
 
         List<Panel> panels = existDashboard.getDashboard().getPanels();
+        log.info("panel Query:{}", panels.getFirst().getTargets().getFirst().getQuery());
         for (Panel panel : panels) {
             if (panel.getId().equals(request.getPanelId())) {
                 panel.setTitle(request.getPanelNewTitle());
