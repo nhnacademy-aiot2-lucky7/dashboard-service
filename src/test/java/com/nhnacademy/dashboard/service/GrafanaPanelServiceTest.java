@@ -92,15 +92,16 @@ class GrafanaPanelServiceTest {
                 true
         );
 
-        createPanelRequest = new CreatePanelRequest(
-                "dashboard-uid",
-                1,
-                "panel-title",
-                List.of(new SensorFieldRequestDto("activity", "gateway-001", "sensor-A1")),
-                new GridPos(12, 8),
-                "time series",
-                "mean",
-                "1d");
+        createPanelRequest = CreatePanelRequest.builder()
+                .dashboardUid("dashboard-uid")
+                .panelId(1)
+                .panelTitle("panel-title")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("activity", "gateway-001", "sensor-A1")))
+                .gridPos(new GridPos(12, 8))
+                .type("time series")
+                .aggregation("mean")
+                .time("1d")
+                .build();
     }
 
     @Test
@@ -111,6 +112,8 @@ class GrafanaPanelServiceTest {
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.generateFluxQuery(
+                Mockito.anyString(),
+                Mockito.anyString(),
                 Mockito.anyList(),
                 Mockito.anyString(),
                 Mockito.anyString()
@@ -213,16 +216,16 @@ class GrafanaPanelServiceTest {
     @DisplayName("패널 수정")
     void updatePanel() {
 
-        UpdatePanelRequest updatePanelRequest = new UpdatePanelRequest(
-                "dashboard-uid",
-                1,
-                "NEW_PANEL",
-                createPanelRequest.getSensorFieldRequestDto(),
-                new GridPos(12, 7),
-                "histogram",
-                "max",
-                "3d"
-        );
+        UpdatePanelRequest updatePanelRequest = UpdatePanelRequest.builder()
+                .dashboardUid("dashboard-uid")
+                .panelId(1)
+                .panelNewTitle("NEW_PANEL")
+                .sensorFieldRequestDto(createPanelRequest.getSensorFieldRequestDto())
+                .gridPos(new GridPos(12, 7))
+                .type("histogram")
+                .aggregation("max")
+                .time("3d")
+                .build();
 
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);

@@ -37,7 +37,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.retry.support.RetryTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.doNothing;
@@ -128,24 +127,27 @@ class IntegrationTest {
 
         // panel 생성
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
-        CreatePanelRequest panelRequest1 = new CreatePanelRequest(
-                infoDashboardResponse.getDashboardUid(),
-                null,
-                "P-TITLE1",
-                List.of(new SensorFieldRequestDto("battery", "12345", "abc")),
-                new GridPos(12, 8),
-                "time_series",
-                "mean",
-                "1d");
-        CreatePanelRequest panelRequest2 = new CreatePanelRequest(
-                infoDashboardResponse.getDashboardUid(),
-                null,
-                "P-TITLE2",
-                List.of(new SensorFieldRequestDto("co", "12345", null)),
-                new GridPos(12, 8),
-                "time_series",
-                "min",
-                "5d");
+        CreatePanelRequest panelRequest1 = CreatePanelRequest.builder()
+                .dashboardUid(infoDashboardResponse.getDashboardUid())
+                .panelId(null)
+                .panelTitle("P-TITLE1")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("battery", "12345", "abc")))
+                .gridPos(new GridPos(12, 8))
+                .type("time_series")
+                .aggregation("mean")
+                .time("1d")
+                .build();
+
+        CreatePanelRequest panelRequest2 = CreatePanelRequest.builder()
+                .dashboardUid(infoDashboardResponse.getDashboardUid())
+                .panelId(null)
+                .panelTitle("P-TITLE2")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("co", "12345", null)))
+                .gridPos(new GridPos(12, 8))
+                .type("time_series")
+                .aggregation("min")
+                .time("5d")
+                .build();
 
         panelService.createPanel(USER_ID,panelRequest1);
         panelService.createPanel(USER_ID,panelRequest2);
@@ -279,16 +281,16 @@ class IntegrationTest {
         );
         int panelIdToUpdate = panels.getFirst().getPanelId();
 
-        UpdatePanelRequest updatePanelRequest = new UpdatePanelRequest(
-                infoDashboardResponse.getDashboardUid(),
-                panelIdToUpdate,
-                "update-panelTitle",
-                List.of(new SensorFieldRequestDto("co2", "12345", "abc")),
-                new GridPos(15, 7),
-                "histogram",
-                "min",
-                "3d"
-        );
+        UpdatePanelRequest updatePanelRequest = UpdatePanelRequest.builder()
+                .dashboardUid(infoDashboardResponse.getDashboardUid())
+                .panelId(panelIdToUpdate)
+                .panelNewTitle("update-panelTitle")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("co2", "12345", "abc")))
+                .gridPos(new GridPos(15, 7))
+                .type("histogram")
+                .aggregation("min")
+                .time("3d")
+                .build();
 
         mockMvc.perform(put("/panels")
                         .contentType(MediaType.APPLICATION_JSON)

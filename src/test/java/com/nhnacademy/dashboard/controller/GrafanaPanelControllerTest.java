@@ -58,15 +58,16 @@ class GrafanaPanelControllerTest {
                 2L
         ));
 
-        panelRequest = new CreatePanelRequest(
-                "D-TITLE",
-                1,
-                "P-TITLE",
-                List.of(new SensorFieldRequestDto("battery", "12345", "abc")),
-                new GridPos(12, 8),
-                "time_series",
-                "mean",
-                "1d");
+        panelRequest = CreatePanelRequest.builder()
+                .dashboardUid("D-TITLE")
+                .panelId(1)
+                .panelTitle("P-TITLE")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("battery", "12345", "abc")))
+                .gridPos(new GridPos(12, 8))
+                .type("time_series")
+                .aggregation("mean")
+                .time("1d")
+                .build();
     }
 
     @Test
@@ -137,16 +138,17 @@ class GrafanaPanelControllerTest {
     @DisplayName("패널 수정")
     void updatePanel() throws Exception {
 
-        UpdatePanelRequest updatePanelRequest = new UpdatePanelRequest(
-                "update-dashboardUid",
-                1,
-                "update-panelTitle",
-                List.of(new SensorFieldRequestDto("co2", "12345", "abc")),
-                new GridPos(15, 7),
-                "histogram",
-                "min",
-                "3d"
-        );
+        UpdatePanelRequest updatePanelRequest = UpdatePanelRequest.builder()
+                .dashboardUid("update-dashboardUid")
+                .panelId(1)
+                .panelNewTitle("update-panelTitle")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("co2", "12345", "abc")))
+                .gridPos(new GridPos(15, 7))
+                .type("histogram")
+                .aggregation("min")
+                .time("3d")
+                .build();
+
         Mockito.doNothing().when(panelService).updatePanel(Mockito.anyString(), Mockito.any(UpdatePanelRequest.class));
 
         mockMvc.perform(put("/panels")

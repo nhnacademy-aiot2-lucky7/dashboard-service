@@ -252,7 +252,7 @@ class GrafanaDashboardServiceTest {
         sensorFieldRequestDtosList.add(new SensorFieldRequestDto("humidity", null, "sensor-B2"));
         sensorFieldRequestDtosList.add(new SensorFieldRequestDto("battery", "gateway-003", null));
 
-        String query = dashboardService.generateFluxQuery(sensorFieldRequestDtosList, "mean", "3d");
+        String query = dashboardService.generateFluxQuery("fake-bucket","sensor-data",sensorFieldRequestDtosList, "mean", "3d");
 
         String expectQuery = """
                 from(bucket: "temporary-data-handler")

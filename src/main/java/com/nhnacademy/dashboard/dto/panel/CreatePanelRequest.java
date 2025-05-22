@@ -1,13 +1,14 @@
 package com.nhnacademy.dashboard.dto.panel;
 
-import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
+import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import lombok.*;
 
 import java.util.List;
 
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class CreatePanelRequest {
 
@@ -50,4 +51,16 @@ public class CreatePanelRequest {
      * 데이터를 가져올 시간 범위 (예: 1시간, 1일 등).
      */
     private String time;
+
+    /**
+     * 데이터를 조회할 InfluxDB 버킷 이름.
+     */
+    @Builder.Default
+    private String bucket = "temporary-data-handler";
+
+    /**
+     * 데이터를 조회할 InfluxDB 측정값(measurement) 이름 (예: sensor-data).
+     */
+    @Builder.Default
+    private String measurement = "sensor-data";
 }

@@ -222,7 +222,7 @@ public class GrafanaDashboardService {
         return grafanaCreateDashboardRequest;
     }
 
-    public String generateFluxQuery(List<SensorFieldRequestDto> filters, String aggregation, String time) {
+    public String generateFluxQuery(String bucket, String measurement, List<SensorFieldRequestDto> filters, String aggregation, String time) {
 
         // field, gateway_id, sensor_id 조합을 Flux 조건문으로 생성
         String whereClause = filters.stream()
@@ -237,13 +237,13 @@ public class GrafanaDashboardService {
                 .collect(Collectors.joining(", "));
 
         return String.format("""
-            from(bucket: "temporary-data-handler")
+            from(bucket: "%s")
               |> range(start: -%s)
-              |> filter(fn: (r) => r["_measurement"] == "sensor-data")
+              |> filter(fn: (r) => r["_measurement"] == "%s")
               |> filter(fn: (r) => %s)
               |> filter(fn: (r) => contains(value: r["_field"], set: [%s]))
               |> aggregateWindow(every: 15m, fn: %s, createEmpty: true)
               |> yield(name: "%s")
-            """, time, whereClause, fieldSet, aggregation, aggregation);
+            """, bucket, time, measurement, whereClause, fieldSet, aggregation, aggregation);
     }
 }

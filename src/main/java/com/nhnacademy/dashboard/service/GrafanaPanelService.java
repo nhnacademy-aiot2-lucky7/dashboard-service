@@ -56,6 +56,8 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
+                request.getBucket(),
+                request.getMeasurement(),
                 request.getSensorFieldRequestDto(),
                 request.getAggregation(),
                 request.getTime());
@@ -216,7 +218,12 @@ public class GrafanaPanelService {
 
         String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId).getDepartmentName());
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
-        String fluxQuery = grafanaDashboardService.generateFluxQuery(request.getSensorFieldRequestDto(), request.getAggregation(), request.getTime());
+        String fluxQuery = grafanaDashboardService.generateFluxQuery(
+                request.getBucket(),
+                request.getMeasurement(),
+                request.getSensorFieldRequestDto(),
+                request.getAggregation(),
+                request.getTime());
 
         List<Panel> panels = existDashboard.getDashboard().getPanels();
         for (Panel panel : panels) {

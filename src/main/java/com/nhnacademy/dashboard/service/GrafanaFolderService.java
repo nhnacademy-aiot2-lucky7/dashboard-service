@@ -6,7 +6,6 @@ import com.nhnacademy.dashboard.dto.folder.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.dto.user.UserInfoResponse;
 import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
-import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import com.nhnacademy.event.event.EventCreateRequest;
 import com.nhnacademy.event.rabbitmq.EventProducer;
@@ -14,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.rmi.NoSuchObjectException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j

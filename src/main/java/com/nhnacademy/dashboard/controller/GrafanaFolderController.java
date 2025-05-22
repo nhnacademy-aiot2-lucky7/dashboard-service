@@ -7,8 +7,6 @@ import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import com.nhnacademy.dashboard.service.GrafanaFolderService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
