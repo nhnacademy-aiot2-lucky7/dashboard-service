@@ -47,7 +47,7 @@ public class GrafanaPanelController {
      * @param readFilterPanelRequest 대시보드 UID 및 필터 조건이 포함된 요청 객체
      * @return 필터 조건에 부합하는 차트 목록을 반환합니다.
      */
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     @Operation(summary ="메인페이지 on/off 필터 조회")
     public ResponseEntity<List<IframePanelResponse>> getFilterPanel(
             @RequestBody ReadPanelRequest readFilterPanelRequest,

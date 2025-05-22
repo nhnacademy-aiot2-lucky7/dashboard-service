@@ -174,8 +174,7 @@ public class GrafanaPanelService {
                 .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
                         dashboard.getDashboard().getTitle(),
-                        panel.getId(),
-                        readPanelRequest.getFrom()))
+                        panel.getId()))
                 .toList();
 
         return ResponseEntity.ok(responseList).getBody();

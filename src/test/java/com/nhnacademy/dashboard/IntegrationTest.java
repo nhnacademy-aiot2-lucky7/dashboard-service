@@ -257,7 +257,7 @@ class IntegrationTest {
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
 
-        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
+        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid());
 
         mockMvc.perform(get("/panels/filter")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -277,7 +277,7 @@ class IntegrationTest {
         log.info("Dashboard UID for 'A' in updatePanel: {}", infoDashboardResponse.getDashboardUid());
 
         List<IframePanelResponse> panels = panelService.getPanel(
-                new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L)
+                new ReadPanelRequest(infoDashboardResponse.getDashboardUid())
         );
         int panelIdToUpdate = panels.getFirst().getPanelId();
 
@@ -307,7 +307,7 @@ class IntegrationTest {
     void updatePriority_actual() throws Exception {
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest("user123", "A");
-        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
+        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid());
         List<IframePanelResponse> iframePanelResponseList = panelService.getPanel(request);
         log.info("panelList:{}", iframePanelResponseList.toString());
         UpdatePanelPriorityRequest updatePanelPriorityRequest = new UpdatePanelPriorityRequest(
@@ -347,7 +347,7 @@ class IntegrationTest {
     void getPanel_actual() throws Exception {
 
         InfoDashboardResponse infoDashboardResponse = dashboardService.getDashboardInfoRequest(USER_ID, "A");
-        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid(), 1L);
+        ReadPanelRequest request = new ReadPanelRequest(infoDashboardResponse.getDashboardUid());
 
         mockMvc.perform(get("/panels")
                         .contentType(MediaType.APPLICATION_JSON)

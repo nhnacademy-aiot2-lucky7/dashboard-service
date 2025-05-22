@@ -153,8 +153,7 @@ class GrafanaPanelServiceTest {
     void getPanel() {
 
         ReadPanelRequest readPanelRequest = new ReadPanelRequest(
-                "dashboard-uid",
-                0L
+                "dashboard-uid"
         );
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         List<IframePanelResponse> iframePanelResponseList = panelService.getPanel(readPanelRequest);

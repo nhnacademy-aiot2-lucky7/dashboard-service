@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class UpdatePanelRequest {
     /**
      * 대시보드 고유 식별자.

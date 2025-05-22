@@ -74,7 +74,7 @@ class GrafanaPanelControllerTest {
     @DisplayName("패널 조회")
     void getPanel() throws Exception {
 
-        ReadPanelRequest request = new ReadPanelRequest("dashboard-uid", 1L);
+        ReadPanelRequest request = new ReadPanelRequest("dashboard-uid");
 
         Mockito.when(panelService.getPanel(Mockito.any(ReadPanelRequest.class))).thenReturn(iframePanelResponses);
 
@@ -97,7 +97,7 @@ class GrafanaPanelControllerTest {
     @DisplayName("필터링된 패널 조회")
     void getFilterPanel() throws Exception {
 
-        ReadPanelRequest request = new ReadPanelRequest("dashboard-uid", 1L);
+        ReadPanelRequest request = new ReadPanelRequest("dashboard-uid");
         List<Integer> offPanelId = new ArrayList<>();
         offPanelId.add(1);
 

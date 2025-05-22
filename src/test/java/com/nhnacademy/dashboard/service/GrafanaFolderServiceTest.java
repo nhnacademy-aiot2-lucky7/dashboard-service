@@ -159,8 +159,6 @@ class GrafanaFolderServiceTest {
     @DisplayName("부서명으로 폴더 생성")
     void createFolder() {
 
-        String departmentId = "1";
-
         FolderInfoResponse newFolder = new FolderInfoResponse(
                 1,
                 "folder-uid",
@@ -192,8 +190,6 @@ class GrafanaFolderServiceTest {
     @Test
     @DisplayName("부서명으로 폴더 생성 실패 -> 중복 이름")
     void createFolder_duplicated() {
-
-        String departmentId = "1";
 
         FolderInfoResponse infoResponse = new FolderInfoResponse(
                 1,
