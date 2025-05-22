@@ -22,7 +22,9 @@ public class Panel {
     private Datasource datasource;
 
     public Panel(String dashboardUid, String type, String title, GridPos gridPos, List<Target> targets, Datasource datasource){
-        this.id = DashboardMemory.getPanels(dashboardUid).size();
+        if(id == null) {
+            this.id = DashboardMemory.getPanels(dashboardUid).size();
+        }
         this.type = type;
         this.title = title;
         this.gridPos = gridPos;
