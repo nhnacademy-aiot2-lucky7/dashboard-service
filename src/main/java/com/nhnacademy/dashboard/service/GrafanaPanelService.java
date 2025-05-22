@@ -94,7 +94,7 @@ public class GrafanaPanelService {
 
         log.info("CREATE Panel -> request: {}", finalRequest);
         ResponseEntity<GrafanaMetaResponse> response = grafanaApi.updateDashboard(finalRequest);
-        log.info("CREATE Panel result: {}", response.toString());
+        log.info("CREATE Panel result: {}", response.getBody());
 
         Set<Integer> panelIds = newDashboard.getPanels()
                 .stream()
@@ -244,7 +244,7 @@ public class GrafanaPanelService {
         log.info("UPDATE CHART -> First panel query: {}",
                 dashboardRequest.getDashboard().getPanels().getFirst().getTargets().getFirst().getQuery());
         ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
-        log.info("UPDATE result: {}", respsonse.toString());
+        log.info("UPDATE result: {}", respsonse.getBody());
 
         String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
         EventCreateRequest event = new EventCreateRequest(
@@ -339,7 +339,7 @@ public class GrafanaPanelService {
         existDashboard.setOverwrite(true);
 
         ResponseEntity<GrafanaMetaResponse> response = grafanaApi.updateDashboard(existDashboard);
-        log.info("REMOVE Panel result : {}", response.toString());
+        log.info("REMOVE Panel result : {}", response.getBody());
 
         DashboardMemory.removePanel(deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
 
