@@ -35,6 +35,15 @@ public interface GrafanaApi {
     ResponseEntity<Void> createDashboard(@RequestBody GrafanaCreateDashboardRequest request);
 
     /**
+     * 차트 생성 맟 수정합니다.
+     *
+     * @param dashboardBody 차트 생성 요청 데이터
+     * @return 생성된 차트 응답
+     */
+    @PostMapping("/dashboards/db")
+    ResponseEntity<GrafanaMetaResponse> updateDashboard(@RequestBody GrafanaCreateDashboardRequest dashboardBody);
+
+    /**
      * 모든 폴더 목록을 조회합니다.
      *
      * @return 폴더 리스트
@@ -80,16 +89,6 @@ public interface GrafanaApi {
      */
     @GetMapping("/dashboards/uid/{uid}")
     GrafanaCreateDashboardRequest getDashboardInfo(@PathVariable("uid") String uid);
-
-
-    /**
-     * 차트 생성 맟 수정합니다.
-     *
-     * @param dashboardBody 차트 생성 요청 데이터
-     * @return 생성된 차트 응답
-     */
-    @PostMapping("/dashboards/db")
-    ResponseEntity<GrafanaMetaResponse> updateDashboard(@RequestBody GrafanaCreateDashboardRequest dashboardBody);
 
     /**
      * 주어진 UID에 해당하는 폴더를 삭제하는 API입니다.

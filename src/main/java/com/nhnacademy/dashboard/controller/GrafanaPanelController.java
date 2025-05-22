@@ -64,7 +64,6 @@ public class GrafanaPanelController {
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CreatePanelRequest createPanelRequest
     ) {
-
         grafanaPanelService.createPanel(userId, createPanelRequest);
 
         return ResponseEntity
