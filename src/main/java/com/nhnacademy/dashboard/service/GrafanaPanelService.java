@@ -4,6 +4,7 @@ import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
+import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
 import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
@@ -91,9 +92,9 @@ public class GrafanaPanelService {
         finalRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
         finalRequest.setOverwrite(true);
 
-        log.info("CREATE CHART -> request: {}", finalRequest);
-
-        grafanaApi.updateDashboard(finalRequest);
+        log.info("CREATE Panel -> request: {}", finalRequest);
+        ResponseEntity<GrafanaMetaResponse> response = grafanaApi.updateDashboard(finalRequest);
+        log.info("CREATE Panel result: {}", response.toString());
 
         Set<Integer> panelIds = newDashboard.getPanels()
                 .stream()
@@ -241,8 +242,10 @@ public class GrafanaPanelService {
 
         GrafanaCreateDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
 
-        log.info("UPDATE CHART -> request: {}", fluxQuery);
-        grafanaApi.updateDashboard(dashboardRequest);
+        log.info("UPDATE CHART -> First panel query: {}",
+                dashboardRequest.getDashboard().getPanels().getFirst().getTargets().getFirst().getQuery());
+        ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
+        log.info("UPDATE result: {}", respsonse.toString());
 
         String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
         EventCreateRequest event = new EventCreateRequest(
@@ -336,7 +339,8 @@ public class GrafanaPanelService {
         existDashboard.setFolderUid(dashboardInfoResponse.getFolderUid());
         existDashboard.setOverwrite(true);
 
-        grafanaApi.updateDashboard(existDashboard);
+        ResponseEntity<GrafanaMetaResponse> response = grafanaApi.updateDashboard(existDashboard);
+        log.info("REMOVE Panel result : {}", response.toString());
 
         DashboardMemory.removePanel(deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
 
