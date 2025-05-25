@@ -55,6 +55,7 @@ public class GrafanaPanelService {
         String departmentId = departmentResponse.getDepartmentId();
         String folderTitle = departmentResponse.getDepartmentName();
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
+        log.info("Exist dashboard: {}", existDashboard.getDashboard().getTitle());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getBucket(),
@@ -92,7 +93,7 @@ public class GrafanaPanelService {
         finalRequest.setFolderUid(grafanaFolderService.getFolderUidByTitle(folderTitle));
         finalRequest.setOverwrite(true);
 
-        log.info("CREATE Panel -> request: {}", finalRequest);
+        log.info("CREATE Panel query -> request: {}", finalRequest.getDashboard().getPanels().getFirst().getTargets().getFirst().getQuery());
         ResponseEntity<GrafanaMetaResponse> response = grafanaApi.updateDashboard(finalRequest);
         log.info("CREATE Panel result: {}", response.getBody());
 

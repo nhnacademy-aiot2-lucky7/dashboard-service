@@ -123,6 +123,7 @@ class GrafanaPanelControllerTest {
 
         Mockito.doNothing().when(panelService).createPanel(Mockito.anyString(), Mockito.any(CreatePanelRequest.class));
 
+
         mockMvc.perform(post("/panels")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-User-Id", "user123")
@@ -132,6 +133,32 @@ class GrafanaPanelControllerTest {
                 .andDo(document("create-panel"));
 
         Mockito.verify(panelService, Mockito.times(1)).createPanel(Mockito.anyString(), Mockito.any(CreatePanelRequest.class));
+    }
+
+    @Test
+    @DisplayName("패널 생성: 오타로 실패")
+    void createPanel_valid_fail() throws Exception {
+
+        panelRequest = CreatePanelRequest.builder()
+                .dashboardUid("D-TITLE")
+                .panelId(1)
+                .panelTitle("P-TITLE")
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("battery", "12345", "abc")))
+                .gridPos(new GridPos(12, 8))
+                .type("time_ser")
+                .aggregation("mean")
+                .time("1d")
+                .build();
+
+        mockMvc.perform(post("/panels")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "user123")
+                        .content(new ObjectMapper().writeValueAsString(panelRequest)))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andDo(document("create-panel-valid-fail"));
+
+        Mockito.verify(panelService, Mockito.never()).createPanel(Mockito.anyString(), Mockito.any(CreatePanelRequest.class));
     }
 
     @Test

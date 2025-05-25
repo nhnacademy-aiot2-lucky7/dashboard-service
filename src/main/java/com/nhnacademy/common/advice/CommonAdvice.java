@@ -5,14 +5,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice
 public class CommonAdvice {
+
+    /**
+     * 어노테이션 Valid 검증 실패 시 발생하는 MethodArgumentNotValidException 예외를 처리합니다.
+     *
+     * @param ex 유효성 검사 실패 정보를 담고 있는 MethodArgumentNotValidException 객체
+     * @return 필드명과 오류 메시지를 담은 Map을 포함한 ResponseEntity로, HTTP 400 (Bad Request) 상태를 반환합니다.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errors);
+    }
 
     /**
      * 요청 본문(@RequestBody)이 없거나 JSON 형식이 잘못되었을 때 발생하는 예외를 처리합니다.

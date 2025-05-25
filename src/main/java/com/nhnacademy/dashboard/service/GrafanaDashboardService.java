@@ -207,8 +207,8 @@ public class GrafanaDashboardService {
 
         Datasource datasource = new Datasource(INFLUXDB_UID);
 
-        Target target = new Target(datasource, fluxQuery);
-        Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target), datasource);
+        Target target = new Target(datasource, fluxQuery, type);
+        Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target));
 
         Dashboard dashboard = new Dashboard(
                 infoDashboardResponse.getDashboardId(),

@@ -8,6 +8,7 @@ import com.nhnacademy.dashboard.dto.panel.UpdatePanelPriorityRequest;
 import com.nhnacademy.dashboard.dto.panel.UpdatePanelRequest;
 import com.nhnacademy.dashboard.service.*;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -62,7 +63,7 @@ public class GrafanaPanelController {
     @Operation(summary = "새로운 패널 추가")
     public ResponseEntity<Void> createPanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody CreatePanelRequest createPanelRequest
+            @RequestBody @Valid CreatePanelRequest createPanelRequest
     ) {
         grafanaPanelService.createPanel(userId, createPanelRequest);
 
