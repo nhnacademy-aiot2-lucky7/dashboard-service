@@ -187,7 +187,7 @@ public class GrafanaDashboardService {
 
     public String getDatasource(){
         List<DataSourceResponse> dataSourceResponse = grafanaApi.getDataSource();
-        return dataSourceResponse.getFirst().getUid();
+        return dataSourceResponse.get(0).getUid();
     }
 
     /**
@@ -230,12 +230,6 @@ public class GrafanaDashboardService {
                         f.getField(), f.getGatewayId(), f.getSensorId()))
                 .collect(Collectors.joining(" or "));
 
-        // 고유한 field 목록을 추출
-        String fieldSet = filters.stream()
-                .map(f -> "\"" + f.getField() + "\"")
-                .distinct()
-                .collect(Collectors.joining(", "));
-
         return String.format("""
             from(bucket: "%s")
               |> range(start: -%s)
@@ -243,6 +237,6 @@ public class GrafanaDashboardService {
               |> filter(fn: (r) => %s)
               |> aggregateWindow(every: 15m, fn: %s, createEmpty: true)
               |> yield(name: "%s")
-            """, bucket, time, measurement, whereClause, fieldSet, aggregation, aggregation);
+            """, bucket, time, measurement, whereClause, aggregation, aggregation);
     }
 }

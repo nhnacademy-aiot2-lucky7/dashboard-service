@@ -220,6 +220,7 @@ public class GrafanaPanelService {
         String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId).getDepartmentName());
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
         log.info("기존 Panel Name: {}", existDashboard.getDashboard().getPanels().getFirst().getTitle());
+        log.info("기존 Panel Id: {}", existDashboard.getDashboard().getPanels().getFirst().getId());
 
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getBucket(),
