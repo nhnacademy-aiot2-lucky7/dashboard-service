@@ -186,8 +186,8 @@ public class GrafanaDashboardService {
     }
 
     public String getDatasource(){
-        DataSourceResponse dataSourceResponse = grafanaApi.getDataSource();
-        return dataSourceResponse.getUid();
+        List<DataSourceResponse> dataSourceResponse = grafanaApi.getDataSource();
+        return dataSourceResponse.getFirst().getUid();
     }
 
     /**

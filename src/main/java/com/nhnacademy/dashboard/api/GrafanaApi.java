@@ -88,7 +88,7 @@ public interface GrafanaApi {
      * @return DataSourceResponse
      */
     @GetMapping("/datasources")
-    DataSourceResponse getDataSource();
+    List<DataSourceResponse> getDataSource();
 
     /**
      * UID를 통해 대시보드 전체 정보를 가져옵니다.
