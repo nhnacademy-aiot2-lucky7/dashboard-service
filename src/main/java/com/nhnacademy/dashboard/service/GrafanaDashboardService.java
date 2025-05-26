@@ -2,11 +2,7 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
-import com.nhnacademy.dashboard.dto.dashboard.CreateDashboardRequest;
-import com.nhnacademy.dashboard.dto.dashboard.DeleteDashboardRequest;
-import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
-import com.nhnacademy.dashboard.dto.dashboard.UpdateDashboardNameRequest;
-import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
+import com.nhnacademy.dashboard.dto.dashboard.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.*;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
@@ -30,7 +26,6 @@ public class GrafanaDashboardService {
 
     private final GrafanaApi grafanaApi;
     public static final String TYPE = "dash-db";
-    private static final String INFLUXDB_UID = "o4aKnEJNk";
     private final GrafanaFolderService grafanaFolderService;
     private final EventProducer eventProducer;
 
@@ -190,6 +185,11 @@ public class GrafanaDashboardService {
         eventProducer.sendEvent(event);
     }
 
+    public String getDatasource(){
+        DataSourceResponse dataSourceResponse = grafanaApi.getDataSource();
+        return dataSourceResponse.getUid();
+    }
+
     /**
      * 대시보드 요청을 위한 기본 구조를 생성합니다.
      *
@@ -205,7 +205,7 @@ public class GrafanaDashboardService {
 
         InfoDashboardResponse infoDashboardResponse = getDashboardInfoRequest(userId, dashboardTitle);
 
-        Datasource datasource = new Datasource(INFLUXDB_UID);
+        Datasource datasource = new Datasource(getDatasource());
 
         Target target = new Target(datasource, fluxQuery, type);
         Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target));
@@ -241,7 +241,6 @@ public class GrafanaDashboardService {
               |> range(start: -%s)
               |> filter(fn: (r) => r["_measurement"] == "%s")
               |> filter(fn: (r) => %s)
-              |> filter(fn: (r) => contains(value: r["_field"], set: [%s]))
               |> aggregateWindow(every: 15m, fn: %s, createEmpty: true)
               |> yield(name: "%s")
             """, bucket, time, measurement, whereClause, fieldSet, aggregation, aggregation);

@@ -1,5 +1,6 @@
 package com.nhnacademy.dashboard.dto.panel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import lombok.*;
@@ -26,6 +27,7 @@ public class UpdatePanelRequest {
     /**
      * 패널의 새 제목.
      */
+    @JsonProperty("panelTitle")
     private String panelNewTitle;
 
     /**

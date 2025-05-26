@@ -2,6 +2,7 @@ package com.nhnacademy.dashboard.api;
 
 import com.nhnacademy.common.config.FeignConfig;
 import com.nhnacademy.common.config.GrafanaApiConfig;
+import com.nhnacademy.dashboard.dto.dashboard.DataSourceResponse;
 import com.nhnacademy.dashboard.dto.folder.CreateFolderRequest;
 import com.nhnacademy.dashboard.dto.folder.GrafanaUpdateFolderRequest;
 import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
@@ -80,6 +81,14 @@ public interface GrafanaApi {
             @RequestParam("folderIds") List<Integer> folderId,
             @RequestParam("type") String type
     );
+
+    /**
+     * InfluxDB의 datasource를 검색합니다.
+     *
+     * @return DataSourceResponse
+     */
+    @GetMapping("/datasources")
+    DataSourceResponse getDataSource();
 
     /**
      * UID를 통해 대시보드 전체 정보를 가져옵니다.
