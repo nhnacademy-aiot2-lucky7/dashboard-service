@@ -73,6 +73,7 @@ public class GrafanaPanelService {
             }
         }
 
+        log.info("이름 중복 통과");
         GrafanaCreateDashboardRequest newDashboardRequest = grafanaDashboardService.buildDashboardRequest(
                 userId,
                 request.getGridPos(),
@@ -82,11 +83,13 @@ public class GrafanaPanelService {
                 fluxQuery);
 
         Dashboard newDashboard = grafanaDashboardService.buildDashboard(newDashboardRequest);
+        log.info("새로운 대시보드 -> {}", newDashboard.getPanels().getFirst().getTitle());
 
         // 기존 패널과 합쳐서 구성
         List<Panel> panels = new ArrayList<>(existDashboard.getDashboard().getPanels());
         panels.addAll(newDashboard.getPanels());
         newDashboard.setPanels(panels);
+        log.info("panel적용 -> {}",existDashboard.getDashboard().getPanels().getFirst().getTitle());
 
         GrafanaCreateDashboardRequest finalRequest = new GrafanaCreateDashboardRequest();
         finalRequest.setDashboard(newDashboard);

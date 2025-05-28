@@ -40,7 +40,7 @@ public class GrafanaDashboardService {
         String folderTitle = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
         List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
 
-        log.info("getDashboardByTitle -> dashboards: {}", dashboards);
+        log.info("getDashboardByTitle -> dashboards: {}", dashboards.getFirst().getDashboardTitle());
         return dashboards;
     }
 
@@ -187,7 +187,7 @@ public class GrafanaDashboardService {
 
     public String getDatasource(){
         List<DataSourceResponse> dataSourceResponse = grafanaApi.getDataSource();
-        return dataSourceResponse.get(0).getUid();
+        return dataSourceResponse.getFirst().getUid();
     }
 
     /**
@@ -226,7 +226,7 @@ public class GrafanaDashboardService {
 
         // field, gateway_id, sensor_id 조합을 Flux 조건문으로 생성
         String whereClause = filters.stream()
-                .map(f -> String.format("(r._field == \"%s\" and r.gateway_id == \"%s\" and r.sensor_id == \"%s\")",
+                .map(f -> String.format("(r._field == \"%s\" and r.gateway-id == \"%s\" and r.sensor-id == \"%s\")",
                         f.getField(), f.getGatewayId(), f.getSensorId()))
                 .collect(Collectors.joining(" or "));
 
