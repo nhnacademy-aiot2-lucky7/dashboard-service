@@ -13,7 +13,7 @@ public class ResultFormatMapper {
             case "table", "nodeGraph", "alertlist", "bargauge", "piechart" -> "table";
             case "histogram", "heatmap" -> "heatmap";
             case "logs" -> "logs";
-            default -> "time_series";
+            default -> "timeseries";
         };
     }
 }
