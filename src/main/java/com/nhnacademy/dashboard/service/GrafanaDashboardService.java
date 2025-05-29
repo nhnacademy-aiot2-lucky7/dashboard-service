@@ -28,6 +28,7 @@ public class GrafanaDashboardService {
     public static final String TYPE = "dash-db";
     private final GrafanaFolderService grafanaFolderService;
     private final EventProducer eventProducer;
+    private static final String DASHBOARD_SOURCE_TYPE = "dashboard";
 
     /**
      * 사용자 ID를 기반으로 사용자의 부서 폴더에 포함된 대시보드 목록을 조회합니다.
@@ -113,6 +114,7 @@ public class GrafanaDashboardService {
           "INFO",
                 "대시보드 생성",
                 request.getDashboard().getUid(),
+                DASHBOARD_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );
@@ -156,6 +158,7 @@ public class GrafanaDashboardService {
                 "INFO",
                 "대시보드 수정",
                 dashboard.getUid(),
+                DASHBOARD_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );
@@ -179,6 +182,7 @@ public class GrafanaDashboardService {
                 "INFO",
                 "대시보드 삭제",
                 deleteDashboardRequest.getDashboardUid(),
+                DASHBOARD_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );

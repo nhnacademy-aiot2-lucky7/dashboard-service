@@ -26,6 +26,7 @@ public class GrafanaFolderService {
     private final GrafanaApi grafanaApi;
     private final EventProducer eventProducer;
     private final UserApi userApi;
+    private static final String FOLDER_SOURCE_TYPE = "folder";
 
     /**
      * Grafana에 등록된 모든 폴더를 조회합니다.
@@ -122,6 +123,7 @@ public class GrafanaFolderService {
                 "INFO",
                 "폴더 생성",
                 folderUid,
+                FOLDER_SOURCE_TYPE,
                 departmentId.getDepartmentId(),
                 LocalDateTime.now()
         );
@@ -151,6 +153,7 @@ public class GrafanaFolderService {
                 "INFO",
                 "폴더 이름 수정",
                 folderUid,
+                FOLDER_SOURCE_TYPE,
                 updateFolderRequest.getDepartmentId(),
                 LocalDateTime.now()
         );

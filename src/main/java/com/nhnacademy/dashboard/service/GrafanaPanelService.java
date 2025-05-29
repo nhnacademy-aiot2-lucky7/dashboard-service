@@ -40,6 +40,7 @@ public class GrafanaPanelService {
     private final EventProducer eventProducer;
     private final GrafanaFolderService grafanaFolderService;
     private final GrafanaDashboardService grafanaDashboardService;
+    private static final String PANEL_SOURCE_TYPE = "panel";
 
     /**
      * 주어진 정보에 따라 Grafana에 차트를 생성합니다.
@@ -112,6 +113,7 @@ public class GrafanaPanelService {
                 "INFO",
                 "패널 생성",
                 Integer.toString(panelIds.size()),
+                PANEL_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );
@@ -258,6 +260,7 @@ public class GrafanaPanelService {
                 "INFO",
                 "패널 수정",
                 existDashboard.getDashboard().getPanels().getFirst().getId().toString(),
+                PANEL_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );
@@ -295,6 +298,7 @@ public class GrafanaPanelService {
                 "INFO",
                 "패널 우선순위 변경",
                 sortedPanels.getFirst().toString(),
+                PANEL_SOURCE_TYPE,
                 userDepartmentResponse.getDepartmentId(),
                 LocalDateTime.now()
         );
@@ -355,6 +359,7 @@ public class GrafanaPanelService {
                 "INFO",
                 "패널 삭제",
                 dashboard.getPanels().getFirst().getId().toString(),
+                PANEL_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
         );

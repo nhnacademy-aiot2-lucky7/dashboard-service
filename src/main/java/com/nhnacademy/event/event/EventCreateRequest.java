@@ -22,6 +22,9 @@ public class EventCreateRequest {
     @NotBlank(message = "이벤트 출처 아이디는 필수 입력 항목입니다.")
     private String sourceId;
 
+    @NotBlank(message = "이벤트 출처 타입은 필수 입력 항목입니다.")
+    private String sourceType;
+
     @NotBlank(message = "부서 아이디는 필수 입력 항목입니다.")
     private String departmentId;
 
