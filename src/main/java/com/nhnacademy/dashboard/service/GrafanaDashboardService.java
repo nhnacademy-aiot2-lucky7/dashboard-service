@@ -214,6 +214,9 @@ public class GrafanaDashboardService {
                 dashboardBuildRequest.getType()
         );
 
+        List<FieldConfig.Step> steps = new ArrayList<>();
+        steps.add(new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin()));
+        steps.add(new FieldConfig.Step("red", dashboardBuildRequest.getMax()));
         FieldConfig fieldConfig = new FieldConfig(
                 new FieldConfig.Defaults(
                         new FieldConfig.Color(), // default: palette-classic
@@ -222,10 +225,7 @@ public class GrafanaDashboardService {
                         ),
                         new FieldConfig.Thresholds(
                                 "absolute",
-                                List.of(
-                                        new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin()),
-                                        new FieldConfig.Step("#red", dashboardBuildRequest.getMax())
-                                )
+                                steps
                         )
                 )
         );
