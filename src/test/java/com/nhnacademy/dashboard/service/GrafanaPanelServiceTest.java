@@ -1,12 +1,10 @@
 package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.dashboard.api.GrafanaApi;
+import com.nhnacademy.dashboard.dto.dashboard.DashboardBuildRequest;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
-import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
-import com.nhnacademy.dashboard.dto.dashboard.json.Datasource;
-import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
-import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
+import com.nhnacademy.dashboard.dto.dashboard.json.*;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.panel.*;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
@@ -57,25 +55,31 @@ class GrafanaPanelServiceTest {
                         1,
                         "p-type",
                         "p-title",
+                        "sensor_id, sensor_type, gateway_id 기록",
                         new GridPos(9, 12),
                         new ArrayList<>(),
-                        new Datasource()
+                        new Datasource(),
+                        new FieldConfig()
                 ),
                 new Panel(
                         2,
                         "p-type2",
                         "p-title2",
+                        "sensor_id, sensor_type, gateway_id 기록",
                         new GridPos(8, 10),
                         new ArrayList<>(),
-                        new Datasource()
+                        new Datasource(),
+                        null
                 ),
                 new Panel(
                         3,
                         "p-type3",
                         "p-title3",
+                        "sensor_id, sensor_type, gateway_id 기록",
                         new GridPos(15, 7, 8),
                         new ArrayList<>(),
-                        new Datasource()
+                        new Datasource(),
+                        null
                 )
         );
 
@@ -109,6 +113,17 @@ class GrafanaPanelServiceTest {
     void createPanel() {
 
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
+        DashboardBuildRequest dashboardBuildRequest = new DashboardBuildRequest(
+                Mockito.anyString(),
+                Mockito.any(GridPos.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyInt()
+        );
+
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(dashboardService.getDashboardInfo(Mockito.anyString())).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.generateFluxQuery(
@@ -118,13 +133,8 @@ class GrafanaPanelServiceTest {
                 Mockito.anyString(),
                 Mockito.anyString()
         )).thenReturn("dummy flux query");
-        Mockito.when(dashboardService.buildDashboardRequest(
-                        Mockito.anyString(),
-                        Mockito.any(GridPos.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString()))
+
+        Mockito.when(dashboardService.buildDashboardRequest(dashboardBuildRequest))
                 .thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(dashboardService.buildDashboard(grafanaCreateDashboardRequest)).thenReturn(grafanaCreateDashboardRequest.getDashboard());
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class)))
@@ -282,9 +292,11 @@ class GrafanaPanelServiceTest {
                         25,
                         "p-type25",
                         "p-title25",
+                        "sensor_id, sensor_type, gateway_id 기록",
                         new GridPos(9, 12),
                         new ArrayList<>(),
-                        new Datasource()
+                        new Datasource(),
+                        null
                 ));
         GrafanaCreateDashboardRequest overwritten = panelService.overwritten(grafanaCreateDashboardRequest, panels, "folder-uid");
         Assertions.assertAll(

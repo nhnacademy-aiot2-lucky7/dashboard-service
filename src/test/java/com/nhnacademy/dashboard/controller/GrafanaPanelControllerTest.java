@@ -103,7 +103,7 @@ class GrafanaPanelControllerTest {
 
         Mockito.when(panelService.getFilterPanel(Mockito.anyString(), Mockito.anyList())).thenReturn(List.of(iframePanelResponses.get(1)));
 
-        mockMvc.perform(get("/panels/filter")
+        mockMvc.perform(post("/panels/filter")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(request))
                         .param("offPanelId", String.valueOf(offPanelId.getFirst())))

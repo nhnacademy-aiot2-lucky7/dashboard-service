@@ -229,8 +229,9 @@ class GrafanaDashboardServiceTest {
         Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
 
         GridPos gridPos = new GridPos(12, 8);
+        DashboardBuildRequest dashboardBuildRequest = new DashboardBuildRequest("1", gridPos, "histogram", "dashboard-title", "P-TITLE", "query", 100, 10);
         GrafanaCreateDashboardRequest grafanaCreateDashboardRequest =
-                dashboardService.buildDashboardRequest("1", gridPos, "histogram", "dashboard-title", "P-TITLE", "query");
+                dashboardService.buildDashboardRequest(dashboardBuildRequest);
 
         Assertions.assertAll(
                 () -> {

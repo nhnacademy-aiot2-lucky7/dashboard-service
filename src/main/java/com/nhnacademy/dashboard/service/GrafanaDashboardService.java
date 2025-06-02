@@ -197,28 +197,59 @@ public class GrafanaDashboardService {
     /**
      * 대시보드 요청을 위한 기본 구조를 생성합니다.
      *
-     * @param userId 사용자 ID
-     * @param gridPos 차트의 위치 및 크기 정보를 담은 GridPos 객체
-     * @param type 패널 타입 (예: "graph", "stat", "table" 등)
-     * @param dashboardTitle 대시보드 제목
-     * @param panelTitle 생성할 패널 제목
-     * @param fluxQuery InfluxDB용 Flux 쿼리
+     * @param dashboardBuildRequest 대시보드 생성 요청 정보를 담은 DTO
      * @return Grafana 대시보드 요청 객체
      */
-    public GrafanaCreateDashboardRequest buildDashboardRequest(String userId, GridPos gridPos, String type, String dashboardTitle, String panelTitle, String fluxQuery) {
-
-        InfoDashboardResponse infoDashboardResponse = getDashboardInfoRequest(userId, dashboardTitle);
+    public GrafanaCreateDashboardRequest buildDashboardRequest(DashboardBuildRequest dashboardBuildRequest) {
+        InfoDashboardResponse infoDashboardResponse = getDashboardInfoRequest(
+                dashboardBuildRequest.getUserId(),
+                dashboardBuildRequest.getDashboardTitle()
+        );
 
         Datasource datasource = new Datasource(getDatasource());
 
-        Target target = new Target(datasource, fluxQuery, type);
-        Panel panel = new Panel(infoDashboardResponse.getDashboardUid(),type, panelTitle, gridPos, List.of(target));
+        Target target = new Target(
+                datasource,
+                dashboardBuildRequest.getFluxQuery(),
+                dashboardBuildRequest.getType()
+        );
+
+        FieldConfig fieldConfig = new FieldConfig(
+                new FieldConfig.Defaults(
+                        new FieldConfig.Color(), // default: palette-classic
+                        new FieldConfig.Custom(
+                                new FieldConfig.ThresholdsStyle("dashed")
+                        ),
+                        new FieldConfig.Thresholds(
+                                "absolute",
+                                List.of(
+                                        new FieldConfig.Step("red", dashboardBuildRequest.getMax()),
+                                        new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin())
+                                )
+                        )
+                )
+        );
+
+        if(dashboardBuildRequest.getMax() == null && dashboardBuildRequest.getMin() == null){
+            log.warn("⚠ 임계치가 존재하지 않습니다.");
+        }
+
+        Panel panel = Panel.of(
+                infoDashboardResponse.getDashboardUid(),
+                dashboardBuildRequest.getType(),
+                dashboardBuildRequest.getPanelTitle(),
+                null,
+                dashboardBuildRequest.getGridPos(),
+                List.of(target),
+                fieldConfig
+        );
 
         Dashboard dashboard = new Dashboard(
                 infoDashboardResponse.getDashboardId(),
-                dashboardTitle,
+                dashboardBuildRequest.getDashboardTitle(),
                 infoDashboardResponse.getDashboardUid(),
-                List.of(panel));
+                List.of(panel)
+        );
 
         GrafanaCreateDashboardRequest grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest();
         grafanaCreateDashboardRequest.setDashboard(dashboard);

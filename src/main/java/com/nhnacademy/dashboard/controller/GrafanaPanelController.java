@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GrafanaPanelController {
 
-
     private final GrafanaPanelService grafanaPanelService;
 
     /**

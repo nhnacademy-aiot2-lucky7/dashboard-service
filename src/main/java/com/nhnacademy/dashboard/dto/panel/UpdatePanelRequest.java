@@ -58,6 +58,12 @@ public class UpdatePanelRequest {
     private String time;
 
     /**
+     * 임계치 수정
+     */
+    private Integer max;
+    private Integer min;
+
+    /**
      * 데이터를 조회할 InfluxDB 버킷 이름.
      */
     @Builder.Default

@@ -2,15 +2,12 @@ package com.nhnacademy.dashboard.service;
 
 import com.nhnacademy.common.memory.DashboardMemory;
 import com.nhnacademy.dashboard.api.GrafanaApi;
+import com.nhnacademy.dashboard.dto.dashboard.DashboardBuildRequest;
 import com.nhnacademy.dashboard.dto.dashboard.GrafanaCreateDashboardRequest;
 import com.nhnacademy.dashboard.dto.dashboard.InfoDashboardResponse;
+import com.nhnacademy.dashboard.dto.dashboard.json.FieldConfig;
 import com.nhnacademy.dashboard.dto.grafana.GrafanaMetaResponse;
-import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
-import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
-import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
-import com.nhnacademy.dashboard.dto.panel.IframePanelResponse;
-import com.nhnacademy.dashboard.dto.panel.UpdatePanelPriorityRequest;
-import com.nhnacademy.dashboard.dto.panel.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.panel.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
 import com.nhnacademy.dashboard.dto.dashboard.json.Panel;
 import com.nhnacademy.dashboard.dto.dashboard.json.Target;
@@ -74,13 +71,17 @@ public class GrafanaPanelService {
             }
         }
 
-        GrafanaCreateDashboardRequest newDashboardRequest = grafanaDashboardService.buildDashboardRequest(
+        DashboardBuildRequest dashboardBuildRequest = new DashboardBuildRequest(
                 userId,
                 request.getGridPos(),
                 request.getType(),
                 existDashboard.getDashboard().getTitle(),
                 panelTitle,
-                fluxQuery);
+                fluxQuery,
+                request.getMin(),
+                request.getMax()
+        );
+        GrafanaCreateDashboardRequest newDashboardRequest = grafanaDashboardService.buildDashboardRequest(dashboardBuildRequest);
 
         Dashboard newDashboard = grafanaDashboardService.buildDashboard(newDashboardRequest);
         log.info("새로운 대시보드 -> {}", newDashboard.getPanels().getFirst().getTitle());
@@ -239,6 +240,11 @@ public class GrafanaPanelService {
             if (panel.getId().equals(request.getPanelId())) {
                 panel.setTitle(request.getPanelNewTitle());
                 panel.setType(request.getType());
+
+                if(panel.getFieldConfig() != null){
+                    panel.getFieldConfig().getDefaults().getThresholds().getSteps().getFirst().setValue(request.getMin());
+                    panel.getFieldConfig().getDefaults().getThresholds().getSteps().getLast().setValue(request.getMax());
+                }
 
                 if (panel.getTargets() != null) {
                     for (Target target : panel.getTargets()) {
