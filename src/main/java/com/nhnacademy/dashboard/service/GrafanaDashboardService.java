@@ -223,8 +223,8 @@ public class GrafanaDashboardService {
                         new FieldConfig.Thresholds(
                                 "absolute",
                                 List.of(
-                                        new FieldConfig.Step("red", dashboardBuildRequest.getMax()),
-                                        new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin())
+                                        new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin()),
+                                        new FieldConfig.Step("#red", dashboardBuildRequest.getMax())
                                 )
                         )
                 )

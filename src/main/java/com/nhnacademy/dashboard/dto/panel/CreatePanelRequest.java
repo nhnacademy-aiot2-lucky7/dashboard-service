@@ -59,14 +59,14 @@ public class CreatePanelRequest {
     private String time;
 
     /**
-     * 데이터 최대값 임계치
-     */
-    private Integer max;
-
-    /**
      * 데이터 최소값 임계치
      */
     private Integer min;
+
+    /**
+     * 데이터 최대값 임계치
+     */
+    private Integer max;
 
     /**
      * 데이터를 조회할 InfluxDB 버킷 이름.
