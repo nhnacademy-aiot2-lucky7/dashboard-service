@@ -241,10 +241,13 @@ public class GrafanaPanelService {
                 panel.setTitle(request.getPanelNewTitle());
                 panel.setType(request.getType());
 
-                if(panel.getFieldConfig() != null){
+                if (request.getMin() != null) {
                     panel.getFieldConfig().getDefaults().getThresholds().getSteps().getFirst().setValue(request.getMin());
+                }
+                if (request.getMax() != null) {
                     panel.getFieldConfig().getDefaults().getThresholds().getSteps().getLast().setValue(request.getMax());
                 }
+
 
                 if (panel.getTargets() != null) {
                     for (Target target : panel.getTargets()) {
