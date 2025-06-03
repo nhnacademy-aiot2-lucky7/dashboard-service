@@ -241,6 +241,7 @@ public class GrafanaDashboardService {
 
     private FieldConfig buildFieldConfig(Integer min, Integer max) {
         List<FieldConfig.Step> steps = new ArrayList<>();
+        steps.add(new FieldConfig.Step("green", null));
         steps.add(new FieldConfig.Step("#EAB839", null));
         steps.add(new FieldConfig.Step("red", null));
 
@@ -257,9 +258,7 @@ public class GrafanaDashboardService {
         if (min == null && max == null) {
             log.warn("⚠ 임계치가 존재하지 않습니다.");
         } else {
-            log.info("임계치 적용 최소, 최대: {}, {}",
-                    steps.get(0).toString(),
-                    steps.get(1).toString());
+            steps.forEach(step -> log.info("임계치 적용 - 색상: {}, 값: {}", step.getColor(), step.getValue()));
         }
 
         return new FieldConfig(
