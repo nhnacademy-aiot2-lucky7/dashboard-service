@@ -1,11 +1,13 @@
 package com.nhnacademy.dashboard.controller;
 
+import com.nhnacademy.dashboard.api.RuleEngineApi;
 import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
 import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
 import com.nhnacademy.dashboard.dto.panel.IframePanelResponse;
 import com.nhnacademy.dashboard.dto.panel.UpdatePanelPriorityRequest;
 import com.nhnacademy.dashboard.dto.panel.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.rule.RuleRequest;
 import com.nhnacademy.dashboard.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -24,9 +26,11 @@ import java.util.List;
 public class GrafanaPanelController {
 
     private final GrafanaPanelService grafanaPanelService;
+    private final RuleEngineApi ruleEngineApi;
 
     /**
      * 요청으로 전달된 대시보드 UID 및 제목을 기반으로 해당 차트들을 조회합니다.
+     * GET /api/panels?dashboardUid=abcdefg
      *
      * @param readPanelRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
      * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
@@ -34,7 +38,7 @@ public class GrafanaPanelController {
     @GetMapping
     @Operation(summary = "패널 조회")
     public ResponseEntity<List<IframePanelResponse>> getPanel(
-            @RequestBody ReadPanelRequest readPanelRequest) {
+            ReadPanelRequest readPanelRequest) {
 
         List<IframePanelResponse> result = grafanaPanelService.getPanel(readPanelRequest);
         return ResponseEntity.ok(result);
@@ -62,13 +66,24 @@ public class GrafanaPanelController {
     @Operation(summary = "새로운 패널 추가")
     public ResponseEntity<Void> createPanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody @Valid CreatePanelRequest createPanelRequest
-    ) {
-        grafanaPanelService.createPanel(userId, createPanelRequest);
+            @RequestBody @Valid CreatePanelRequest createPanelRequest,
+            @RequestBody RuleRequest ruleRequest
+            ) {
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
+        ResponseEntity<Void> response = ruleEngineApi.getRule(ruleRequest);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            log.info("Rule 요청 성공. 다음 단계로 진행합니다.");
+            grafanaPanelService.createPanel(userId, createPanelRequest);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .build();
+        } else {
+            log.warn("Rule 요청 실패: {}", response.getStatusCode());
+            // 실패 시 502 Bad Gateway 등 적절한 상태 반환
+            return ResponseEntity
+                    .status(HttpStatus.BAD_GATEWAY)
+                    .build();
+        }
     }
 
 

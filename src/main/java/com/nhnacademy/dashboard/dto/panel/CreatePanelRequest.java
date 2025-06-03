@@ -1,6 +1,5 @@
 package com.nhnacademy.dashboard.dto.panel;
 
-import com.nhnacademy.dashboard.dto.dashboard.json.FieldConfig;
 import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
 import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import jakarta.validation.constraints.Pattern;
