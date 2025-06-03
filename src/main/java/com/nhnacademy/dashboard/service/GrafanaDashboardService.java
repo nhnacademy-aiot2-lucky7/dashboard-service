@@ -230,6 +230,9 @@ public class GrafanaDashboardService {
                 )
         );
 
+        log.info("임계치 적용 최소, 최대: {}, {}",
+                fieldConfig.getDefaults().getThresholds().getSteps().getFirst()
+                ,fieldConfig.getDefaults().getThresholds().getSteps().getLast());
         if(dashboardBuildRequest.getMax() == null && dashboardBuildRequest.getMin() == null){
             log.warn("⚠ 임계치가 존재하지 않습니다.");
         }

@@ -221,54 +221,70 @@ public class GrafanaPanelService {
      */
     public void updatePanel(String userId, UpdatePanelRequest request) {
 
-        String folderUid = grafanaFolderService.getFolderUidByTitle(grafanaFolderService.getFolderTitle(userId).getDepartmentName());
+        String departmentName = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
+        String folderUid = grafanaFolderService.getFolderUidByTitle(departmentName);
+
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(request.getDashboardUid());
         log.info("기존 Panel Name: {}", existDashboard.getDashboard().getPanels().getFirst().getTitle());
         log.info("기존 Panel Id: {}", existDashboard.getDashboard().getPanels().getFirst().getId());
 
+        List<Panel> panels = existDashboard.getDashboard().getPanels();
         String fluxQuery = grafanaDashboardService.generateFluxQuery(
                 request.getBucket(),
                 request.getMeasurement(),
                 request.getSensorFieldRequestDto(),
                 request.getAggregation(),
                 request.getTime());
-        log.info("UPDATE query(before): {}", fluxQuery);
 
-        List<Panel> panels = existDashboard.getDashboard().getPanels();
-        log.info("panel Query:{}", panels.getFirst().getTargets().getFirst().getQuery());
+        updateMatchingPanel(panels, request, fluxQuery);
+
+        GrafanaCreateDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
+        ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
+        log.info("UPDATE result: {}", respsonse.getBody());
+
+        sendUpdateEvent(userId, existDashboard);
+    }
+
+    private void updateMatchingPanel(List<Panel> panels, UpdatePanelRequest request, String fluxQuery) {
         for (Panel panel : panels) {
             if (panel.getId().equals(request.getPanelId())) {
                 panel.setTitle(request.getPanelNewTitle());
                 panel.setType(request.getType());
-
-                if (request.getMin() != null) {
-                    panel.getFieldConfig().getDefaults().getThresholds().getSteps().getFirst().setValue(request.getMin());
-                }
-                if (request.getMax() != null) {
-                    panel.getFieldConfig().getDefaults().getThresholds().getSteps().getLast().setValue(request.getMax());
-                }
-
-
-                if (panel.getTargets() != null) {
-                    for (Target target : panel.getTargets()) {
-                        target.setQuery(fluxQuery);
-                    }
-                }
+                updateThresholds(panel, request);
+                updatePanelQueries(panel, fluxQuery);
             }
         }
+    }
 
-        GrafanaCreateDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
+    private void updateThresholds(Panel panel, UpdatePanelRequest request) {
+        if (panel.getFieldConfig() == null) return;
 
-        log.info("UPDATE CHART -> First panel query: {}",
-                dashboardRequest.getDashboard().getPanels().getFirst().getTargets().getFirst().getQuery());
-        ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
-        log.info("UPDATE result: {}", respsonse.getBody());
+        List<FieldConfig.Step> steps = panel.getFieldConfig().getDefaults().getThresholds().getSteps();
+        if (request.getMin() != null && !steps.isEmpty()) {
+            log.info("최소값:{}", request.getMin());
+            steps.getFirst().setValue(request.getMin());
+            log.info("적용확인:{}", steps.getFirst().getValue());
+        }
+        if (request.getMax() != null && steps.size() > 1) {
+            log.info("최대값:{}", request.getMin());
+            steps.getLast().setValue(request.getMax());
+            log.info("적용확인:{}", steps.getLast().getValue());
+        }
+    }
 
+    private void updatePanelQueries(Panel panel, String query) {
+        if (panel.getTargets() == null) return;
+        for (Target target : panel.getTargets()) {
+            target.setQuery(query);
+        }
+    }
+
+    private void sendUpdateEvent(String userId, GrafanaCreateDashboardRequest dashboard) {
         String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "패널 수정",
-                existDashboard.getDashboard().getPanels().getFirst().getId().toString(),
+                dashboard.getDashboard().getPanels().getFirst().getId().toString(),
                 PANEL_SOURCE_TYPE,
                 departmentId,
                 LocalDateTime.now()
