@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -256,19 +257,23 @@ public class GrafanaPanelService {
         }
     }
 
+    Optional<FieldConfig.Step> findStepByColor(List<FieldConfig.Step> steps, String color) {
+        return steps.stream()
+                .filter(step -> color.equals(step.getColor()))
+                .findFirst();
+    }
+
     private void updateThresholds(Panel panel, UpdatePanelRequest request) {
         if (panel.getFieldConfig() == null) return;
 
         List<FieldConfig.Step> steps = panel.getFieldConfig().getDefaults().getThresholds().getSteps();
         if (request.getMin() != null && !steps.isEmpty()) {
-            log.info("최소값:{}", request.getMin());
-            steps.getFirst().setValue(request.getMin());
-            log.info("적용확인:{}", steps.getFirst().getValue());
+            findStepByColor(steps, "#EAB839").ifPresent(step -> step.setValue(request.getMin()));
+            log.info("최소값 적용확인:{}", steps.getFirst().getValue());
         }
         if (request.getMax() != null && steps.size() > 1) {
-            log.info("최대값:{}", request.getMin());
-            steps.getLast().setValue(request.getMax());
-            log.info("적용확인:{}", steps.getLast().getValue());
+            findStepByColor(steps, "red").ifPresent(step -> step.setValue(request.getMax()));
+            log.info("최대값 적용확인:{}", steps.getLast().getValue());
         }
     }
 

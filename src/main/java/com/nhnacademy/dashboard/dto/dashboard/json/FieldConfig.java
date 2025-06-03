@@ -42,7 +42,7 @@ public class FieldConfig {
         private List<Step> steps;
     }
 
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    @Data @NoArgsConstructor @AllArgsConstructor
     public static class Step {
         /**
          * e.g., "green", "red", "#EAB839"

@@ -208,34 +208,13 @@ public class GrafanaDashboardService {
 
         Datasource datasource = new Datasource(getDatasource());
 
+        FieldConfig fieldConfig = buildFieldConfig(dashboardBuildRequest.getMin(), dashboardBuildRequest.getMax());
+
         Target target = new Target(
                 datasource,
                 dashboardBuildRequest.getFluxQuery(),
                 dashboardBuildRequest.getType()
         );
-
-        List<FieldConfig.Step> steps = new ArrayList<>();
-        steps.add(new FieldConfig.Step("#EAB839", dashboardBuildRequest.getMin()));
-        steps.add(new FieldConfig.Step("red", dashboardBuildRequest.getMax()));
-        FieldConfig fieldConfig = new FieldConfig(
-                new FieldConfig.Defaults(
-                        new FieldConfig.Color(), // default: palette-classic
-                        new FieldConfig.Custom(
-                                new FieldConfig.ThresholdsStyle("dashed")
-                        ),
-                        new FieldConfig.Thresholds(
-                                "absolute",
-                                steps
-                        )
-                )
-        );
-
-        log.info("임계치 적용 최소, 최대: {}, {}",
-                fieldConfig.getDefaults().getThresholds().getSteps().getFirst()
-                ,fieldConfig.getDefaults().getThresholds().getSteps().getLast());
-        if(dashboardBuildRequest.getMax() == null && dashboardBuildRequest.getMin() == null){
-            log.warn("⚠ 임계치가 존재하지 않습니다.");
-        }
 
         Panel panel = Panel.of(
                 infoDashboardResponse.getDashboardUid(),
@@ -254,10 +233,42 @@ public class GrafanaDashboardService {
                 List.of(panel)
         );
 
-        GrafanaCreateDashboardRequest grafanaCreateDashboardRequest = new GrafanaCreateDashboardRequest();
-        grafanaCreateDashboardRequest.setDashboard(dashboard);
+        GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest();
+        request.setDashboard(dashboard);
 
-        return grafanaCreateDashboardRequest;
+        return request;
+    }
+
+    private FieldConfig buildFieldConfig(Integer min, Integer max) {
+        List<FieldConfig.Step> steps = new ArrayList<>();
+        steps.add(new FieldConfig.Step("#EAB839", null));
+        steps.add(new FieldConfig.Step("red", null));
+
+        steps.stream()
+                .filter(step -> "#EAB839".equals(step.getColor()))
+                .findFirst()
+                .ifPresent(step -> step.setValue(min));
+
+        steps.stream()
+                .filter(step -> "red".equals(step.getColor()))
+                .findFirst()
+                .ifPresent(step -> step.setValue(max));
+
+        if (min == null && max == null) {
+            log.warn("⚠ 임계치가 존재하지 않습니다.");
+        } else {
+            log.info("임계치 적용 최소, 최대: {}, {}",
+                    steps.get(0).toString(),
+                    steps.get(1).toString());
+        }
+
+        return new FieldConfig(
+                new FieldConfig.Defaults(
+                        new FieldConfig.Color(),
+                        new FieldConfig.Custom(new FieldConfig.ThresholdsStyle("dashed")),
+                        new FieldConfig.Thresholds("absolute", steps)
+                )
+        );
     }
 
     public String generateFluxQuery(String bucket, String measurement, List<SensorFieldRequestDto> filters, String aggregation, String time) {
