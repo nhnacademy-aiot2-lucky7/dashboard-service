@@ -18,7 +18,7 @@ public interface UserApi {
     @GetMapping("/users/me")
     UserInfoResponse getUserInfo(@RequestHeader("X-User-Id") String id);
 
-    @GetMapping("/departments")
+    @GetMapping("/departments/all")
     List<UserDepartmentResponse> getDepartments();
 
     @GetMapping("/departments/{departmentId}")
