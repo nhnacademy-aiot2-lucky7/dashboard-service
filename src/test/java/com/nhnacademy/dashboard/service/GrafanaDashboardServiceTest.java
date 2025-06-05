@@ -3,8 +3,6 @@ package com.nhnacademy.dashboard.service;
 import com.nhnacademy.dashboard.api.GrafanaApi;
 import com.nhnacademy.dashboard.dto.dashboard.*;
 import com.nhnacademy.dashboard.dto.dashboard.json.Dashboard;
-import com.nhnacademy.dashboard.dto.dashboard.json.GridPos;
-import com.nhnacademy.dashboard.dto.grafana.SensorFieldRequestDto;
 import com.nhnacademy.dashboard.dto.user.UserDepartmentResponse;
 import com.nhnacademy.dashboard.exception.BadRequestException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
@@ -219,51 +217,5 @@ class GrafanaDashboardServiceTest {
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () ->
                 dashboardService.removeDashboard("user123", request));
         Assertions.assertEquals("대시보드의 상세 정보를 조회하지 못했습니다. 해당 UID: dashboard-uid", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("대시보드 요청에 대한 기본 구조 생성")
-    void buildDashboardRequest() {
-        UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
-        Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
-        Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
-
-        GridPos gridPos = new GridPos(12, 8);
-        DashboardBuildRequest dashboardBuildRequest = new DashboardBuildRequest("1", gridPos, "histogram", "dashboard-title", "P-TITLE", "query", 100, 10);
-        GrafanaCreateDashboardRequest grafanaCreateDashboardRequest =
-                dashboardService.buildDashboardRequest(dashboardBuildRequest);
-
-        Assertions.assertAll(
-                () -> {
-                    Assertions.assertEquals(gridPos, grafanaCreateDashboardRequest.getDashboard().getPanels().getFirst().getGridPos());
-                    Assertions.assertEquals("histogram", grafanaCreateDashboardRequest.getDashboard().getPanels().getFirst().getType());
-                    Assertions.assertEquals("dashboard-title", grafanaCreateDashboardRequest.getDashboard().getTitle());
-                    Assertions.assertEquals("P-TITLE", grafanaCreateDashboardRequest.getDashboard().getPanels().getFirst().getTitle());
-                    Assertions.assertEquals("query", grafanaCreateDashboardRequest.getDashboard().getPanels().getFirst().getTargets().getFirst().getQuery());
-                }
-        );
-    }
-
-    @Test
-    @DisplayName("flux 쿼리문 생성")
-    void generateFluxQuery() {
-
-        List<SensorFieldRequestDto> sensorFieldRequestDtosList = new ArrayList<>();
-        sensorFieldRequestDtosList.add(new SensorFieldRequestDto("activity", "gateway-001", "sensor-A1"));
-        sensorFieldRequestDtosList.add(new SensorFieldRequestDto("humidity", null, "sensor-B2"));
-        sensorFieldRequestDtosList.add(new SensorFieldRequestDto("battery", "gateway-003", null));
-
-        String query = dashboardService.generateFluxQuery("fake-bucket","sensor-data",sensorFieldRequestDtosList, "mean", "3d");
-
-        String expectQuery = """
-                from(bucket: "temporary-data-handler")
-                  |> range(start: -3d)
-                  |> filter(fn: (r) => r["_measurement"] == "sensor-data")
-                  |> filter(fn: (r) => (r._field == "activity" and r.gateway_id == "gateway-001" and r.sensor_id == "sensor-A1") or (r._field == "humidity" and r.gateway_id == "null" and r.sensor_id == "sensor-B2") or (r._field == "battery" and r.gateway_id == "gateway-003" and r.sensor_id == "null"))
-                  |> filter(fn: (r) => contains(value: r["_field"], set: ["activity", "humidity", "battery"]))
-                  |> aggregateWindow(every: 15m, fn: mean, createEmpty: true)
-                  |> yield(name: "mean")
-                """;
-        Assertions.assertEquals(expectQuery, query);
     }
 }

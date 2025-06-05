@@ -100,7 +100,7 @@ class GrafanaPanelServiceTest {
                 .dashboardUid("dashboard-uid")
                 .panelId(1)
                 .panelTitle("panel-title")
-                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("activity", "gateway-001", "sensor-A1")))
+                .sensorFieldRequestDto(List.of(new SensorFieldRequestDto("activity", 1L, "sensor-A1")))
                 .gridPos(new GridPos(12, 8))
                 .type("time series")
                 .aggregation("mean")

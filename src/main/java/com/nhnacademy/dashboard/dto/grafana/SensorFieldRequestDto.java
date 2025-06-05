@@ -18,7 +18,7 @@ public class SensorFieldRequestDto {
     /**
      * 측정값에 포함될 gateway_id
      */
-    private String gatewayId;
+    private Long gatewayId;
 
     /**
      * 측정값에 포함될 sensor_id

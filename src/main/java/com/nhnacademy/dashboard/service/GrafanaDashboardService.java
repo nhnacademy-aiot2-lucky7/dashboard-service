@@ -39,9 +39,7 @@ public class GrafanaDashboardService {
     public List<InfoDashboardResponse> getDashboard(String userId) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
-        List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
-
-        return dashboards;
+        return grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
     }
 
     /**
@@ -112,8 +110,8 @@ public class GrafanaDashboardService {
         EventCreateRequest event = new EventCreateRequest(
           "INFO",
                 "대시보드 생성",
-                request.getDashboard().getUid(),
                 DASHBOARD_SOURCE_TYPE,
+                "CREATE",
                 departmentId,
                 LocalDateTime.now()
         );
@@ -156,8 +154,8 @@ public class GrafanaDashboardService {
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "대시보드 수정",
-                dashboard.getUid(),
                 DASHBOARD_SOURCE_TYPE,
+                "UPDATE",
                 departmentId,
                 LocalDateTime.now()
         );
@@ -180,8 +178,8 @@ public class GrafanaDashboardService {
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "대시보드 삭제",
-                deleteDashboardRequest.getDashboardUid(),
                 DASHBOARD_SOURCE_TYPE,
+                "DELETE",
                 departmentId,
                 LocalDateTime.now()
         );

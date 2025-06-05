@@ -9,7 +9,6 @@ import com.nhnacademy.dashboard.exception.AlreadyFolderNameException;
 import com.nhnacademy.dashboard.exception.NotFoundException;
 import com.nhnacademy.event.event.EventCreateRequest;
 import com.nhnacademy.event.rabbitmq.EventProducer;
-import org.apache.catalina.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

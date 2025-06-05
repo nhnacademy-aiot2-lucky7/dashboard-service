@@ -114,8 +114,8 @@ public class GrafanaPanelService {
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "패널 생성",
-                Integer.toString(panelIds.size()),
                 PANEL_SOURCE_TYPE,
+                "CREATE",
                 departmentId,
                 LocalDateTime.now()
         );
@@ -243,7 +243,7 @@ public class GrafanaPanelService {
         ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
         log.info("UPDATE result: {}", respsonse.getBody());
 
-        sendUpdateEvent(userId, existDashboard);
+        sendUpdateEvent(userId);
     }
 
     private void updateMatchingPanel(List<Panel> panels, UpdatePanelRequest request, String fluxQuery) {
@@ -284,13 +284,13 @@ public class GrafanaPanelService {
         }
     }
 
-    private void sendUpdateEvent(String userId, GrafanaCreateDashboardRequest dashboard) {
+    private void sendUpdateEvent(String userId) {
         String departmentId = grafanaFolderService.getFolderTitle(userId).getDepartmentId();
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "패널 수정",
-                dashboard.getDashboard().getPanels().getFirst().getId().toString(),
                 PANEL_SOURCE_TYPE,
+                "UPDATE",
                 departmentId,
                 LocalDateTime.now()
         );
@@ -327,8 +327,8 @@ public class GrafanaPanelService {
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "패널 우선순위 변경",
-                sortedPanels.getFirst().toString(),
                 PANEL_SOURCE_TYPE,
+                "UPDATE_PRIORITY",
                 userDepartmentResponse.getDepartmentId(),
                 LocalDateTime.now()
         );
@@ -388,8 +388,8 @@ public class GrafanaPanelService {
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "패널 삭제",
-                dashboard.getPanels().getFirst().getId().toString(),
                 PANEL_SOURCE_TYPE,
+                "DELETE",
                 departmentId,
                 LocalDateTime.now()
         );

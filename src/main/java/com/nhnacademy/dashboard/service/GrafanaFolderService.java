@@ -118,11 +118,10 @@ public class GrafanaFolderService {
 
         grafanaApi.createFolder(createFolderRequest);
 
-        String folderUid = getFolderUidByTitle(departmentName);
         EventCreateRequest event = new EventCreateRequest(
                 "INFO",
                 "폴더 생성",
-                folderUid,
+                "createFolder",
                 FOLDER_SOURCE_TYPE,
                 departmentId.getDepartmentId(),
                 LocalDateTime.now()
