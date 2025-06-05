@@ -1,12 +1,7 @@
 package com.nhnacademy.dashboard.controller;
 
 import com.nhnacademy.dashboard.api.RuleEngineApi;
-import com.nhnacademy.dashboard.dto.panel.CreatePanelRequest;
-import com.nhnacademy.dashboard.dto.panel.DeletePanelRequest;
-import com.nhnacademy.dashboard.dto.panel.ReadPanelRequest;
-import com.nhnacademy.dashboard.dto.panel.IframePanelResponse;
-import com.nhnacademy.dashboard.dto.panel.UpdatePanelPriorityRequest;
-import com.nhnacademy.dashboard.dto.panel.UpdatePanelRequest;
+import com.nhnacademy.dashboard.dto.panel.*;
 import com.nhnacademy.dashboard.dto.rule.RuleRequest;
 import com.nhnacademy.dashboard.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,12 +46,12 @@ public class GrafanaPanelController {
      * @return 필터 조건에 부합하는 차트 목록을 반환합니다.
      */
     @PostMapping("/filter")
-    @Operation(summary ="메인페이지 on/off 필터 조회")
+    @Operation(summary = "메인페이지 on/off 필터 조회")
     public ResponseEntity<List<IframePanelResponse>> getFilterPanel(
             @RequestBody ReadPanelRequest readFilterPanelRequest,
             @RequestParam List<Integer> offPanelId
     ) {
-        List<IframePanelResponse> charts  = grafanaPanelService.getFilterPanel(readFilterPanelRequest.getDashboardUid(), offPanelId);
+        List<IframePanelResponse> charts = grafanaPanelService.getFilterPanel(readFilterPanelRequest.getDashboardUid(), offPanelId);
         return ResponseEntity.ok(charts);
     }
 
@@ -65,14 +60,13 @@ public class GrafanaPanelController {
     @Operation(summary = "새로운 패널 추가")
     public ResponseEntity<Void> createPanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody @Valid CreatePanelRequest createPanelRequest,
-            @RequestBody RuleRequest ruleRequest
-            ) {
+            @RequestBody @Valid PanelWithRuleRequest request
+    ) {
 
-        ResponseEntity<Void> response = ruleEngineApi.getRule(ruleRequest);
+        ResponseEntity<Void> response = ruleEngineApi.getRule(request.getRuleRequest());
         if (response.getStatusCode().is2xxSuccessful()) {
             log.info("Rule 요청 성공. 다음 단계로 진행합니다.");
-            grafanaPanelService.createPanel(userId, createPanelRequest);
+            grafanaPanelService.createPanel(userId, request.getCreatePanelRequest());
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .build();
@@ -85,13 +79,26 @@ public class GrafanaPanelController {
         }
     }
 
+    @PostMapping("/test")
+    @Operation(summary = "새로운 패널 추가")
+    public ResponseEntity<Void> createPanel(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody @Valid CreatePanelRequest createPanelRequest
+    ) {
+
+        grafanaPanelService.createPanel(userId, createPanelRequest);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
+    }
+
 
     @PutMapping
     @Operation(summary = "패널 쿼리 수정")
     public ResponseEntity<Void> updatePanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelRequest updateRequest
-    ){
+    ) {
         grafanaPanelService.updatePanel(userId, updateRequest);
 
         return ResponseEntity
@@ -103,7 +110,7 @@ public class GrafanaPanelController {
     public ResponseEntity<Void> updatePriority(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody UpdatePanelPriorityRequest updatePriority
-    ){
+    ) {
         grafanaPanelService.updatePriority(userId, updatePriority);
 
         return ResponseEntity
@@ -114,8 +121,8 @@ public class GrafanaPanelController {
     @Operation(summary = "패널 삭제")
     public ResponseEntity<Void> deletePanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody DeletePanelRequest deletePanelRequest){
-        grafanaPanelService.removePanel(userId,deletePanelRequest);
+            @RequestBody DeletePanelRequest deletePanelRequest) {
+        grafanaPanelService.removePanel(userId, deletePanelRequest);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
