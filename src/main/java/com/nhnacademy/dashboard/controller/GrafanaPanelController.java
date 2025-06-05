@@ -32,15 +32,14 @@ public class GrafanaPanelController {
      * 요청으로 전달된 대시보드 UID 및 제목을 기반으로 해당 차트들을 조회합니다.
      * GET /api/panels?dashboardUid=abcdefg
      *
-     * @param readPanelRequest 대시보드 UID와 제목 정보가 담긴 요청 객체
      * @return 해당 대시보드에 포함된 차트 목록을 반환합니다.
      */
-    @GetMapping
+    @GetMapping("/{dashboardUid}")
     @Operation(summary = "패널 조회")
     public ResponseEntity<List<IframePanelResponse>> getPanel(
-            ReadPanelRequest readPanelRequest) {
+            @PathVariable String dashboardUid) {
 
-        List<IframePanelResponse> result = grafanaPanelService.getPanel(readPanelRequest);
+        List<IframePanelResponse> result = grafanaPanelService.getPanel(new ReadPanelRequest(dashboardUid));
         return ResponseEntity.ok(result);
     }
 
