@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "rule-engine",
+        url="http://team1-rule-engine-service:10245",
         configuration = FeignConfig.class)
 public interface RuleEngineApi {
 
