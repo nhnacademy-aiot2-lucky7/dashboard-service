@@ -19,8 +19,7 @@ import java.util.List;
  * Grafana API와 통신하기 위한 Feign Client입니다.
  */
 @FeignClient(
-        name = "grafanaApiClient",
-        url = "${grafana.api.url}",
+        name = "grafana",
         path = "/api",
         configuration = {FeignConfig.class, GrafanaApiConfig.class}
 )
