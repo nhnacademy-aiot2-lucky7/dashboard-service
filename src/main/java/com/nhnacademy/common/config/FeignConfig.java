@@ -17,6 +17,6 @@ public class FeignConfig {
 
     @Bean
     public Request.Options feignOptions() {
-        return new Request.Options(3000, 5000); // ms 단위
+        return new Request.Options(10000, 10000); // ms 단위
     }
 }
