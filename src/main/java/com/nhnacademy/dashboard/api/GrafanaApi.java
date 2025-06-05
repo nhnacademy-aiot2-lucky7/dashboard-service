@@ -20,6 +20,7 @@ import java.util.List;
  */
 @FeignClient(
         name = "grafana",
+        url = "${grafana.api.url}",
         path = "/api",
         configuration = {FeignConfig.class, GrafanaApiConfig.class}
 )
