@@ -41,7 +41,6 @@ public class GrafanaDashboardService {
         String folderTitle = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
         List<InfoDashboardResponse> dashboards = grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
 
-        log.info("getDashboardByTitle -> dashboards: {}", dashboards.getFirst().getDashboardTitle());
         return dashboards;
     }
 
