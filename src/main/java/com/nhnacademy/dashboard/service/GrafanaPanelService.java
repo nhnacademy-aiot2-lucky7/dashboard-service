@@ -171,7 +171,7 @@ public class GrafanaPanelService {
 
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
         List<Panel> panels = dashboard.getDashboard().getPanels();
-        int panelSize = panels.size() + 1;
+        int panelSize = panels.size();
         log.info("panelSize:{}", panelSize);
 
         Set<Integer> panelIds = DashboardMemory.getPanels(readPanelRequest.getDashboardUid());
