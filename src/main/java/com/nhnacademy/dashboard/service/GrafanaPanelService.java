@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -169,27 +170,37 @@ public class GrafanaPanelService {
     public List<IframePanelResponse> getPanel(ReadPanelRequest readPanelRequest) {
 
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
-
         List<Panel> panels = dashboard.getDashboard().getPanels();
         int panelSize = panels.size();
 
-        boolean allIdsNull = panels.stream().allMatch(p -> p.getId() == null);
-        if (allIdsNull) {
-            throw new NotFoundException("panel not found for uid: " + readPanelRequest.getDashboardUid());
+        if (panelSize == 0) {
+            throw new NotFoundException("No panels found for dashboard UID: " + readPanelRequest.getDashboardUid());
         }
 
-        List<IframePanelResponse> responseList = panels.stream()
-                .map(panel -> IframePanelResponse.ofNewIframeResponse(
-                        dashboard.getDashboard().getUid(),
-                        dashboard.getDashboard().getTitle(),
-                        panelSize,
-                        panel.getGridPos().getW(),
-                        panel.getGridPos().getH()))
-                .toList();
+        Set<Integer> panelIds = DashboardMemory.getPanels(readPanelRequest.getDashboardUid());
+        if (panelIds.isEmpty()) {
+            throw new NotFoundException("No panel IDs found for dashboard UID: " + readPanelRequest.getDashboardUid());
+        }
 
+        // panelIds를 List로 변환 (인덱스를 사용하기 위함)
+        List<Integer> panelIdsList = new ArrayList<>(panelIds);
+
+        List<IframePanelResponse> responseList = IntStream.range(0, panels.size())
+                .mapToObj(index -> {
+                    Panel panel = panels.get(index);
+                    int panelId = panelIdsList.get(index);
+                    return IframePanelResponse.ofNewIframeResponse(
+                            dashboard.getDashboard().getUid(),
+                            dashboard.getDashboard().getTitle(),
+                            panelId,
+                            panel.getGridPos().getW(),
+                            panel.getGridPos().getH());
+                })
+                .collect(Collectors.toList());
+
+        // 응답 반환
         return ResponseEntity.ok(responseList).getBody();
     }
-
 
     /**
      * 필터 조건에 따라 특정 대시보드에서 표시할 차트만 선택하여 반환합니다.
