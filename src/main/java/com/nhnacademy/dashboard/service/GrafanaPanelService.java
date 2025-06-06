@@ -173,10 +173,6 @@ public class GrafanaPanelService {
         List<Panel> panels = dashboard.getDashboard().getPanels();
         int panelSize = panels.size();
 
-        if(panelSize == 0){
-            panels.getFirst().setId(0);
-        }
-
         boolean allIdsNull = panels.stream().allMatch(p -> p.getId() == null);
         if (allIdsNull) {
             throw new NotFoundException("panel not found for uid: " + readPanelRequest.getDashboardUid());
@@ -186,9 +182,9 @@ public class GrafanaPanelService {
                 .map(panel -> IframePanelResponse.ofNewIframeResponse(
                         dashboard.getDashboard().getUid(),
                         dashboard.getDashboard().getTitle(),
-                        panel.getGridPos().getH(),
+                        panelSize,
                         panel.getGridPos().getW(),
-                        panelSize))
+                        panel.getGridPos().getH()))
                 .toList();
 
         return ResponseEntity.ok(responseList).getBody();
