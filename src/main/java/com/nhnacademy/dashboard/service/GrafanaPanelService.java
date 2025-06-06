@@ -171,19 +171,22 @@ public class GrafanaPanelService {
 
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
         List<Panel> panels = dashboard.getDashboard().getPanels();
-        int panelSize = panels.size();
-
-        if (panelSize == 0) {
-            throw new NotFoundException("No panels found for dashboard UID: " + readPanelRequest.getDashboardUid());
-        }
+        int panelSize = panels.size() + 1;
+        log.info("panelSize:{}", panelSize);
 
         Set<Integer> panelIds = DashboardMemory.getPanels(readPanelRequest.getDashboardUid());
         if (panelIds.isEmpty()) {
-            throw new NotFoundException("No panel IDs found for dashboard UID: " + readPanelRequest.getDashboardUid());
+            log.warn("No panel IDs found for dashboard UID: " + readPanelRequest.getDashboardUid());
         }
 
         // panelIds를 List로 변환 (인덱스를 사용하기 위함)
         List<Integer> panelIdsList = new ArrayList<>(panelIds);
+
+        log.info("panelIdsList:{}", panelIdsList);
+        // panelIds와 panels의 크기가 맞지 않으면 예외 처리
+        if (panelIdsList.size() != panels.size()) {
+            log.warn("Mismatch between panelIds size and panels size. panelIds size: " + panelIdsList.size() + ", panels size: " + panels.size());
+        }
 
         List<IframePanelResponse> responseList = IntStream.range(0, panels.size())
                 .mapToObj(index -> {
