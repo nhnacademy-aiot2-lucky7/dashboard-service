@@ -66,7 +66,7 @@ public class GrafanaDashboardController {
                 .build();
     }
 
-    @PutMapping("/name")
+    @PutMapping
     @Operation(summary = "대시보드 이름 수정")
     public ResponseEntity<Void> updateDashboard(
             @RequestHeader("X-User-Id") String userId,
