@@ -104,7 +104,9 @@ public class GrafanaDashboardService {
             throw new BadRequestException("이미 존재하는 대시보드 이름입니다: "+createDashboardRequest.getDashboardTitle());
         }
 
-        GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(new Dashboard(createDashboardRequest.getDashboardTitle(), new ArrayList<>()), folderUid, true);
+        GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(
+                new Dashboard(createDashboardRequest.getDashboardTitle(),
+                        new ArrayList<>()), folderUid, true);
         grafanaApi.updateDashboard(request);
 
         EventCreateRequest event = new EventCreateRequest(

@@ -171,6 +171,11 @@ public class GrafanaPanelService {
         GrafanaCreateDashboardRequest dashboard = grafanaDashboardService.getDashboardInfo(readPanelRequest.getDashboardUid());
 
         List<Panel> panels = dashboard.getDashboard().getPanels();
+        int panelSize = panels.size();
+
+        if(panelSize == 0){
+            panels.getFirst().setId(0);
+        }
 
         boolean allIdsNull = panels.stream().allMatch(p -> p.getId() == null);
         if (allIdsNull) {
@@ -183,7 +188,7 @@ public class GrafanaPanelService {
                         dashboard.getDashboard().getTitle(),
                         panel.getGridPos().getH(),
                         panel.getGridPos().getW(),
-                        panel.getId()))
+                        panelSize))
                 .toList();
 
         return ResponseEntity.ok(responseList).getBody();
