@@ -2,7 +2,6 @@ package com.nhnacademy.dashboard.controller;
 
 import com.nhnacademy.dashboard.api.RuleEngineApi;
 import com.nhnacademy.dashboard.dto.panel.*;
-import com.nhnacademy.dashboard.dto.rule.RuleRequest;
 import com.nhnacademy.dashboard.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

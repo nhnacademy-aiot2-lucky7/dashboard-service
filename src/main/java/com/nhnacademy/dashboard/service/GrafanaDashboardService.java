@@ -105,7 +105,7 @@ public class GrafanaDashboardService {
         }
 
         GrafanaCreateDashboardRequest request = new GrafanaCreateDashboardRequest(new Dashboard(createDashboardRequest.getDashboardTitle(), new ArrayList<>()), folderUid, true);
-        grafanaApi.createDashboard(request);
+        grafanaApi.updateDashboard(request);
 
         EventCreateRequest event = new EventCreateRequest(
           "INFO",

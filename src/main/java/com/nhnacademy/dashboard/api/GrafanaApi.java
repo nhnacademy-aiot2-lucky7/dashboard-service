@@ -27,15 +27,6 @@ import java.util.List;
 public interface GrafanaApi {
 
     /**
-     * 대시보드를 생성합니다.
-     *
-     * @param request 생성할 대시보드 요청 정보
-     * @return 생성 결과 응답 (Body 없음)
-     */
-    @PostMapping("/dashboards/db")
-    ResponseEntity<Void> createDashboard(@RequestBody GrafanaCreateDashboardRequest request);
-
-    /**
      * 차트 생성 맟 수정합니다.
      *
      * @param dashboardBody 차트 생성 요청 데이터
