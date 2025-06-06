@@ -383,6 +383,8 @@ public class GrafanaPanelService {
      * @param deletePanelRequest 삭제할 패널 정보를 담은 요청 객체
      */
     public void removePanel(String userId,DeletePanelRequest deletePanelRequest) {
+        log.info("패널 삭제 시도: dashboardUid={}, panelId={}", deletePanelRequest.getDashboardUid(), deletePanelRequest.getPanelId());
+
         GrafanaCreateDashboardRequest existDashboard = grafanaDashboardService.getDashboardInfo(deletePanelRequest.getDashboardUid());
         List<Panel> panels = new ArrayList<>(existDashboard.getDashboard().getPanels());
         panels.removeIf(p -> p.getId().equals(deletePanelRequest.getPanelId()));
