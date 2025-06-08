@@ -79,11 +79,11 @@ public class CreatePanelRequest {
      * 데이터를 조회할 InfluxDB 버킷 이름.
      */
     @Builder.Default
-    private String bucket = "temporary-data-handler";
+    private String bucket = "team1-sensor-data";
 
     /**
      * 데이터를 조회할 InfluxDB 측정값(measurement) 이름 (예: sensor-data).
      */
     @Builder.Default
-    private String measurement = "sensor-data";
+    private String measurement = "sensor_data";
 }
