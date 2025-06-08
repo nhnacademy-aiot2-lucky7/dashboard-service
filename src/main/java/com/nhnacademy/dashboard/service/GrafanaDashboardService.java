@@ -275,7 +275,7 @@ public class GrafanaDashboardService {
               |> range(start: -%s)
               |> filter(fn: (r) => r["_measurement"] == "%s")
               |> filter(fn: (r) => r["_field"] == "%s")
-              |> filter(fn: (r) => r["gateway_id"] == %d)
+              |> filter(fn: (r) => r["gateway_id"] == "%d")
               |> filter(fn: (r) => r["sensor_id"] == "%s")
               |> aggregateWindow(every: 15m, fn: %s, createEmpty: true)
               |> yield(name: "%s")
