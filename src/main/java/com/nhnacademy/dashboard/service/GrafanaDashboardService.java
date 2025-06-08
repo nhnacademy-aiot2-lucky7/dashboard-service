@@ -269,22 +269,16 @@ public class GrafanaDashboardService {
         );
     }
 
-    public String generateFluxQuery(String bucket, String measurement, List<SensorFieldRequestDto> filters, String aggregation, String time) {
-
-        log.info("sensorDto:{}", filters.getFirst().toString());
-        // field, gateway_id, sensor_id 조합을 Flux 조건문으로 생성
-        String whereClause = filters.stream()
-                .map(f -> String.format("(r[\"_field\"] == \"%s\" and r[\"gateway-id\"] == %d and r[\"sensor-id\"] == \"%s\")",
-                        f.getField(), f.getGatewayId(), f.getSensorId()))
-                .collect(Collectors.joining(" or "));
-
+    public String generateFluxQuery(String bucket, String measurement, SensorFieldRequestDto filters, String aggregation, String time) {
         return String.format("""
             from(bucket: "%s")
               |> range(start: -%s)
               |> filter(fn: (r) => r["_measurement"] == "%s")
-              |> filter(fn: (r) => %s)
+              |> filter(fn: (r) => r["_field"] == "%s")
+              |> filter(fn: (r) => r["gateway-id"] == %d)
+              |> filter(fn: (r) => r["sensor-id"] == "%s")
               |> aggregateWindow(every: 15m, fn: %s, createEmpty: true)
               |> yield(name: "%s")
-            """, bucket, time, measurement, whereClause, aggregation, aggregation);
+            """, bucket, time, measurement, filters.getField(), filters.getGatewayId(), filters.getSensorId(), aggregation, aggregation);
     }
 }

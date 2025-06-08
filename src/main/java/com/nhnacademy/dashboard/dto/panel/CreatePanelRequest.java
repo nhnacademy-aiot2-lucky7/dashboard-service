@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Builder
 @NoArgsConstructor
@@ -36,7 +34,7 @@ public class CreatePanelRequest {
      * 측정하려는 데이터의 종류 모음 dto(field, gatewayId, sensorId)
      */
     @NotBlank
-    private List<SensorFieldRequestDto> sensorFieldRequestDto;
+    private SensorFieldRequestDto sensorFieldRequestDto;
 
     /**
      * 패널의 위치 정보.

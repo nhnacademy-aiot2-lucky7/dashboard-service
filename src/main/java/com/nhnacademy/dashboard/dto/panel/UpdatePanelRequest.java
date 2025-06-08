@@ -33,7 +33,7 @@ public class UpdatePanelRequest {
     /**
      * 측정하려는 데이터의 종류 모음 dto(field, gatewayId, sensorId)
      */
-    private List<SensorFieldRequestDto> sensorFieldRequestDto;
+    private SensorFieldRequestDto sensorFieldRequestDto;
 
     /**
      * 패널의 위치 정보.
