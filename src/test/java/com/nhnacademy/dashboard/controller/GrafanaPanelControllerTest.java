@@ -50,7 +50,7 @@ class GrafanaPanelControllerTest {
                 "dashboard-uid",
                 "dashboard-title",
                 1,
-                1, 2
+                1, 2,null, null, null, null
         ));
         iframePanelResponses.add(IframePanelResponse.ofNewIframeResponse(
                 "dashboard-uid2",

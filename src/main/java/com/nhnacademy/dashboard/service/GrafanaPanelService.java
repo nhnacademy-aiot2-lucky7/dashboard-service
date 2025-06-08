@@ -197,7 +197,12 @@ public class GrafanaPanelService {
                             dashboard.getDashboard().getTitle(),
                             panelId,
                             panel.getGridPos().getW(),
-                            panel.getGridPos().getH());
+                            panel.getGridPos().getH(),
+                            panel.getType(),
+                            panel.getTitle(),
+                            panel.getTargets().getFirst().getQuery(),
+                            panel.getFieldConfig().getDefaults().getThresholds().getSteps()
+                            );
                 })
                 .collect(Collectors.toList());
 
@@ -226,7 +231,7 @@ public class GrafanaPanelService {
         log.info("panelId:{}", panel.size());
         return panel.stream()
                 .filter(p -> !offPanelId.contains(p.getId()))
-                .map(p -> IframePanelResponse.ofNewIframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId(), p.getGridPos().getW(), p.getGridPos().getH()))
+                .map(p -> IframePanelResponse.ofNewIframeResponse(dashboardUid, dashboard.getDashboard().getTitle(), p.getId(), p.getGridPos().getW(), p.getGridPos().getH(),p.getType(), p.getTitle(), p.getTargets().getFirst().getQuery(), p.getFieldConfig().getDefaults().getThresholds().getSteps()))
                 .toList();
     }
 
