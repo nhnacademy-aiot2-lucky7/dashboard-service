@@ -271,9 +271,10 @@ public class GrafanaDashboardService {
 
     public String generateFluxQuery(String bucket, String measurement, List<SensorFieldRequestDto> filters, String aggregation, String time) {
 
+        log.info("sensorDto:{}", filters.getFirst().toString());
         // field, gateway_id, sensor_id 조합을 Flux 조건문으로 생성
         String whereClause = filters.stream()
-                .map(f -> String.format("(r[\"_field\"] == \"%s\" and r[\"gateway-id\"] == \"%s\" and r[\"sensor-id\"] == \"%s\")",
+                .map(f -> String.format("(r[\"_field\"] == \"%s\" and r[\"gateway-id\"] == %d and r[\"sensor-id\"] == \"%s\")",
                         f.getField(), f.getGatewayId(), f.getSensorId()))
                 .collect(Collectors.joining(" or "));
 
