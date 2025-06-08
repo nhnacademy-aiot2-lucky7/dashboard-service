@@ -243,6 +243,9 @@ public class GrafanaDashboardService {
         steps.add(new FieldConfig.Step("#EAB839", null));
         steps.add(new FieldConfig.Step("red", null));
 
+        log.info("min:{}", min);
+        log.info("max:{}", max);
+
         steps.stream()
                 .filter(step -> "#EAB839".equals(step.getColor()))
                 .findFirst()
