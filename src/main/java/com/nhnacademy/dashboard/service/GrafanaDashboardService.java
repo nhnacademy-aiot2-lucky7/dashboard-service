@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -238,7 +237,7 @@ public class GrafanaDashboardService {
         return request;
     }
 
-    private FieldConfig buildFieldConfig(Integer min, Integer max) {
+    private FieldConfig buildFieldConfig(Double min, Double max) {
         List<FieldConfig.Step> steps = new ArrayList<>();
         steps.add(new FieldConfig.Step("green", null));
         steps.add(new FieldConfig.Step("#EAB839", null));

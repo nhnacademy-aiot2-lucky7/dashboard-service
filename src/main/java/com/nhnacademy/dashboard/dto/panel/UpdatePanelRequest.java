@@ -60,8 +60,8 @@ public class UpdatePanelRequest {
     /**
      * 임계치 수정
      */
-    private Integer max;
-    private Integer min;
+    private Double max;
+    private Double min;
 
     /**
      * 데이터를 조회할 InfluxDB 버킷 이름.

@@ -20,6 +20,6 @@ public class DashboardBuildRequest {
     private String dashboardTitle;
     private String panelTitle;
     private String fluxQuery;
-    private Integer min;
-    private Integer max;
+    private Double min;
+    private Double max;
 }

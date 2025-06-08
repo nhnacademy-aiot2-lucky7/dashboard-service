@@ -67,13 +67,13 @@ public class CreatePanelRequest {
      * 데이터 최소값 임계치
      */
     @NotBlank
-    private Integer min;
+    private Double min;
 
     /**
      * 데이터 최대값 임계치
      */
     @NotBlank
-    private Integer max;
+    private Double max;
 
     /**
      * 데이터를 조회할 InfluxDB 버킷 이름.

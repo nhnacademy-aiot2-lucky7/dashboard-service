@@ -52,6 +52,6 @@ public class FieldConfig {
         /**
          * nullable, e.g., null or 45, 60
          */
-        private Integer value;
+        private Double value;
     }
 }
