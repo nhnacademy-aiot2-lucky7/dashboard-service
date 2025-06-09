@@ -50,7 +50,7 @@ class GrafanaDashboardServiceTest {
     void getDashboard() {
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
-        Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
+        Mockito.when(grafanaApi.searchDashboards(Mockito.anyString(), Mockito.anyList())).thenReturn(List.of(infoDashboardResponse));
 
         List<InfoDashboardResponse> infoDashboardResponses = dashboardService.getDashboard("1");
 
@@ -113,7 +113,7 @@ class GrafanaDashboardServiceTest {
 
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
-        Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
+        Mockito.when(grafanaApi.searchDashboards(Mockito.anyString(), Mockito.anyList())).thenReturn(List.of(infoDashboardResponse));
 
         InfoDashboardResponse infoDashboardResponses = dashboardService.getDashboardInfoRequest("1", "dashboard-title");
 
@@ -137,12 +137,12 @@ class GrafanaDashboardServiceTest {
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
         Mockito.when(folderService.getFolderUidByTitle(Mockito.anyString())).thenReturn("folder-uid");
-        Mockito.when(grafanaApi.createDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
+        Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
         doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 
         dashboardService.createDashboard("1", new CreateDashboardRequest("dashboard-title"));
 
-        Mockito.verify(grafanaApi, Mockito.times(1)).createDashboard(Mockito.any(GrafanaCreateDashboardRequest.class));
+        Mockito.verify(grafanaApi, Mockito.times(1)).updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class));
     }
 
     @Test
@@ -156,7 +156,7 @@ class GrafanaDashboardServiceTest {
         UserDepartmentResponse userDepartmentResponse = new UserDepartmentResponse("1","folder-title");
         Mockito.when(grafanaApi.getDashboardInfo("dashboard-uid")).thenReturn(grafanaCreateDashboardRequest);
         Mockito.when(folderService.getFolderTitle(Mockito.anyString())).thenReturn(userDepartmentResponse);
-        Mockito.when(grafanaApi.searchDashboards(Mockito.anyList(), Mockito.anyString())).thenReturn(List.of(infoDashboardResponse));
+        Mockito.when(grafanaApi.searchDashboards(Mockito.anyString(), Mockito.anyList())).thenReturn(List.of(infoDashboardResponse));
         Mockito.when(grafanaApi.updateDashboard(Mockito.any(GrafanaCreateDashboardRequest.class))).thenReturn(null);
         doNothing().when(eventProducer).sendEvent(Mockito.any(EventCreateRequest.class));
 

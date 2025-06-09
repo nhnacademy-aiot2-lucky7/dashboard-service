@@ -38,7 +38,26 @@ public class GrafanaDashboardService {
     public List<InfoDashboardResponse> getDashboard(String userId) {
 
         String folderTitle = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
-        return grafanaApi.searchDashboards(grafanaFolderService.getFolderIdByTitle(folderTitle), TYPE);
+        return grafanaApi.searchDashboards(TYPE, grafanaFolderService.getFolderIdByTitle(folderTitle));
+    }
+
+    /**
+     * 선택된 부서명을 기반으로 사용자의 부서 폴더에 포함된 대시보드 목록을 조회합니다.
+     *
+     * @param folderTitle 선택된 부서명
+     * @return 대시보드 목록
+     */
+    public List<InfoDashboardResponse> getAdminDashboard(String folderTitle) {
+        return grafanaApi.searchDashboards(TYPE, grafanaFolderService.getFolderIdByTitle(folderTitle));
+    }
+
+    /**
+     * 모든 부서 폴더에 포함된 대시보드 목록을 조회합니다.
+     *
+     * @return 대시보드 목록
+     */
+    public List<InfoDashboardResponse> getAllDashboard() {
+        return grafanaApi.searchDashboards(TYPE, null);
     }
 
     /**

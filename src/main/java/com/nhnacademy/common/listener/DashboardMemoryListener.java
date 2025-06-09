@@ -41,7 +41,7 @@ public class DashboardMemoryListener implements ApplicationListener<ApplicationR
             List<Integer> folderId = grafanaFolderService.getFolderIdByTitle(folderTitle);
 
             List<InfoDashboardResponse> dashboards =
-                    grafanaApi.searchDashboards(folderId, "dash-db");
+                    grafanaApi.searchDashboards("dash-db",folderId);
 
             for (InfoDashboardResponse dashboardInfo : dashboards) {
                 GrafanaCreateDashboardRequest dashboardRequest =

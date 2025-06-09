@@ -46,11 +46,38 @@ public class GrafanaDashboardController {
      * @param userId 요청자의 사용자 ID (헤더 X-User-Id)
      * @return 전체 대시보드 정보 목록을 반환합니다.
      */
-    @GetMapping
+    @GetMapping("/user")
     @Operation(summary ="모든 대시보드 조회")
-    public ResponseEntity<List<InfoDashboardResponse>> getAllDashboard(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<List<InfoDashboardResponse>> getDashboard(@RequestHeader("X-User-Id") String userId) {
 
         List<InfoDashboardResponse> result = grafanaDashboardService.getDashboard(userId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 선택된 부서명을 기반으로 모든 대시보드 정보를 조회합니다.
+     *
+     * @param folderTitle 부서 목록을 가져옵니다.
+     * @return 전체 대시보드 정보 목록을 반환합니다.
+     */
+    @GetMapping("/admin")
+    @Operation(summary ="모든 대시보드 조회")
+    public ResponseEntity<List<InfoDashboardResponse>> getAdminDashboard(@RequestParam(required = false) String folderTitle) {
+
+        List<InfoDashboardResponse> result = grafanaDashboardService.getAdminDashboard(folderTitle);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 사용자 ID를 기반으로 모든 대시보드 정보를 조회합니다.
+     *
+     * @return 전체 대시보드 정보 목록을 반환합니다.
+     */
+    @GetMapping("/all")
+    @Operation(summary ="모든 대시보드 조회")
+    public ResponseEntity<List<InfoDashboardResponse>> getAllDashboard() {
+
+        List<InfoDashboardResponse> result = grafanaDashboardService.getAllDashboard();
         return ResponseEntity.ok(result);
     }
 

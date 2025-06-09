@@ -69,8 +69,8 @@ public interface GrafanaApi {
      */
     @GetMapping("/search")
     List<InfoDashboardResponse> searchDashboards(
-            @RequestParam("folderIds") List<Integer> folderId,
-            @RequestParam("type") String type
+            @RequestParam("type") String type,
+            @RequestParam(value = "folderIds", required = false) List<Integer> folderId
     );
 
     /**

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,13 +87,13 @@ public class GrafanaPanelController {
     ) {
         ResponseEntity<Void> response = ruleEngineApi.getRule(request.getRuleRequest());
         if (response.getStatusCode().is2xxSuccessful()) {
-            log.info("Rule 요청 성공. 다음 단계로 진행합니다.");
+            log.info("Rule 수정 요청 성공. 다음 단계로 진행합니다.");
             grafanaPanelService.updatePanel(userId, request.getUpdatePanelRequest());
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .build();
         } else {
-            log.warn("Rule 요청 실패: {}", response.getStatusCode());
+            log.warn("Rule 수정 요청 실패: {}", response.getStatusCode());
             // 실패 시 502 Bad Gateway 등 적절한 상태 반환
             return ResponseEntity
                     .status(HttpStatus.BAD_GATEWAY)
@@ -116,9 +117,19 @@ public class GrafanaPanelController {
     @Operation(summary = "패널 삭제")
     public ResponseEntity<Void> deletePanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody DeletePanelRequest deletePanelRequest) {
-        grafanaPanelService.removePanel(userId, deletePanelRequest);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            @RequestBody PanelWithRemoveRuleRequest request) {
+        ResponseEntity<Void> response = ruleEngineApi.getRule(request.getRuleRequest());
+        if(response.getStatusCode().is2xxSuccessful()){
+            log.info("Rule 삭제 요청 성공. 다음 단계로 진행합니다.");
+            grafanaPanelService.removePanel(userId, request.getDeletePanelRequest());
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+        }else{
+            log.warn("Rule 삭제 요청 실패: {}", response.getStatusCode());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_GATEWAY)
+                    .build();
+        }
     }
 }

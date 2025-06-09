@@ -78,7 +78,7 @@ class GrafanaDashboardControllerTest {
 
     @Test
     @DisplayName("모든 대시보드 조회")
-    void getAllDashboard() throws Exception {
+    void getDashboard() throws Exception {
 
         Mockito.when(dashboardService.getDashboard(Mockito.anyString())).thenReturn(dashboardResponses);
 

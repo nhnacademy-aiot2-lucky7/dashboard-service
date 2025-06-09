@@ -77,7 +77,7 @@ class DashboardMemoryListenerTest {
         InfoDashboardResponse dashboardInfo = new InfoDashboardResponse(
                 1, "test-dashboard", "uid-123", "folder-uid", 1
         );
-        when(grafanaApi.searchDashboards(List.of(1), "dash-db")).thenReturn(List.of(dashboardInfo));
+        when(grafanaApi.searchDashboards("dash-db", List.of(1))).thenReturn(List.of(dashboardInfo));
 
         Panel panel1 = new Panel();
         panel1.setId(10);
