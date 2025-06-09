@@ -244,6 +244,7 @@ public class GrafanaPanelService {
      */
     public void updatePanel(String userId, UpdatePanelRequest request) {
 
+        log.info("수정할 panelId:{}", request.getPanelId());
         String departmentName = grafanaFolderService.getFolderTitle(userId).getDepartmentName();
         String folderUid = grafanaFolderService.getFolderUidByTitle(departmentName);
 
@@ -262,6 +263,8 @@ public class GrafanaPanelService {
         updateMatchingPanel(panels, request, fluxQuery);
 
         GrafanaCreateDashboardRequest dashboardRequest = overwritten(existDashboard, panels, folderUid);
+
+        log.info("UPDATE QUERY:{}", dashboardRequest.getDashboard().getPanels().getFirst().getTargets().get(request.getPanelId()).getQuery());
         ResponseEntity<GrafanaMetaResponse> respsonse = grafanaApi.updateDashboard(dashboardRequest);
         log.info("UPDATE result: {}", respsonse.getBody());
 

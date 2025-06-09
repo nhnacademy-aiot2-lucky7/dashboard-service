@@ -78,30 +78,26 @@ public class GrafanaPanelController {
         }
     }
 
-    @PostMapping("/test")
-    @Operation(summary = "새로운 패널 추가")
-    public ResponseEntity<Void> createPanel(
-            @RequestHeader("X-User-Id") String userId,
-            @RequestBody @Valid CreatePanelRequest createPanelRequest
-    ) {
-
-        grafanaPanelService.createPanel(userId, createPanelRequest);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
-    }
-
-
     @PutMapping
     @Operation(summary = "패널 쿼리 수정")
     public ResponseEntity<Void> updatePanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody UpdatePanelRequest updateRequest
+            @RequestBody @Valid UpdatePanelWithRuleRequest request
     ) {
-        grafanaPanelService.updatePanel(userId, updateRequest);
-
-        return ResponseEntity
-                .ok().build();
+        ResponseEntity<Void> response = ruleEngineApi.getRule(request.getRuleRequest());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            log.info("Rule 요청 성공. 다음 단계로 진행합니다.");
+            grafanaPanelService.updatePanel(userId, request.getUpdatePanelRequest());
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .build();
+        } else {
+            log.warn("Rule 요청 실패: {}", response.getStatusCode());
+            // 실패 시 502 Bad Gateway 등 적절한 상태 반환
+            return ResponseEntity
+                    .status(HttpStatus.BAD_GATEWAY)
+                    .build();
+        }
     }
 
     @PutMapping("/priority")
