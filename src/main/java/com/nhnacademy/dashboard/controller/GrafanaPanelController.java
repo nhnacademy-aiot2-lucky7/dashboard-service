@@ -116,11 +116,10 @@ public class GrafanaPanelController {
     @Operation(summary = "패널 삭제")
     public ResponseEntity<Void> deletePanel(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody PanelWithRemoveRuleRequest request) {
-        ruleEngineApi.deleteRule(request.getRuleRequest());
+            @RequestBody DeletePanelRequest request) {
 
         log.info("Rule 삭제 요청 성공. 다음 단계로 진행합니다.");
-        grafanaPanelService.removePanel(userId, request.getDeletePanelRequest());
+        grafanaPanelService.removePanel(userId, request);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
