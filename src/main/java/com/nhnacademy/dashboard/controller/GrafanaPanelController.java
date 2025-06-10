@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -118,18 +117,12 @@ public class GrafanaPanelController {
     public ResponseEntity<Void> deletePanel(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody PanelWithRemoveRuleRequest request) {
-        ResponseEntity<Void> response = ruleEngineApi.getRule(request.getRuleRequest());
-        if(response.getStatusCode().is2xxSuccessful()){
-            log.info("Rule 삭제 요청 성공. 다음 단계로 진행합니다.");
-            grafanaPanelService.removePanel(userId, request.getDeletePanelRequest());
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
-        }else{
-            log.warn("Rule 삭제 요청 실패: {}", response.getStatusCode());
-            return ResponseEntity
-                    .status(HttpStatus.BAD_GATEWAY)
-                    .build();
-        }
+        ruleEngineApi.deleteRule(request.getRuleRequest());
+
+        log.info("Rule 삭제 요청 성공. 다음 단계로 진행합니다.");
+        grafanaPanelService.removePanel(userId, request.getDeletePanelRequest());
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }
